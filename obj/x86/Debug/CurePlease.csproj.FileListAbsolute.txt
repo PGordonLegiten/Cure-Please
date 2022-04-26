@@ -257,3 +257,4 @@ C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.CoreCompileInputs.cache
 C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.CopyComplete
 C:\REPOS\Cure-Please\obj\x86\Debug\Cure Please.exe
 C:\REPOS\Cure-Please\obj\x86\Debug\Cure Please.pdb
+C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.AssemblyReference.cache

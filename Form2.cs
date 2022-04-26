@@ -30,6 +30,7 @@
         public class MySettings
         {
             // BASE NEEDED FOR CONFIRMATION
+            #region "variables"
             public bool settingsSet
             {
                 get; set;
@@ -1803,6 +1804,7 @@
                 get; set;
             }
         }
+        #endregion
 
         #endregion "== Settings Class"
 
@@ -1815,6 +1817,7 @@
             StartPosition = FormStartPosition.CenterScreen;
 
             InitializeComponent ( );
+            #region "== Jobs"
 
             JobNames.Add ( new JobTitles
             {
@@ -1927,6 +1930,8 @@
                 job_number = 22,
                 job_name = "RUN"
             } );
+
+            #endregion
 
             if ( config.settingsSet != true )
             {
