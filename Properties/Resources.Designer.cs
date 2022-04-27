@@ -63,9 +63,9 @@ namespace CurePlease.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Inactive.
         /// </summary>
-        internal static string Form1_partyMembersUpdate_Tick_Inactive {
+        internal static string CurePleaseForm_partyMembersUpdate_Tick_Inactive {
             get {
-                return ResourceManager.GetString("Form1_partyMembersUpdate_Tick_Inactive", resourceCulture);
+                return ResourceManager.GetString("CurePleaseForm_partyMembersUpdate_Tick_Inactive", resourceCulture);
             }
         }
     }

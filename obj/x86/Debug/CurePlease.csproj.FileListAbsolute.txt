@@ -246,10 +246,6 @@ C:\REPOS\Cure-Please\bin\Debug\Cure Please.pdb
 C:\REPOS\Cure-Please\bin\Debug\EliteMMO.API.dll
 C:\REPOS\Cure-Please\bin\Debug\GlobalHotKey.dll
 C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.SuggestedBindingRedirects.cache
-C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.Form1.resources
-C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.Form2.resources
-C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.Form3.resources
-C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.Form4.resources
 C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.PartyBuffs.resources
 C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.Properties.Resources.resources
 C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.GenerateResource.cache
@@ -257,3 +253,7 @@ C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.CoreCompileInputs.cache
 C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.csproj.CopyComplete
 C:\REPOS\Cure-Please\obj\x86\Debug\Cure Please.exe
 C:\REPOS\Cure-Please\obj\x86\Debug\Cure Please.pdb
+C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.CurePleaseForm.resources
+C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.OptionsForm.resources
+C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.AboutForm.resources
+C:\REPOS\Cure-Please\obj\x86\Debug\CurePlease.ChatLogForm.resources
