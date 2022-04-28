@@ -44,6 +44,7 @@ namespace CurePlease.Helpers
                 { "Thunderstorm", new string[]{ "Thunderstorm", "Thunderstorm II" } },
                 { "Voidstorm", new string[]{ "Voidstorm", "Voidstorm II" } },
                 { "Aurorastorm", new string[]{ "Aurorastorm", "Aurorastorm II" } },
+                { "Dummy", new string[]{ "Dummy", "Dummy II" } }, 
             };
 
             return storms[name][OptionsForm.config.autoStorm_Spell];
@@ -87,7 +88,7 @@ namespace CurePlease.Helpers
                 }
                 else
                 {
-                    return "false";
+                    return "Dummy";
                 }
             }
             else if (OptionsForm.config.autoStorm_Spell == 1)
@@ -126,12 +127,12 @@ namespace CurePlease.Helpers
                 }
                 else
                 {
-                    return "false";
+                    return "Dummy";
                 }
             }
             else
             {
-                return "false";
+                return "Dummy";
             }
         }
     }

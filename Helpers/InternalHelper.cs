@@ -53,7 +53,7 @@ namespace CurePlease.Helpers
         }
         public static bool getAutoEnable(string spell, string player)
         {
-            if (!autoEnabled.ContainsKey(spell))
+            if (!autoEnabled.ContainsKey(spell) || !autoEnabled[spell].ContainsKey(player))
             {
                 setAutoEnable(spell, player, false);
             }

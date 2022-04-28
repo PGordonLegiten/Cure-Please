@@ -2054,7 +2054,7 @@
                                             {
                                                 if (ptMember != null)
                                                 {
-                                                    InternalHelper.resetCooldown(SpellsHelper.GetStormVersion(ptMember.Name), ptMember.Name);
+                                                    InternalHelper.resetCooldown(SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(ptMember.Name)), ptMember.Name);
                                                 }
                                             }
                                             #endregion
@@ -4025,8 +4025,6 @@
                         #endregion
                         var playerBuffOrder = _ELITEAPIMonitored.Party.GetPartyMembers().OrderBy(p => p.MemberNumber).Where(p => p.Active == 1);
 
-                        string[] regen_spells = { "Regen", "Regen II", "Regen III", "Regen IV", "Regen V" };
-                        string[] refresh_spells = { "Refresh", "Refresh II", "Refresh III" };
 
                         // Auto Casting
                         foreach (var charDATA in playerBuffOrder)
@@ -4092,9 +4090,11 @@
                                     CastSpell(charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
-                                if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && !BuffChecker(PTstormspell.buffID, 0) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true)
-                                {
-                                    CastSpell(charDATA.Name, spell);
+                                if(spell != "Dummy") { 
+                                    if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && !BuffChecker(PTstormspell.buffID, 0) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true)
+                                    {
+                                        CastSpell(charDATA.Name, spell);
+                                    }
                                 }
                                 #endregion
                             }
@@ -4155,9 +4155,12 @@
                                     CastSpell(charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
-                                if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && !BuffChecker(PTstormspell.buffID, 1) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true)
+                                if (spell != "Dummy")
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && !BuffChecker(PTstormspell.buffID, 1) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true)
+                                    {
+                                        CastSpell(charDATA.Name, spell);
+                                    }
                                 }
                                 #endregion
                             }
@@ -4215,9 +4218,12 @@
                                     CastSpell(charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
-                                if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoStormspellMinutes)
+                                if (spell != "Dummy")
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoStormspellMinutes)
+                                    {
+                                        CastSpell(charDATA.Name, spell);
+                                    }
                                 }
                                 #endregion
                             }
@@ -4230,7 +4236,7 @@
 
         private bool CheckIfAutoStormspellEnabled(string name)
         { 
-            return SpellsHelper.GetEnabledStormSpell(name) != "false";
+            return SpellsHelper.GetEnabledStormSpell(name) != "Dummy";
         }
 
         private string GetShellraLevel(decimal p)
