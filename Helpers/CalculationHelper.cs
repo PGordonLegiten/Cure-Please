@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CurePlease.Helpers
 {
-    internal class CalculationHelpers
+    internal class CalculationHelper
     {
 
         private static int getTimeSpanInMinutes(DateTime time)

@@ -70,6 +70,7 @@
     <Reference Include="GlobalHotKey, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\GlobalHotKey.1.1.0\lib\GlobalHotKey.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build.Tasks.v4.0" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -95,6 +96,16 @@
     <Compile Include="CurePleaseForm.Designer.cs">
       <DependentUpon>CurePleaseForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataStructures\HelperStructures.cs" />
+    <Compile Include="Data\BarSpells.cs" />
+    <Compile Include="Data\EnSpells.cs" />
+    <Compile Include="Data\GeoSpells.cs" />
+    <Compile Include="Data\Jobs.cs" />
+    <Compile Include="Data\SongSpells.cs" />
+    <Compile Include="Data\StormSpells.cs" />
+    <Compile Include="Helpers\PlayerHelper.cs" />
+    <Compile Include="Helpers\InternalHelper.cs" />
+    <Compile Include="Helpers\SpellsHelper.cs" />
     <Compile Include="OptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,7 +125,7 @@
       <DependentUpon>ChatLogForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Helpers\CalculationHelpers.cs" />
+    <Compile Include="Helpers\CalculationHelper.cs" />
     <Compile Include="PartyBuffs.cs">
       <SubType>Form</SubType>
     </Compile>

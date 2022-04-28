@@ -5,7 +5,8 @@
     using System.Linq;
     using System.Windows.Forms;
     using System.Xml.Linq;
-    using static CurePleaseForm;
+    using CurePlease.DataStructures;
+
 
     public partial class PartyBuffs : Form
     {
