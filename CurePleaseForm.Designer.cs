@@ -34,18 +34,17 @@ namespace CurePlease
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CurePleaseForm));
             this.player0optionsButton = new System.Windows.Forms.Button();
             this.party0 = new System.Windows.Forms.GroupBox();
-            this.player5HP = new CurePlease.NewProgressBar();
-            this.player4HP = new CurePlease.NewProgressBar();
-            this.player3HP = new CurePlease.NewProgressBar();
-            this.player1HP = new CurePlease.NewProgressBar();
-            this.player2HP = new CurePlease.NewProgressBar();
-            this.player0HP = new CurePlease.NewProgressBar();
+            this.player0raiseButton = new System.Windows.Forms.Button();
+            this.player5raiseButton = new System.Windows.Forms.Button();
+            this.player4raiseButton = new System.Windows.Forms.Button();
+            this.player3raiseButton = new System.Windows.Forms.Button();
+            this.player2raiseButton = new System.Windows.Forms.Button();
+            this.player1raiseButton = new System.Windows.Forms.Button();
             this.player5buffsButton = new System.Windows.Forms.Button();
             this.player4buffsButton = new System.Windows.Forms.Button();
             this.player3buffsButton = new System.Windows.Forms.Button();
             this.player2buffsButton = new System.Windows.Forms.Button();
             this.player1buffsButton = new System.Windows.Forms.Button();
-            this.player0buffsButton = new System.Windows.Forms.Button();
             this.player5optionsButton = new System.Windows.Forms.Button();
             this.player4optionsButton = new System.Windows.Forms.Button();
             this.player3optionsButton = new System.Windows.Forms.Button();
@@ -69,6 +68,7 @@ namespace CurePlease
             this.player2 = new System.Windows.Forms.Label();
             this.player1 = new System.Windows.Forms.Label();
             this.player0 = new System.Windows.Forms.Label();
+            this.player0buffsButton = new System.Windows.Forms.Button();
             this.playerOptions = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.followToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopfollowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -127,17 +127,17 @@ namespace CurePlease
             this.POLID = new System.Windows.Forms.ComboBox();
             this.plLabel = new System.Windows.Forms.Label();
             this.party2 = new System.Windows.Forms.GroupBox();
-            this.player17HP = new CurePlease.NewProgressBar();
+            this.player17raiseButton = new System.Windows.Forms.Button();
+            this.player16raiseButton = new System.Windows.Forms.Button();
+            this.player15raiseButton = new System.Windows.Forms.Button();
+            this.player14raiseButton = new System.Windows.Forms.Button();
+            this.player13raiseButton = new System.Windows.Forms.Button();
+            this.player12raiseButton = new System.Windows.Forms.Button();
             this.player17optionsButton = new System.Windows.Forms.Button();
-            this.player16HP = new CurePlease.NewProgressBar();
             this.player17priority = new System.Windows.Forms.CheckBox();
-            this.player15HP = new CurePlease.NewProgressBar();
             this.player17enabled = new System.Windows.Forms.CheckBox();
-            this.player13HP = new CurePlease.NewProgressBar();
             this.player16optionsButton = new System.Windows.Forms.Button();
-            this.player14HP = new CurePlease.NewProgressBar();
             this.player16priority = new System.Windows.Forms.CheckBox();
-            this.player12HP = new CurePlease.NewProgressBar();
             this.player16enabled = new System.Windows.Forms.CheckBox();
             this.player15optionsButton = new System.Windows.Forms.Button();
             this.player15priority = new System.Windows.Forms.CheckBox();
@@ -172,16 +172,16 @@ namespace CurePlease
             this.player10enabled = new System.Windows.Forms.CheckBox();
             this.player11enabled = new System.Windows.Forms.CheckBox();
             this.party1 = new System.Windows.Forms.GroupBox();
-            this.player11HP = new CurePlease.NewProgressBar();
+            this.player6raiseButton = new System.Windows.Forms.Button();
+            this.player11raiseButton = new System.Windows.Forms.Button();
+            this.player10raiseButton = new System.Windows.Forms.Button();
+            this.player9raiseButton = new System.Windows.Forms.Button();
+            this.player8raiseButton = new System.Windows.Forms.Button();
+            this.player7raiseButton = new System.Windows.Forms.Button();
             this.player11optionsButton = new System.Windows.Forms.Button();
-            this.player10HP = new CurePlease.NewProgressBar();
             this.player11priority = new System.Windows.Forms.CheckBox();
-            this.player9HP = new CurePlease.NewProgressBar();
             this.player10optionsButton = new System.Windows.Forms.Button();
-            this.player7HP = new CurePlease.NewProgressBar();
-            this.player8HP = new CurePlease.NewProgressBar();
             this.player9optionsButton = new System.Windows.Forms.Button();
-            this.player6HP = new CurePlease.NewProgressBar();
             this.player10priority = new System.Windows.Forms.CheckBox();
             this.player8optionsButton = new System.Windows.Forms.Button();
             this.player7optionsButton = new System.Windows.Forms.Button();
@@ -240,6 +240,24 @@ namespace CurePlease
             this.JobAbility_Delay = new System.ComponentModel.BackgroundWorker();
             this.EclipticTimer = new System.Windows.Forms.Timer(this.components);
             this.CustomCommand_Tracker = new System.ComponentModel.BackgroundWorker();
+            this.player17HP = new CurePlease.NewProgressBar();
+            this.player16HP = new CurePlease.NewProgressBar();
+            this.player15HP = new CurePlease.NewProgressBar();
+            this.player13HP = new CurePlease.NewProgressBar();
+            this.player14HP = new CurePlease.NewProgressBar();
+            this.player12HP = new CurePlease.NewProgressBar();
+            this.player11HP = new CurePlease.NewProgressBar();
+            this.player10HP = new CurePlease.NewProgressBar();
+            this.player9HP = new CurePlease.NewProgressBar();
+            this.player7HP = new CurePlease.NewProgressBar();
+            this.player8HP = new CurePlease.NewProgressBar();
+            this.player6HP = new CurePlease.NewProgressBar();
+            this.player5HP = new CurePlease.NewProgressBar();
+            this.player4HP = new CurePlease.NewProgressBar();
+            this.player3HP = new CurePlease.NewProgressBar();
+            this.player1HP = new CurePlease.NewProgressBar();
+            this.player2HP = new CurePlease.NewProgressBar();
+            this.player0HP = new CurePlease.NewProgressBar();
             this.party0.SuspendLayout();
             this.playerOptions.SuspendLayout();
             this.party2.SuspendLayout();
@@ -273,6 +291,12 @@ namespace CurePlease
             // party0
             // 
             this.party0.BackColor = System.Drawing.Color.Transparent;
+            this.party0.Controls.Add(this.player0raiseButton);
+            this.party0.Controls.Add(this.player5raiseButton);
+            this.party0.Controls.Add(this.player4raiseButton);
+            this.party0.Controls.Add(this.player3raiseButton);
+            this.party0.Controls.Add(this.player2raiseButton);
+            this.party0.Controls.Add(this.player1raiseButton);
             this.party0.Controls.Add(this.player5HP);
             this.party0.Controls.Add(this.player4HP);
             this.party0.Controls.Add(this.player3HP);
@@ -284,7 +308,6 @@ namespace CurePlease
             this.party0.Controls.Add(this.player3buffsButton);
             this.party0.Controls.Add(this.player2buffsButton);
             this.party0.Controls.Add(this.player1buffsButton);
-            this.party0.Controls.Add(this.player0buffsButton);
             this.party0.Controls.Add(this.player5optionsButton);
             this.party0.Controls.Add(this.player4optionsButton);
             this.party0.Controls.Add(this.player3optionsButton);
@@ -309,6 +332,7 @@ namespace CurePlease
             this.party0.Controls.Add(this.player2);
             this.party0.Controls.Add(this.player1);
             this.party0.Controls.Add(this.player0);
+            this.party0.Controls.Add(this.player0buffsButton);
             this.party0.ForeColor = System.Drawing.SystemColors.GrayText;
             this.party0.Location = new System.Drawing.Point(19, 104);
             this.party0.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
@@ -320,47 +344,107 @@ namespace CurePlease
             this.party0.Text = " Party 1 ";
             this.party0.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintBorderlessGroupBox);
             // 
-            // player5HP
+            // player0raiseButton
             // 
-            this.player5HP.Location = new System.Drawing.Point(7, 208);
-            this.player5HP.Name = "player5HP";
-            this.player5HP.Size = new System.Drawing.Size(219, 12);
-            this.player5HP.TabIndex = 39;
+            this.player0raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player0raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player0raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player0raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player0raiseButton.Location = new System.Drawing.Point(177, 9);
+            this.player0raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player0raiseButton.Name = "player0raiseButton";
+            this.player0raiseButton.Size = new System.Drawing.Size(49, 19);
+            this.player0raiseButton.TabIndex = 46;
+            this.player0raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player0raiseButton, "Auto Casting Party Spells for this Player");
+            this.player0raiseButton.UseVisualStyleBackColor = false;
+            this.player0raiseButton.Visible = false;
+            this.player0raiseButton.Click += new System.EventHandler(this.player0raiseButton_Click);
             // 
-            // player4HP
+            // player5raiseButton
             // 
-            this.player4HP.Location = new System.Drawing.Point(7, 173);
-            this.player4HP.Name = "player4HP";
-            this.player4HP.Size = new System.Drawing.Size(219, 12);
-            this.player4HP.TabIndex = 38;
+            this.player5raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player5raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player5raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player5raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player5raiseButton.Location = new System.Drawing.Point(177, 187);
+            this.player5raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player5raiseButton.Name = "player5raiseButton";
+            this.player5raiseButton.Size = new System.Drawing.Size(49, 19);
+            this.player5raiseButton.TabIndex = 45;
+            this.player5raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player5raiseButton, "Auto Casting Party Spells for this Player");
+            this.player5raiseButton.UseVisualStyleBackColor = false;
+            this.player5raiseButton.Visible = false;
+            this.player5raiseButton.Click += new System.EventHandler(this.player5raiseButton_Click);
             // 
-            // player3HP
+            // player4raiseButton
             // 
-            this.player3HP.Location = new System.Drawing.Point(7, 136);
-            this.player3HP.Name = "player3HP";
-            this.player3HP.Size = new System.Drawing.Size(219, 12);
-            this.player3HP.TabIndex = 37;
+            this.player4raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player4raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player4raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player4raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player4raiseButton.Location = new System.Drawing.Point(177, 151);
+            this.player4raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player4raiseButton.Name = "player4raiseButton";
+            this.player4raiseButton.Size = new System.Drawing.Size(49, 19);
+            this.player4raiseButton.TabIndex = 44;
+            this.player4raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player4raiseButton, "Auto Casting Party Spells for this Player");
+            this.player4raiseButton.UseVisualStyleBackColor = false;
+            this.player4raiseButton.Visible = false;
+            this.player4raiseButton.Click += new System.EventHandler(this.player4raiseButton_Click);
             // 
-            // player1HP
+            // player3raiseButton
             // 
-            this.player1HP.Location = new System.Drawing.Point(7, 65);
-            this.player1HP.Name = "player1HP";
-            this.player1HP.Size = new System.Drawing.Size(219, 12);
-            this.player1HP.TabIndex = 36;
+            this.player3raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player3raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player3raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player3raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player3raiseButton.Location = new System.Drawing.Point(177, 115);
+            this.player3raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player3raiseButton.Name = "player3raiseButton";
+            this.player3raiseButton.Size = new System.Drawing.Size(49, 19);
+            this.player3raiseButton.TabIndex = 43;
+            this.player3raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player3raiseButton, "Auto Casting Party Spells for this Player");
+            this.player3raiseButton.UseVisualStyleBackColor = false;
+            this.player3raiseButton.Visible = false;
+            this.player3raiseButton.Click += new System.EventHandler(this.player3raiseButton_Click);
             // 
-            // player2HP
+            // player2raiseButton
             // 
-            this.player2HP.Location = new System.Drawing.Point(7, 101);
-            this.player2HP.Name = "player2HP";
-            this.player2HP.Size = new System.Drawing.Size(219, 12);
-            this.player2HP.TabIndex = 35;
+            this.player2raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player2raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player2raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player2raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player2raiseButton.Location = new System.Drawing.Point(177, 79);
+            this.player2raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player2raiseButton.Name = "player2raiseButton";
+            this.player2raiseButton.Size = new System.Drawing.Size(49, 19);
+            this.player2raiseButton.TabIndex = 42;
+            this.player2raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player2raiseButton, "Auto Casting Party Spells for this Player");
+            this.player2raiseButton.UseVisualStyleBackColor = false;
+            this.player2raiseButton.Visible = false;
+            this.player2raiseButton.Click += new System.EventHandler(this.player2raiseButton_Click);
             // 
-            // player0HP
+            // player1raiseButton
             // 
-            this.player0HP.Location = new System.Drawing.Point(7, 30);
-            this.player0HP.Name = "player0HP";
-            this.player0HP.Size = new System.Drawing.Size(219, 12);
-            this.player0HP.TabIndex = 28;
+            this.player1raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player1raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player1raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player1raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player1raiseButton.Location = new System.Drawing.Point(178, 44);
+            this.player1raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player1raiseButton.Name = "player1raiseButton";
+            this.player1raiseButton.Size = new System.Drawing.Size(49, 19);
+            this.player1raiseButton.TabIndex = 41;
+            this.player1raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player1raiseButton, "Auto Casting Party Spells for this Player");
+            this.player1raiseButton.UseVisualStyleBackColor = false;
+            this.player1raiseButton.Visible = false;
+            this.player1raiseButton.Click += new System.EventHandler(this.player1raiseButton_Click);
             // 
             // player5buffsButton
             // 
@@ -451,24 +535,6 @@ namespace CurePlease
             this.player1buffsButton.UseVisualStyleBackColor = false;
             this.player1buffsButton.Click += new System.EventHandler(this.player1buffsButton_Click);
             this.player1buffsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
-            // 
-            // player0buffsButton
-            // 
-            this.player0buffsButton.BackColor = System.Drawing.SystemColors.Menu;
-            this.player0buffsButton.Enabled = false;
-            this.player0buffsButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.player0buffsButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.player0buffsButton.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.player0buffsButton.Location = new System.Drawing.Point(178, 9);
-            this.player0buffsButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
-            this.player0buffsButton.Name = "player0buffsButton";
-            this.player0buffsButton.Size = new System.Drawing.Size(49, 19);
-            this.player0buffsButton.TabIndex = 29;
-            this.player0buffsButton.Text = "AUTO";
-            this.toolTips.SetToolTip(this.player0buffsButton, "Auto Casting Party Spells for this Player");
-            this.player0buffsButton.UseVisualStyleBackColor = false;
-            this.player0buffsButton.Click += new System.EventHandler(this.player0buffsButton_Click);
-            this.player0buffsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
             // 
             // player5optionsButton
             // 
@@ -775,6 +841,24 @@ namespace CurePlease
             this.player0.Size = new System.Drawing.Size(45, 13);
             this.player0.TabIndex = 1;
             this.player0.Text = "Inactive";
+            // 
+            // player0buffsButton
+            // 
+            this.player0buffsButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player0buffsButton.Enabled = false;
+            this.player0buffsButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player0buffsButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player0buffsButton.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.player0buffsButton.Location = new System.Drawing.Point(177, 9);
+            this.player0buffsButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player0buffsButton.Name = "player0buffsButton";
+            this.player0buffsButton.Size = new System.Drawing.Size(49, 19);
+            this.player0buffsButton.TabIndex = 29;
+            this.player0buffsButton.Text = "AUTO";
+            this.toolTips.SetToolTip(this.player0buffsButton, "Auto Casting Party Spells for this Player");
+            this.player0buffsButton.UseVisualStyleBackColor = false;
+            this.player0buffsButton.Click += new System.EventHandler(this.player0buffsButton_Click);
+            this.player0buffsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
             // 
             // playerOptions
             // 
@@ -1141,6 +1225,12 @@ namespace CurePlease
             // party2
             // 
             this.party2.BackColor = System.Drawing.Color.Transparent;
+            this.party2.Controls.Add(this.player17raiseButton);
+            this.party2.Controls.Add(this.player16raiseButton);
+            this.party2.Controls.Add(this.player15raiseButton);
+            this.party2.Controls.Add(this.player14raiseButton);
+            this.party2.Controls.Add(this.player13raiseButton);
+            this.party2.Controls.Add(this.player12raiseButton);
             this.party2.Controls.Add(this.player17HP);
             this.party2.Controls.Add(this.player17optionsButton);
             this.party2.Controls.Add(this.player16HP);
@@ -1182,12 +1272,107 @@ namespace CurePlease
             this.party2.Text = " Party 3 ";
             this.party2.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintBorderlessGroupBox);
             // 
-            // player17HP
+            // player17raiseButton
             // 
-            this.player17HP.Location = new System.Drawing.Point(5, 208);
-            this.player17HP.Name = "player17HP";
-            this.player17HP.Size = new System.Drawing.Size(187, 12);
-            this.player17HP.TabIndex = 51;
+            this.player17raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player17raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player17raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player17raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player17raiseButton.Location = new System.Drawing.Point(137, 187);
+            this.player17raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player17raiseButton.Name = "player17raiseButton";
+            this.player17raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player17raiseButton.TabIndex = 57;
+            this.player17raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player17raiseButton, "Auto Casting Party Spells for this Player");
+            this.player17raiseButton.UseVisualStyleBackColor = false;
+            this.player17raiseButton.Visible = false;
+            this.player17raiseButton.Click += new System.EventHandler(this.player17raiseButton_Click);
+            // 
+            // player16raiseButton
+            // 
+            this.player16raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player16raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player16raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player16raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player16raiseButton.Location = new System.Drawing.Point(137, 151);
+            this.player16raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player16raiseButton.Name = "player16raiseButton";
+            this.player16raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player16raiseButton.TabIndex = 56;
+            this.player16raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player16raiseButton, "Auto Casting Party Spells for this Player");
+            this.player16raiseButton.UseVisualStyleBackColor = false;
+            this.player16raiseButton.Visible = false;
+            this.player16raiseButton.Click += new System.EventHandler(this.player16raiseButton_Click);
+            // 
+            // player15raiseButton
+            // 
+            this.player15raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player15raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player15raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player15raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player15raiseButton.Location = new System.Drawing.Point(137, 115);
+            this.player15raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player15raiseButton.Name = "player15raiseButton";
+            this.player15raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player15raiseButton.TabIndex = 55;
+            this.player15raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player15raiseButton, "Auto Casting Party Spells for this Player");
+            this.player15raiseButton.UseVisualStyleBackColor = false;
+            this.player15raiseButton.Visible = false;
+            this.player15raiseButton.Click += new System.EventHandler(this.player15raiseButton_Click);
+            // 
+            // player14raiseButton
+            // 
+            this.player14raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player14raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player14raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player14raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player14raiseButton.Location = new System.Drawing.Point(137, 79);
+            this.player14raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player14raiseButton.Name = "player14raiseButton";
+            this.player14raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player14raiseButton.TabIndex = 54;
+            this.player14raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player14raiseButton, "Auto Casting Party Spells for this Player");
+            this.player14raiseButton.UseVisualStyleBackColor = false;
+            this.player14raiseButton.Visible = false;
+            this.player14raiseButton.Click += new System.EventHandler(this.player14raiseButton_Click);
+            // 
+            // player13raiseButton
+            // 
+            this.player13raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player13raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player13raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player13raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player13raiseButton.Location = new System.Drawing.Point(137, 43);
+            this.player13raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player13raiseButton.Name = "player13raiseButton";
+            this.player13raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player13raiseButton.TabIndex = 53;
+            this.player13raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player13raiseButton, "Auto Casting Party Spells for this Player");
+            this.player13raiseButton.UseVisualStyleBackColor = false;
+            this.player13raiseButton.Visible = false;
+            this.player13raiseButton.Click += new System.EventHandler(this.player13raiseButton_Click);
+            // 
+            // player12raiseButton
+            // 
+            this.player12raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player12raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player12raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player12raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player12raiseButton.Location = new System.Drawing.Point(137, 9);
+            this.player12raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player12raiseButton.Name = "player12raiseButton";
+            this.player12raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player12raiseButton.TabIndex = 52;
+            this.player12raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player12raiseButton, "Auto Casting Party Spells for this Player");
+            this.player12raiseButton.UseVisualStyleBackColor = false;
+            this.player12raiseButton.Visible = false;
+            this.player12raiseButton.Click += new System.EventHandler(this.player12raiseButton_Click);
             // 
             // player17optionsButton
             // 
@@ -1207,13 +1392,6 @@ namespace CurePlease
             this.player17optionsButton.Click += new System.EventHandler(this.player17optionsButton_Click);
             this.player17optionsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
             // 
-            // player16HP
-            // 
-            this.player16HP.Location = new System.Drawing.Point(5, 173);
-            this.player16HP.Name = "player16HP";
-            this.player16HP.Size = new System.Drawing.Size(187, 12);
-            this.player16HP.TabIndex = 50;
-            // 
             // player17priority
             // 
             this.player17priority.AutoSize = true;
@@ -1225,13 +1403,6 @@ namespace CurePlease
             this.toolTips.SetToolTip(this.player17priority, "Check to Enable Player Priority");
             this.player17priority.UseVisualStyleBackColor = true;
             // 
-            // player15HP
-            // 
-            this.player15HP.Location = new System.Drawing.Point(5, 136);
-            this.player15HP.Name = "player15HP";
-            this.player15HP.Size = new System.Drawing.Size(187, 12);
-            this.player15HP.TabIndex = 49;
-            // 
             // player17enabled
             // 
             this.player17enabled.AutoSize = true;
@@ -1242,13 +1413,6 @@ namespace CurePlease
             this.player17enabled.TabIndex = 2;
             this.toolTips.SetToolTip(this.player17enabled, "Check to enable actions on this player.");
             this.player17enabled.UseVisualStyleBackColor = true;
-            // 
-            // player13HP
-            // 
-            this.player13HP.Location = new System.Drawing.Point(5, 65);
-            this.player13HP.Name = "player13HP";
-            this.player13HP.Size = new System.Drawing.Size(187, 12);
-            this.player13HP.TabIndex = 48;
             // 
             // player16optionsButton
             // 
@@ -1268,13 +1432,6 @@ namespace CurePlease
             this.player16optionsButton.Click += new System.EventHandler(this.player16optionsButton_Click);
             this.player16optionsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
             // 
-            // player14HP
-            // 
-            this.player14HP.Location = new System.Drawing.Point(5, 101);
-            this.player14HP.Name = "player14HP";
-            this.player14HP.Size = new System.Drawing.Size(187, 12);
-            this.player14HP.TabIndex = 47;
-            // 
             // player16priority
             // 
             this.player16priority.AutoSize = true;
@@ -1285,13 +1442,6 @@ namespace CurePlease
             this.player16priority.TabIndex = 2;
             this.toolTips.SetToolTip(this.player16priority, "Check to Enable Player Priority");
             this.player16priority.UseVisualStyleBackColor = true;
-            // 
-            // player12HP
-            // 
-            this.player12HP.Location = new System.Drawing.Point(5, 30);
-            this.player12HP.Name = "player12HP";
-            this.player12HP.Size = new System.Drawing.Size(187, 12);
-            this.player12HP.TabIndex = 46;
             // 
             // player16enabled
             // 
@@ -1688,6 +1838,12 @@ namespace CurePlease
             // party1
             // 
             this.party1.BackColor = System.Drawing.Color.Transparent;
+            this.party1.Controls.Add(this.player6raiseButton);
+            this.party1.Controls.Add(this.player11raiseButton);
+            this.party1.Controls.Add(this.player10raiseButton);
+            this.party1.Controls.Add(this.player9raiseButton);
+            this.party1.Controls.Add(this.player8raiseButton);
+            this.party1.Controls.Add(this.player7raiseButton);
             this.party1.Controls.Add(this.player11HP);
             this.party1.Controls.Add(this.player11optionsButton);
             this.party1.Controls.Add(this.player10HP);
@@ -1729,12 +1885,107 @@ namespace CurePlease
             this.party1.Text = " Party 2 ";
             this.party1.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintBorderlessGroupBox);
             // 
-            // player11HP
+            // player6raiseButton
             // 
-            this.player11HP.Location = new System.Drawing.Point(5, 208);
-            this.player11HP.Name = "player11HP";
-            this.player11HP.Size = new System.Drawing.Size(187, 12);
-            this.player11HP.TabIndex = 45;
+            this.player6raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player6raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player6raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player6raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player6raiseButton.Location = new System.Drawing.Point(137, 9);
+            this.player6raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player6raiseButton.Name = "player6raiseButton";
+            this.player6raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player6raiseButton.TabIndex = 51;
+            this.player6raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player6raiseButton, "Auto Casting Party Spells for this Player");
+            this.player6raiseButton.UseVisualStyleBackColor = false;
+            this.player6raiseButton.Visible = false;
+            this.player6raiseButton.Click += new System.EventHandler(this.player6raiseButton_Click);
+            // 
+            // player11raiseButton
+            // 
+            this.player11raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player11raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player11raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player11raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player11raiseButton.Location = new System.Drawing.Point(137, 187);
+            this.player11raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player11raiseButton.Name = "player11raiseButton";
+            this.player11raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player11raiseButton.TabIndex = 50;
+            this.player11raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player11raiseButton, "Auto Casting Party Spells for this Player");
+            this.player11raiseButton.UseVisualStyleBackColor = false;
+            this.player11raiseButton.Visible = false;
+            this.player11raiseButton.Click += new System.EventHandler(this.player11raiseButton_Click);
+            // 
+            // player10raiseButton
+            // 
+            this.player10raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player10raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player10raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player10raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player10raiseButton.Location = new System.Drawing.Point(137, 151);
+            this.player10raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player10raiseButton.Name = "player10raiseButton";
+            this.player10raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player10raiseButton.TabIndex = 49;
+            this.player10raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player10raiseButton, "Auto Casting Party Spells for this Player");
+            this.player10raiseButton.UseVisualStyleBackColor = false;
+            this.player10raiseButton.Visible = false;
+            this.player10raiseButton.Click += new System.EventHandler(this.player10raiseButton_Click);
+            // 
+            // player9raiseButton
+            // 
+            this.player9raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player9raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player9raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player9raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player9raiseButton.Location = new System.Drawing.Point(137, 115);
+            this.player9raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player9raiseButton.Name = "player9raiseButton";
+            this.player9raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player9raiseButton.TabIndex = 48;
+            this.player9raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player9raiseButton, "Auto Casting Party Spells for this Player");
+            this.player9raiseButton.UseVisualStyleBackColor = false;
+            this.player9raiseButton.Visible = false;
+            this.player9raiseButton.Click += new System.EventHandler(this.player9raiseButton_Click);
+            // 
+            // player8raiseButton
+            // 
+            this.player8raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player8raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player8raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player8raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player8raiseButton.Location = new System.Drawing.Point(137, 79);
+            this.player8raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player8raiseButton.Name = "player8raiseButton";
+            this.player8raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player8raiseButton.TabIndex = 47;
+            this.player8raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player8raiseButton, "Auto Casting Party Spells for this Player");
+            this.player8raiseButton.UseVisualStyleBackColor = false;
+            this.player8raiseButton.Visible = false;
+            this.player8raiseButton.Click += new System.EventHandler(this.player8raiseButton_Click);
+            // 
+            // player7raiseButton
+            // 
+            this.player7raiseButton.BackColor = System.Drawing.SystemColors.Menu;
+            this.player7raiseButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.player7raiseButton.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player7raiseButton.ForeColor = System.Drawing.Color.Red;
+            this.player7raiseButton.Location = new System.Drawing.Point(137, 43);
+            this.player7raiseButton.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.player7raiseButton.Name = "player7raiseButton";
+            this.player7raiseButton.Size = new System.Drawing.Size(55, 19);
+            this.player7raiseButton.TabIndex = 46;
+            this.player7raiseButton.Text = "RAISE";
+            this.toolTips.SetToolTip(this.player7raiseButton, "Auto Casting Party Spells for this Player");
+            this.player7raiseButton.UseVisualStyleBackColor = false;
+            this.player7raiseButton.Visible = false;
+            this.player7raiseButton.Click += new System.EventHandler(this.player7raiseButton_Click);
             // 
             // player11optionsButton
             // 
@@ -1754,13 +2005,6 @@ namespace CurePlease
             this.player11optionsButton.Click += new System.EventHandler(this.player11optionsButton_Click);
             this.player11optionsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
             // 
-            // player10HP
-            // 
-            this.player10HP.Location = new System.Drawing.Point(5, 173);
-            this.player10HP.Name = "player10HP";
-            this.player10HP.Size = new System.Drawing.Size(187, 12);
-            this.player10HP.TabIndex = 44;
-            // 
             // player11priority
             // 
             this.player11priority.AutoSize = true;
@@ -1771,13 +2015,6 @@ namespace CurePlease
             this.player11priority.TabIndex = 2;
             this.toolTips.SetToolTip(this.player11priority, "Check to Enable Player Priority");
             this.player11priority.UseVisualStyleBackColor = true;
-            // 
-            // player9HP
-            // 
-            this.player9HP.Location = new System.Drawing.Point(5, 136);
-            this.player9HP.Name = "player9HP";
-            this.player9HP.Size = new System.Drawing.Size(187, 12);
-            this.player9HP.TabIndex = 43;
             // 
             // player10optionsButton
             // 
@@ -1797,20 +2034,6 @@ namespace CurePlease
             this.player10optionsButton.Click += new System.EventHandler(this.player10optionsButton_Click);
             this.player10optionsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
             // 
-            // player7HP
-            // 
-            this.player7HP.Location = new System.Drawing.Point(5, 65);
-            this.player7HP.Name = "player7HP";
-            this.player7HP.Size = new System.Drawing.Size(187, 12);
-            this.player7HP.TabIndex = 42;
-            // 
-            // player8HP
-            // 
-            this.player8HP.Location = new System.Drawing.Point(5, 101);
-            this.player8HP.Name = "player8HP";
-            this.player8HP.Size = new System.Drawing.Size(187, 12);
-            this.player8HP.TabIndex = 41;
-            // 
             // player9optionsButton
             // 
             this.player9optionsButton.BackColor = System.Drawing.SystemColors.Menu;
@@ -1828,13 +2051,6 @@ namespace CurePlease
             this.player9optionsButton.UseVisualStyleBackColor = false;
             this.player9optionsButton.Click += new System.EventHandler(this.player9optionsButton_Click);
             this.player9optionsButton.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintButton);
-            // 
-            // player6HP
-            // 
-            this.player6HP.Location = new System.Drawing.Point(5, 30);
-            this.player6HP.Name = "player6HP";
-            this.player6HP.Size = new System.Drawing.Size(187, 12);
-            this.player6HP.TabIndex = 40;
             // 
             // player10priority
             // 
@@ -2387,6 +2603,132 @@ namespace CurePlease
             this.CustomCommand_Tracker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.CustomCommand_Tracker_DoWork);
             this.CustomCommand_Tracker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.CustomCommand_Tracker_RunWorkerCompleted);
             // 
+            // player17HP
+            // 
+            this.player17HP.Location = new System.Drawing.Point(5, 208);
+            this.player17HP.Name = "player17HP";
+            this.player17HP.Size = new System.Drawing.Size(187, 12);
+            this.player17HP.TabIndex = 51;
+            // 
+            // player16HP
+            // 
+            this.player16HP.Location = new System.Drawing.Point(5, 173);
+            this.player16HP.Name = "player16HP";
+            this.player16HP.Size = new System.Drawing.Size(187, 12);
+            this.player16HP.TabIndex = 50;
+            // 
+            // player15HP
+            // 
+            this.player15HP.Location = new System.Drawing.Point(5, 136);
+            this.player15HP.Name = "player15HP";
+            this.player15HP.Size = new System.Drawing.Size(187, 12);
+            this.player15HP.TabIndex = 49;
+            // 
+            // player13HP
+            // 
+            this.player13HP.Location = new System.Drawing.Point(5, 65);
+            this.player13HP.Name = "player13HP";
+            this.player13HP.Size = new System.Drawing.Size(187, 12);
+            this.player13HP.TabIndex = 48;
+            // 
+            // player14HP
+            // 
+            this.player14HP.Location = new System.Drawing.Point(5, 101);
+            this.player14HP.Name = "player14HP";
+            this.player14HP.Size = new System.Drawing.Size(187, 12);
+            this.player14HP.TabIndex = 47;
+            // 
+            // player12HP
+            // 
+            this.player12HP.Location = new System.Drawing.Point(5, 30);
+            this.player12HP.Name = "player12HP";
+            this.player12HP.Size = new System.Drawing.Size(187, 12);
+            this.player12HP.TabIndex = 46;
+            // 
+            // player11HP
+            // 
+            this.player11HP.Location = new System.Drawing.Point(5, 208);
+            this.player11HP.Name = "player11HP";
+            this.player11HP.Size = new System.Drawing.Size(187, 12);
+            this.player11HP.TabIndex = 45;
+            // 
+            // player10HP
+            // 
+            this.player10HP.Location = new System.Drawing.Point(5, 173);
+            this.player10HP.Name = "player10HP";
+            this.player10HP.Size = new System.Drawing.Size(187, 12);
+            this.player10HP.TabIndex = 44;
+            // 
+            // player9HP
+            // 
+            this.player9HP.Location = new System.Drawing.Point(5, 136);
+            this.player9HP.Name = "player9HP";
+            this.player9HP.Size = new System.Drawing.Size(187, 12);
+            this.player9HP.TabIndex = 43;
+            // 
+            // player7HP
+            // 
+            this.player7HP.Location = new System.Drawing.Point(5, 65);
+            this.player7HP.Name = "player7HP";
+            this.player7HP.Size = new System.Drawing.Size(187, 12);
+            this.player7HP.TabIndex = 42;
+            // 
+            // player8HP
+            // 
+            this.player8HP.Location = new System.Drawing.Point(5, 101);
+            this.player8HP.Name = "player8HP";
+            this.player8HP.Size = new System.Drawing.Size(187, 12);
+            this.player8HP.TabIndex = 41;
+            // 
+            // player6HP
+            // 
+            this.player6HP.Location = new System.Drawing.Point(5, 30);
+            this.player6HP.Name = "player6HP";
+            this.player6HP.Size = new System.Drawing.Size(187, 12);
+            this.player6HP.TabIndex = 40;
+            // 
+            // player5HP
+            // 
+            this.player5HP.Location = new System.Drawing.Point(7, 208);
+            this.player5HP.Name = "player5HP";
+            this.player5HP.Size = new System.Drawing.Size(219, 12);
+            this.player5HP.TabIndex = 39;
+            // 
+            // player4HP
+            // 
+            this.player4HP.Location = new System.Drawing.Point(7, 173);
+            this.player4HP.Name = "player4HP";
+            this.player4HP.Size = new System.Drawing.Size(219, 12);
+            this.player4HP.TabIndex = 38;
+            // 
+            // player3HP
+            // 
+            this.player3HP.Location = new System.Drawing.Point(7, 136);
+            this.player3HP.Name = "player3HP";
+            this.player3HP.Size = new System.Drawing.Size(219, 12);
+            this.player3HP.TabIndex = 37;
+            // 
+            // player1HP
+            // 
+            this.player1HP.Location = new System.Drawing.Point(7, 65);
+            this.player1HP.Name = "player1HP";
+            this.player1HP.Size = new System.Drawing.Size(219, 12);
+            this.player1HP.TabIndex = 36;
+            // 
+            // player2HP
+            // 
+            this.player2HP.Location = new System.Drawing.Point(7, 101);
+            this.player2HP.Name = "player2HP";
+            this.player2HP.Size = new System.Drawing.Size(219, 12);
+            this.player2HP.TabIndex = 35;
+            // 
+            // player0HP
+            // 
+            this.player0HP.Location = new System.Drawing.Point(7, 30);
+            this.player0HP.Name = "player0HP";
+            this.player0HP.Size = new System.Drawing.Size(219, 12);
+            this.player0HP.TabIndex = 28;
+            // 
             // CurePleaseForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2655,5 +2997,23 @@ namespace CurePlease
         private System.ComponentModel.BackgroundWorker JobAbility_Delay;
         private Timer EclipticTimer;
         private System.ComponentModel.BackgroundWorker CustomCommand_Tracker;
+        private Button player0raiseButton;
+        private Button player5raiseButton;
+        private Button player4raiseButton;
+        private Button player3raiseButton;
+        private Button player2raiseButton;
+        private Button player1raiseButton;
+        private Button player17raiseButton;
+        private Button player16raiseButton;
+        private Button player15raiseButton;
+        private Button player14raiseButton;
+        private Button player13raiseButton;
+        private Button player12raiseButton;
+        private Button player6raiseButton;
+        private Button player11raiseButton;
+        private Button player10raiseButton;
+        private Button player9raiseButton;
+        private Button player8raiseButton;
+        private Button player7raiseButton;
     }
 }

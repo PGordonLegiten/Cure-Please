@@ -13,7 +13,9 @@ namespace CurePlease.Helpers
 
         public static void resetCooldown(string spell, string player)
         {
-            if(!playerCooldowns.ContainsKey(spell))
+            if (spell == null || player == null) { return; }
+
+            if (!playerCooldowns.ContainsKey(spell))
             {
                 playerCooldowns[spell] = new Dictionary<string, DateTime>();
             }
@@ -21,6 +23,8 @@ namespace CurePlease.Helpers
         }
         public static void setCooldown(string spell, string player)
         {
+            if (spell == null || player == null) { return; }
+
             if (!playerCooldowns.ContainsKey(spell))
             {
                 playerCooldowns[spell] = new Dictionary<string, DateTime>();
@@ -30,7 +34,9 @@ namespace CurePlease.Helpers
 
         public static DateTime getCooldown(string spell, string player)
         {
-            if (!playerCooldowns.ContainsKey(spell))
+            if (spell == null || player == null) { return DateTime.Now; }
+
+            if (!playerCooldowns.ContainsKey(spell) || !playerCooldowns[spell].ContainsKey(player))
             {
                 resetCooldown(spell, player);
             }
@@ -45,14 +51,23 @@ namespace CurePlease.Helpers
 
         public static void setAutoEnable(string spell, string player, bool enable)
         {
+            if (spell == null || player == null) { return; }
+
             if (!autoEnabled.ContainsKey(spell))
             {
                 autoEnabled[spell] = new Dictionary<string, bool>();
+            }
+            if (enable)
+            {
+                //reset cooldown on activation
+                resetCooldown(spell, player);
             }
             autoEnabled[spell][player] = enable;
         }
         public static bool getAutoEnable(string spell, string player)
         {
+            if(spell == null || player == null) { return false; }
+
             if (!autoEnabled.ContainsKey(spell) || !autoEnabled[spell].ContainsKey(player))
             {
                 setAutoEnable(spell, player, false);

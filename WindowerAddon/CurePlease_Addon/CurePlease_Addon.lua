@@ -2,7 +2,7 @@ _addon.name = 'CurePlease_addon'
 _addon.author = 'Daniel_H'
 _addon.version = '1.2 Windower'
 _addon_description = 'Allows for PARTY DEBUFF Checking and Casting Data'
-_addon.commands = {'cpaddon'}
+_addon.commands = {'cpaddon', 'cp'}
 
 local port = 19769
 local ip = "127.0.0.1"
@@ -89,6 +89,11 @@ if args ~= nil then
     local CP_connect = assert(socket.udp())
     CP_connect:settimeout(1)
     assert(CP_connect:sendto("CUREPLEASE_command_"..args[1]:lower(), ip, port))
+    CP_connect:close()
+  elseif cmd == "spell" then
+    local CP_connect = assert(socket.udp())
+    CP_connect:settimeout(1)
+    assert(CP_connect:sendto("CUREPLEASE_spell_"..args[1]:lower().."_"..args[2]:lower(), ip, port))
     CP_connect:close()
   end
 

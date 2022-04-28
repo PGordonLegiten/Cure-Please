@@ -14,6 +14,14 @@ namespace CurePlease.Helpers
         static string[] protect_spells = { "Protect", "Protect II", "Protect III", "Protect IV", "Protect V" };
         static string[] refresh_spells = { "Refresh", "Refresh II", "Refresh III" };
         static string[] regen_spells = { "Regen", "Regen II", "Regen III", "Regen IV", "Regen V", "Regen VI" };
+        static string[] raise_spells = { "Arise", "Raise III", "Raise II", "Raise" };
+
+        private PlayerHelper _PlayerHelper;
+
+        public SpellsHelper(PlayerHelper playerHelper)
+        {
+            _PlayerHelper = playerHelper;
+        }
 
         public static string GetShellSpell()
         {
@@ -48,6 +56,18 @@ namespace CurePlease.Helpers
             };
 
             return storms[name][OptionsForm.config.autoStorm_Spell];
+        }
+
+        public string GetRaiseSpell()
+        {
+            foreach(var spell in raise_spells)
+            {
+                if (_PlayerHelper.IsAbleToCastSpell(spell))
+                {
+                    return spell;
+                }
+            }
+            return null;
         }
 
         public static string GetEnabledStormSpell(string name)

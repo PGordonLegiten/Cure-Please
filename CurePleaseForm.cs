@@ -924,6 +924,29 @@
             return false;
         }
 
+        private void UpdateRaiseButton(Button raiseButton, Button autoButton, byte pos)
+        {
+            EliteAPI.PartyMember member = _ELITEAPIMonitored.Party.GetPartyMember(pos);
+            if (raiseButton != null)
+            {
+                if (member.Active == 1 && member.CurrentHP <= 0)
+                {
+
+                    raiseButton.Visible = true;
+                    if (playerHelper.CastingPossible(member.Name))
+                    {
+                        raiseButton.Enabled = true;
+                    }
+                    autoButton.Enabled = false;
+                }
+                else
+                {
+                    raiseButton.Visible = false;
+                    raiseButton.Enabled = false;
+                }
+            }
+        }
+
         private async void partyMembersUpdate_TickAsync(object sender, EventArgs e)
         {
             if (_ELITEAPIPL == null || _ELITEAPIMonitored == null)
@@ -967,12 +990,14 @@
             {
                 return;
             }
+
             if (partyMemberUpdateMethod(0))
             {
                 player0.Text = _ELITEAPIMonitored.Party.GetPartyMember(0).Name;
                 player0.Enabled = true;
                 player0optionsButton.Enabled = true;
                 player0buffsButton.Enabled = true;
+                UpdateRaiseButton(player0raiseButton, player0buffsButton, 0);
             }
             else
             {
@@ -981,6 +1006,7 @@
                 player0HP.Value = 0;
                 player0optionsButton.Enabled = false;
                 player0buffsButton.Enabled = false;
+                player0raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(1))
@@ -989,6 +1015,7 @@
                 player1.Enabled = true;
                 player1optionsButton.Enabled = true;
                 player1buffsButton.Enabled = true;
+                UpdateRaiseButton(player1raiseButton, player1buffsButton, 1);
             }
             else
             {
@@ -997,6 +1024,7 @@
                 player1HP.Value = 0;
                 player1optionsButton.Enabled = false;
                 player1buffsButton.Enabled = false;
+                player1raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(2))
@@ -1005,6 +1033,7 @@
                 player2.Enabled = true;
                 player2optionsButton.Enabled = true;
                 player2buffsButton.Enabled = true;
+                UpdateRaiseButton(player2raiseButton, player2buffsButton, 2);
             }
             else
             {
@@ -1013,6 +1042,7 @@
                 player2HP.Value = 0;
                 player2optionsButton.Enabled = false;
                 player2buffsButton.Enabled = false;
+                player2raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(3))
@@ -1021,6 +1051,7 @@
                 player3.Enabled = true;
                 player3optionsButton.Enabled = true;
                 player3buffsButton.Enabled = true;
+                UpdateRaiseButton(player3raiseButton, player3buffsButton, 3);
             }
             else
             {
@@ -1029,6 +1060,7 @@
                 player3HP.Value = 0;
                 player3optionsButton.Enabled = false;
                 player3buffsButton.Enabled = false;
+                player3raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(4))
@@ -1037,6 +1069,7 @@
                 player4.Enabled = true;
                 player4optionsButton.Enabled = true;
                 player4buffsButton.Enabled = true;
+                UpdateRaiseButton(player4raiseButton, player4buffsButton, 4);
             }
             else
             {
@@ -1045,6 +1078,7 @@
                 player4HP.Value = 0;
                 player4optionsButton.Enabled = false;
                 player4buffsButton.Enabled = false;
+                player4raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(5))
@@ -1053,6 +1087,7 @@
                 player5.Enabled = true;
                 player5optionsButton.Enabled = true;
                 player5buffsButton.Enabled = true;
+                UpdateRaiseButton(player5raiseButton, player5buffsButton, 5);
             }
             else
             {
@@ -1061,12 +1096,14 @@
                 player5HP.Value = 0;
                 player5optionsButton.Enabled = false;
                 player5buffsButton.Enabled = false;
+                player5raiseButton.Visible = false;
             }
             if (partyMemberUpdateMethod(6))
             {
                 player6.Text = _ELITEAPIMonitored.Party.GetPartyMember(6).Name;
                 player6.Enabled = true;
                 player6optionsButton.Enabled = true;
+                UpdateRaiseButton(player6raiseButton, player6optionsButton, 6);
             }
             else
             {
@@ -1074,6 +1111,7 @@
                 player6.Enabled = false;
                 player6HP.Value = 0;
                 player6optionsButton.Enabled = false;
+                player6raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(7))
@@ -1081,6 +1119,7 @@
                 player7.Text = _ELITEAPIMonitored.Party.GetPartyMember(7).Name;
                 player7.Enabled = true;
                 player7optionsButton.Enabled = true;
+                UpdateRaiseButton(player7raiseButton, player7optionsButton, 7);
             }
             else
             {
@@ -1088,6 +1127,7 @@
                 player7.Enabled = false;
                 player7HP.Value = 0;
                 player7optionsButton.Enabled = false;
+                player7raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(8))
@@ -1095,6 +1135,7 @@
                 player8.Text = _ELITEAPIMonitored.Party.GetPartyMember(8).Name;
                 player8.Enabled = true;
                 player8optionsButton.Enabled = true;
+                UpdateRaiseButton(player8raiseButton, player8optionsButton, 8);
             }
             else
             {
@@ -1102,6 +1143,7 @@
                 player8.Enabled = false;
                 player8HP.Value = 0;
                 player8optionsButton.Enabled = false;
+                player8raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(9))
@@ -1109,6 +1151,7 @@
                 player9.Text = _ELITEAPIMonitored.Party.GetPartyMember(9).Name;
                 player9.Enabled = true;
                 player9optionsButton.Enabled = true;
+                UpdateRaiseButton(player9raiseButton, player9optionsButton, 9);
             }
             else
             {
@@ -1116,6 +1159,7 @@
                 player9.Enabled = false;
                 player9HP.Value = 0;
                 player9optionsButton.Enabled = false;
+                player9raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(10))
@@ -1123,6 +1167,7 @@
                 player10.Text = _ELITEAPIMonitored.Party.GetPartyMember(10).Name;
                 player10.Enabled = true;
                 player10optionsButton.Enabled = true;
+                UpdateRaiseButton(player10raiseButton, player10optionsButton, 10);
             }
             else
             {
@@ -1130,6 +1175,7 @@
                 player10.Enabled = false;
                 player10HP.Value = 0;
                 player10optionsButton.Enabled = false;
+                player10raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(11))
@@ -1137,6 +1183,7 @@
                 player11.Text = _ELITEAPIMonitored.Party.GetPartyMember(11).Name;
                 player11.Enabled = true;
                 player11optionsButton.Enabled = true;
+                UpdateRaiseButton(player11raiseButton, player11optionsButton, 11);
             }
             else
             {
@@ -1144,6 +1191,7 @@
                 player11.Enabled = false;
                 player11HP.Value = 0;
                 player11optionsButton.Enabled = false;
+                player11raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(12))
@@ -1151,6 +1199,7 @@
                 player12.Text = _ELITEAPIMonitored.Party.GetPartyMember(12).Name;
                 player12.Enabled = true;
                 player12optionsButton.Enabled = true;
+                UpdateRaiseButton(player12raiseButton, player12optionsButton, 12);
             }
             else
             {
@@ -1158,6 +1207,7 @@
                 player12.Enabled = false;
                 player12HP.Value = 0;
                 player12optionsButton.Enabled = false;
+                player12raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(13))
@@ -1165,6 +1215,7 @@
                 player13.Text = _ELITEAPIMonitored.Party.GetPartyMember(13).Name;
                 player13.Enabled = true;
                 player13optionsButton.Enabled = true;
+                UpdateRaiseButton(player13raiseButton, player13optionsButton, 13);
             }
             else
             {
@@ -1172,6 +1223,7 @@
                 player13.Enabled = false;
                 player13HP.Value = 0;
                 player13optionsButton.Enabled = false;
+                player13raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(14))
@@ -1179,6 +1231,7 @@
                 player14.Text = _ELITEAPIMonitored.Party.GetPartyMember(14).Name;
                 player14.Enabled = true;
                 player14optionsButton.Enabled = true;
+                UpdateRaiseButton(player14raiseButton, player14optionsButton, 14);
             }
             else
             {
@@ -1186,6 +1239,7 @@
                 player14.Enabled = false;
                 player14HP.Value = 0;
                 player14optionsButton.Enabled = false;
+                player14raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(15))
@@ -1193,6 +1247,7 @@
                 player15.Text = _ELITEAPIMonitored.Party.GetPartyMember(15).Name;
                 player15.Enabled = true;
                 player15optionsButton.Enabled = true;
+                UpdateRaiseButton(player15raiseButton, player15optionsButton, 15);
             }
             else
             {
@@ -1200,6 +1255,7 @@
                 player15.Enabled = false;
                 player15HP.Value = 0;
                 player15optionsButton.Enabled = false;
+                player15raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(16))
@@ -1207,6 +1263,7 @@
                 player16.Text = _ELITEAPIMonitored.Party.GetPartyMember(16).Name;
                 player16.Enabled = true;
                 player16optionsButton.Enabled = true;
+                UpdateRaiseButton(player16raiseButton, player16optionsButton, 16);
             }
             else
             {
@@ -1214,6 +1271,7 @@
                 player16.Enabled = false;
                 player16HP.Value = 0;
                 player16optionsButton.Enabled = false;
+                player16raiseButton.Visible = false;
             }
 
             if (partyMemberUpdateMethod(17))
@@ -1221,6 +1279,7 @@
                 player17.Text = _ELITEAPIMonitored.Party.GetPartyMember(17).Name;
                 player17.Enabled = true;
                 player17optionsButton.Enabled = true;
+                UpdateRaiseButton(player17raiseButton, player17optionsButton, 17);
             }
             else
             {
@@ -1228,6 +1287,7 @@
                 player17.Enabled = false;
                 player17HP.Value = 0;
                 player17optionsButton.Enabled = false;
+                player17raiseButton.Visible = false;
             }
         }
 
@@ -2722,6 +2782,39 @@
             }
         }
 
+        private void FailSafe()
+        {
+            //Failsafe in case it gets stuck for longer than 5 seconds
+            //This is a temporary fix until i find out whats causing this, i suspect some parallel processing issue.
+            //The result is in the char doing nothing anymore
+            if (CastingBackground_Check != true)
+            {
+                CastingBackground_Check_timer = DateTime.Now;
+            }
+            else
+            {
+                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
+                {
+                    //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
+                    CastingBackground_Check = false;
+                }
+            }
+            //Failsafe in case it gets stuck for longer than 5 seconds
+            if (JobAbilityLock_Check != true)
+            {
+                CastingBackground_Check_timer = DateTime.Now;
+            }
+            else
+            {
+                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
+                {
+                    //_ELITEAPIPL.ThirdParty.SendString("/p Activating super jobabillity powers!");
+                    CastingBackground_Check = false;
+                }
+            }
+        }
+
+
         private async void actionTimer_TickAsync(object sender, EventArgs e)
         {
 
@@ -2736,8 +2829,25 @@
                 return;
             }
 
+            FailSafe();
 
 
+            //Prio queue to manually submit spell beeing cast before everything else (like raise for example)
+            var prioCast = PrioQueueHelper.peekQueueItem();
+
+            if(prioCast != null)
+            {
+                if (CastingBackground_Check)
+                {
+                    return; //waiting on stuff to finish
+                }
+                else
+                {
+                    prioCast = PrioQueueHelper.popQueueItem();
+                    CastSpell(prioCast.Target, prioCast.SpellName);
+                }
+                
+            }
 
             GrabPlayerMonitoredData();
 
@@ -2833,32 +2943,7 @@
                 }
             }
 
-            //Failsafe in case it gets stuck for longer than 5 seconds
-            if (CastingBackground_Check != true)
-            {
-                CastingBackground_Check_timer = DateTime.Now;
-            }
-            else
-            {
-                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
-                {
-                    //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
-                    CastingBackground_Check = false;
-                }
-            }
-            //Failsafe in case it gets stuck for longer than 5 seconds
-            if (JobAbilityLock_Check != true)
-            {
-                CastingBackground_Check_timer = DateTime.Now;
-            }
-            else
-            {
-                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
-                {
-                    //_ELITEAPIPL.ThirdParty.SendString("/p Activating super jobabillity powers!");
-                    CastingBackground_Check = false;
-                }
-            }
+            
 
 
             // If CastingLock is not FALSE and you're not Terrorized, Petrified, or Stunned run the actions
@@ -3133,7 +3218,7 @@
                     /////////////////////////// CURE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     #region "cure"
                     //var playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Active >= 1).OrderBy(p => p.CurrentHPP).Select(p => p.Index);
-                    IEnumerable<byte> playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().OrderBy(p => p.CurrentHPP).OrderBy(p => p.Active == 0).Select(p => p.MemberNumber);
+                    IEnumerable<byte> playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().OrderBy(p => p.CurrentHPP).Where(p => p.Active == 1).Select(p => p.MemberNumber);
 
                     // First run a check on the monitored target
                     byte playerMonitoredHp = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Name == _ELITEAPIMonitored.Player.Name).OrderBy(p => p.Active == 0).Select(p => p.MemberNumber).FirstOrDefault();
@@ -4647,7 +4732,7 @@
             InternalHelper.setAutoEnable("Flurry II", playerOptionsSelected, !InternalHelper.getAutoEnable("Flurry II", playerOptionsSelected));
             InternalHelper.setAutoEnable("Haste", playerOptionsSelected, false);
             InternalHelper.setAutoEnable("Flurry", playerOptionsSelected, false);
-            InternalHelper.setAutoEnable("Flurry II", playerOptionsSelected, false);
+            InternalHelper.setAutoEnable("Haste II", playerOptionsSelected, false);
         }
 
         private void autoProtectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -6471,6 +6556,19 @@
                             }
 
                         }
+                        else if (commands[1] == "spell" && commands.Count() == 4)
+                        {
+                            EliteAPI.ISpell magic = _ELITEAPIPL.Resources.GetSpell(commands[2].Trim(), 0);
+                            if(magic != null)
+                            {
+                                PrioQueueHelper.pushQueueItem(commands[2], commands[3]);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Spell not found: " + commands[2]);
+                            }
+                            
+                        }
                     }
                 }
                 catch (Exception error1)
@@ -6674,6 +6772,113 @@
         private void CustomCommand_Tracker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             CustomCommand_Tracker.RunWorkerAsync();
+        }
+
+        private void RaiseButtonClick(byte pos)
+        {
+            string generated_name = _ELITEAPIMonitored.Party.GetPartyMembers()[pos].Name;
+            var helper = new SpellsHelper(playerHelper);
+            var spell = helper.GetRaiseSpell();
+            if(spell != null)
+            {
+                currentAction.Text = "Queued -> "+spell+ " on -> " + generated_name;
+                PrioQueueHelper.pushQueueItem(spell, generated_name);
+            }
+            else
+            {
+                currentAction.Text = "No Raise available!";
+            }
+        }
+
+        private void player0raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(0);
+        }
+
+        private void player1raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(1);
+        }
+
+        private void player2raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(2);
+        }
+
+        private void player3raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(3);
+        }
+
+        private void player4raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(4);
+        }
+
+        private void player5raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(5);
+        }
+
+        private void player6raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(6);
+        }
+
+        private void player7raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(7);
+        }
+
+        private void player8raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(8);
+        }
+
+        private void player9raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(9);
+        }
+
+        private void player10raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(10);
+
+        }
+
+        private void player11raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(11);
+        }
+
+        private void player12raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(12);
+        }
+
+        private void player13raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(13);
+        }
+
+        private void player14raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(14);
+        }
+
+        private void player15raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(15);
+        }
+
+        private void player16raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(16);
+        }
+
+        private void player17raiseButton_Click(object sender, EventArgs e)
+        {
+            RaiseButtonClick(17);
         }
     }
 

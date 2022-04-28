@@ -36,6 +36,7 @@ namespace CurePlease.Helpers
         public bool CastingPossible(string memberName)
         {
             var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
+            if (member == null) { return false; }
             if ((_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance < 21) && (_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance > 0) && (member.CurrentHP > 0) || (_ELITEAPIPL.Party.GetPartyMember(0).ID == member.ID) && (member.CurrentHP > 0))
             {
                 return true;
