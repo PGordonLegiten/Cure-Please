@@ -44,6 +44,17 @@ namespace CurePlease.Helpers
             return false;
         }
 
+        public bool raisePossible(string memberName)
+        {
+            var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
+            if (member == null) { return false; }
+            if ((_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance < 21) && (_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance > 0) || (_ELITEAPIPL.Party.GetPartyMember(0).ID == member.ID))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool JobChecker(string SpellName)
         {
 

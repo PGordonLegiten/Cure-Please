@@ -933,7 +933,8 @@
                 {
 
                     raiseButton.Visible = true;
-                    if (playerHelper.CastingPossible(member.Name))
+                    raiseButton.Enabled = false;
+                    if (playerHelper.raisePossible(member.Name))
                     {
                         raiseButton.Enabled = true;
                     }
@@ -2784,6 +2785,7 @@
 
         private void FailSafe()
         {
+            var currentTime = DateTime.Now;
             //Failsafe in case it gets stuck for longer than 5 seconds
             //This is a temporary fix until i find out whats causing this, i suspect some parallel processing issue.
             //The result is in the char doing nothing anymore
