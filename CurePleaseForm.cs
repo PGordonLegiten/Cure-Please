@@ -6464,7 +6464,7 @@
                             {
                                 Invoke((MethodInvoker)(() =>
                           {
-                              CastingBackground_Check = true;
+                              CastingBackground_Check = true; // most likely cause for deadlock, when this is activated but never unlocked 
                               castingLockLabel.Text = "PACKET: Casting is LOCKED";
                           }));
 
