@@ -2804,14 +2804,14 @@
             //Failsafe in case it gets stuck for longer than 5 seconds
             if (JobAbilityLock_Check != true)
             {
-                CastingBackground_Check_timer = DateTime.Now;
+                JobAbilityLock_Check_timer = DateTime.Now;
             }
             else
             {
-                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
+                if (currentTime.Subtract(JobAbilityLock_Check_timer) > TimeSpan.FromSeconds(5))
                 {
                     //_ELITEAPIPL.ThirdParty.SendString("/p Activating super jobabillity powers!");
-                    CastingBackground_Check = false;
+                    JobAbilityLock_Check = false;
                 }
             }
         }
