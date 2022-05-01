@@ -96,13 +96,22 @@
     <Compile Include="CurePleaseForm.Designer.cs">
       <DependentUpon>CurePleaseForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataStructures\CastingAction.cs" />
     <Compile Include="DataStructures\HelperStructures.cs" />
+    <Compile Include="DataStructures\LogEntry.cs" />
     <Compile Include="Data\BarSpells.cs" />
     <Compile Include="Data\EnSpells.cs" />
     <Compile Include="Data\GeoSpells.cs" />
     <Compile Include="Data\Jobs.cs" />
     <Compile Include="Data\SongSpells.cs" />
     <Compile Include="Data\StormSpells.cs" />
+    <Compile Include="CastingMonitorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CastingMonitorForm.Designer.cs">
+      <DependentUpon>CastingMonitorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\CastingHelper.cs" />
     <Compile Include="Helpers\PlayerHelper.cs" />
     <Compile Include="Helpers\InternalHelper.cs" />
     <Compile Include="Helpers\PrioQueueHelper.cs" />
@@ -141,6 +150,9 @@
     <EmbeddedResource Include="CurePleaseForm.resx">
       <DependentUpon>CurePleaseForm.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CastingMonitorForm.resx">
+      <DependentUpon>CastingMonitorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>

@@ -49,7 +49,7 @@
             ailment_list.Text = "";
 
             // Search through current active party buffs
-            foreach (BuffStorage ailment in f1.ActiveBuffs)
+            foreach (BuffStorage ailment in f1.ActiveBuffs.ToList())
             {
                 // First add Character name and a Line Break.
                 ailment_list.AppendText(ailment.CharacterName.ToUpper() + "\n");

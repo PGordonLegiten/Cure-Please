@@ -25,7 +25,7 @@ namespace CurePlease.Helpers
 
         public bool IsAbleToCastSpell(string spell)
         {
-            return CheckSpellRecast(spell) == 0 && (HasSpell(spell)) && JobChecker(spell) == true;
+            return HasSpell(spell) && JobChecker(spell) == true;
         }
 
         public bool isAbleToBuff(string spell, string player)
@@ -173,8 +173,12 @@ namespace CurePlease.Helpers
                 return false;
             }
         }
+        // TODO
+        // REMOVE THIS FROM UNIVERSE
+        // SPELL RECAST SHOULD BE HANDLED IN CASTING HELPER
         public int CheckSpellRecast(string checked_recastspellName)
         {
+            return 0;
             checked_recastspellName = checked_recastspellName.Trim().ToLower();
 
             if (checked_recastspellName == "honor march")

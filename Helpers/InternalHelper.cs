@@ -21,6 +21,10 @@ namespace CurePlease.Helpers
             }
             playerCooldowns[spell][player] = new DateTime(1970, 1, 1, 0, 0, 0);
         }
+        public static void resetAllCooldowns()
+        {
+            playerCooldowns = new Dictionary<string, Dictionary<string, DateTime>>();
+        }
         public static void setCooldown(string spell, string player)
         {
             if (spell == null || player == null) { return; }
@@ -46,7 +50,7 @@ namespace CurePlease.Helpers
         public static int getTimeSpanInMinutes(string spell, string player)
         {
             var currentTime = DateTime.Now;
-            return (currentTime.Subtract(getCooldown(spell, player))).Minutes;
+            return Convert.ToInt32((currentTime.Subtract(getCooldown(spell, player))).TotalMinutes);
         }
 
         public static void setAutoEnable(string spell, string player, bool enable)
@@ -74,5 +78,6 @@ namespace CurePlease.Helpers
             }
             return autoEnabled[spell][player];
         }
+
     }
 }

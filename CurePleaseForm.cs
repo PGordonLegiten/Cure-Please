@@ -25,6 +25,8 @@
 
         private OptionsForm Form2 = new CurePlease.OptionsForm();
 
+        private CastingHelper CastingManager;
+
         private int currentSCHCharges = 0;
 
         private string debug_MSG_show = string.Empty;
@@ -58,8 +60,6 @@
 
         public bool EclipticStillUp = false;
 
-        public bool CastingBackground_Check = false;
-        public DateTime CastingBackground_Check_timer = DateTime.Now;
         public bool JobAbilityLock_Check = false;
         public DateTime JobAbilityLock_Check_timer = DateTime.Now;
 
@@ -440,8 +440,6 @@
 
         public CurePleaseForm()
         {
-
-
             StartPosition = FormStartPosition.CenterScreen;
 
             InitializeComponent();
@@ -452,8 +450,6 @@
             {
                 debug.Visible = true;
             }
-
-
             IEnumerable<Process> pol = Process.GetProcessesByName("pol").Union(Process.GetProcessesByName("xiloader")).Union(Process.GetProcessesByName("edenxi"));
 
             if (pol.Count() < 1)
@@ -629,14 +625,15 @@
             }
             processids.SelectedIndex = POLID2.SelectedIndex;
             _ELITEAPIMonitored = new EliteAPI((int)processids.SelectedItem);
-
             playerHelper = new PlayerHelper(_ELITEAPIPL, _ELITEAPIMonitored);
+            CastingManager = new CastingHelper(this, _ELITEAPIPL, _ELITEAPIMonitored); //TODO MIGHT HAVE TO INJECT ON PL SELECTION WHEN CHANGING PL TBS
 
             monitoredLabel.Text = "Monitoring: " + _ELITEAPIMonitored.Player.Name;
             monitoredLabel.ForeColor = Color.Green;
             POLID2.BackColor = Color.White;
             partyMembersUpdate.Enabled = true;
             actionTimer.Enabled = true;
+            cureTimer.Enabled = true;
             pauseButton.Enabled = true;
             hpUpdates.Enabled = true;
 
@@ -646,6 +643,7 @@
                 pauseButton.Text = "Loaded, Paused!";
                 pauseButton.ForeColor = Color.Red;
                 actionTimer.Enabled = false;
+                cureTimer.Enabled = false;
             }
             else
             {
@@ -929,7 +927,7 @@
             EliteAPI.PartyMember member = _ELITEAPIMonitored.Party.GetPartyMember(pos);
             if (raiseButton != null)
             {
-                if (member.Active == 1 && member.CurrentHP <= 0)
+                if (member.Active == 1 && member.CurrentHP <= 0 && member.Zone == _ELITEAPIPL.Player.ZoneId) 
                 {
 
                     raiseButton.Visible = true;
@@ -967,6 +965,7 @@
                         pauseButton.ForeColor = Color.Red;
                         pauseActions = true;
                         actionTimer.Enabled = false;
+                        cureTimer.Enabled = false;
                     }
                 }
                 else
@@ -985,6 +984,7 @@
                     }
                 }
                 ActiveBuffs.Clear();
+                InternalHelper.resetAllCooldowns();
             }
 
             if (_ELITEAPIPL.Player.LoginStatus != (int)LoginStatus.LoggedIn || _ELITEAPIMonitored.Player.LoginStatus != (int)LoginStatus.LoggedIn)
@@ -1474,7 +1474,7 @@
                     string cureSpell = CureTiers("Cure VI", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIPL.Player.Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure5enabled && HP_Loss >= OptionsForm.config.cure5amount && _ELITEAPIPL.Player.MP > 125 && playerHelper.HasSpell("Cure V") && playerHelper.JobChecker("Cure V") == true)
@@ -1482,7 +1482,7 @@
                     string cureSpell = CureTiers("Cure V", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIPL.Player.Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure4enabled && HP_Loss >= OptionsForm.config.cure4amount && _ELITEAPIPL.Player.MP > 88 && playerHelper.HasSpell("Cure IV") && playerHelper.JobChecker("Cure IV") == true)
@@ -1490,7 +1490,7 @@
                     string cureSpell = CureTiers("Cure IV", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIPL.Player.Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure3enabled && HP_Loss >= OptionsForm.config.cure3amount && _ELITEAPIPL.Player.MP > 46 && playerHelper.HasSpell("Cure III") && playerHelper.JobChecker("Cure III") == true)
@@ -1499,7 +1499,7 @@
                     string cureSpell = CureTiers("Cure III", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIPL.Player.Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure2enabled && HP_Loss >= OptionsForm.config.cure2amount && _ELITEAPIPL.Player.MP > 24 && playerHelper.HasSpell("Cure II") && playerHelper.JobChecker("Cure II") == true)
@@ -1508,7 +1508,7 @@
                     string cureSpell = CureTiers("Cure II", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIPL.Player.Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure1enabled && HP_Loss >= OptionsForm.config.cure1amount && _ELITEAPIPL.Player.MP > 8 && playerHelper.HasSpell("Cure") && playerHelper.JobChecker("Cure") == true)
@@ -1517,7 +1517,7 @@
                     string cureSpell = CureTiers("Cure", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIPL.Player.Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, cureSpell);
                     }
                 }
             }
@@ -1535,7 +1535,7 @@
                     string cureSpell = CureTiers("Cure VI", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure5enabled && HP_Loss >= OptionsForm.config.cure5amount && _ELITEAPIPL.Player.MP > 125 && playerHelper.HasSpell("Cure V") && playerHelper.JobChecker("Cure V") == true)
@@ -1543,7 +1543,7 @@
                     string cureSpell = CureTiers("Cure V", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure4enabled && HP_Loss >= OptionsForm.config.cure4amount && _ELITEAPIPL.Player.MP > 88 && playerHelper.HasSpell("Cure IV") && playerHelper.JobChecker("Cure IV") == true)
@@ -1551,7 +1551,7 @@
                     string cureSpell = CureTiers("Cure IV", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure3enabled && HP_Loss >= OptionsForm.config.cure3amount && _ELITEAPIPL.Player.MP > 46 && playerHelper.HasSpell("Cure III") && playerHelper.JobChecker("Cure III") == true)
@@ -1560,7 +1560,7 @@
                     string cureSpell = CureTiers("Cure III", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure2enabled && HP_Loss >= OptionsForm.config.cure2amount && _ELITEAPIPL.Player.MP > 24 && playerHelper.HasSpell("Cure II") && playerHelper.JobChecker("Cure II") == true)
@@ -1569,7 +1569,7 @@
                     string cureSpell = CureTiers("Cure II", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
                     }
                 }
                 else if (OptionsForm.config.cure1enabled && HP_Loss >= OptionsForm.config.cure1amount && _ELITEAPIPL.Player.MP > 8 && playerHelper.HasSpell("Cure") && playerHelper.JobChecker("Cure") == true)
@@ -1578,7 +1578,7 @@
                     string cureSpell = CureTiers("Cure", HP);
                     if (cureSpell != "false")
                     {
-                        CastSpell(_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, cureSpell);
                     }
                 }
             }
@@ -1635,175 +1635,175 @@
                 #region "pl_debuffs"
                 if ((plEffect == StatusEffect.Doom) && (OptionsForm.config.plDoom) && playerHelper.IsAbleToCastSpell("Cursna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Cursna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Cursna");
                 }
                 else if ((plEffect == StatusEffect.Paralysis) && (OptionsForm.config.plParalysis) && playerHelper.IsAbleToCastSpell("Paralyna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Paralyna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Paralyna");
                 }
-                else if ((plEffect == StatusEffect.Amnesia) && (OptionsForm.config.plAmnesia) && playerHelper.IsAbleToCastSpell("Esuna") && BuffChecker(0, 418))
+                else if ((plEffect == StatusEffect.Amnesia) && (OptionsForm.config.plAmnesia) && playerHelper.IsAbleToCastSpell( "Esuna") && BuffChecker(0, 418))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Esuna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Esuna");
                 }
                 else if ((plEffect == StatusEffect.Poison) && (OptionsForm.config.plPoison) && playerHelper.IsAbleToCastSpell("Poisona"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Poisona");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Poisona");
                 }
                 else if ((plEffect == StatusEffect.Attack_Down) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Blindness) && (OptionsForm.config.plBlindness) && playerHelper.IsAbleToCastSpell("Blindna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Blindna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Blindna");
                 }
                 else if ((plEffect == StatusEffect.Bind) && (OptionsForm.config.plBind) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Weight) && (OptionsForm.config.plWeight) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Slow) && (OptionsForm.config.plSlow) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Curse) && (OptionsForm.config.plCurse) && playerHelper.IsAbleToCastSpell("Cursna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Cursna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Cursna");
                 }
                 else if ((plEffect == StatusEffect.Curse2) && (OptionsForm.config.plCurse2) && playerHelper.IsAbleToCastSpell("Cursna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Cursna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Cursna");
                 }
                 else if ((plEffect == StatusEffect.Addle) && (OptionsForm.config.plAddle) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Bane) && (OptionsForm.config.plBane) && playerHelper.IsAbleToCastSpell("Cursna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Cursna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Cursna");
                 }
                 else if ((plEffect == StatusEffect.Plague) && (OptionsForm.config.plPlague) && playerHelper.IsAbleToCastSpell("Viruna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Viruna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Viruna");
                 }
                 else if ((plEffect == StatusEffect.Disease) && (OptionsForm.config.plDisease) && playerHelper.IsAbleToCastSpell("Viruna"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Viruna");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Viruna");
                 }
                 else if ((plEffect == StatusEffect.Burn) && (OptionsForm.config.plBurn) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Frost) && (OptionsForm.config.plFrost) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Choke) && (OptionsForm.config.plChoke) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Rasp) && (OptionsForm.config.plRasp) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Shock) && (OptionsForm.config.plShock) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Drown) && (OptionsForm.config.plDrown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Dia) && (OptionsForm.config.plDia) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Bio) && (OptionsForm.config.plBio) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.STR_Down) && (OptionsForm.config.plStrDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.DEX_Down) && (OptionsForm.config.plDexDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.VIT_Down) && (OptionsForm.config.plVitDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.AGI_Down) && (OptionsForm.config.plAgiDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.INT_Down) && (OptionsForm.config.plIntDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.MND_Down) && (OptionsForm.config.plMndDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.CHR_Down) && (OptionsForm.config.plChrDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Max_HP_Down) && (OptionsForm.config.plMaxHpDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Max_MP_Down) && (OptionsForm.config.plMaxMpDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Accuracy_Down) && (OptionsForm.config.plAccuracyDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Evasion_Down) && (OptionsForm.config.plEvasionDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Defense_Down) && (OptionsForm.config.plDefenseDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Flash) && (OptionsForm.config.plFlash) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Magic_Acc_Down) && (OptionsForm.config.plMagicAccDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Magic_Atk_Down) && (OptionsForm.config.plMagicAtkDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Helix) && (OptionsForm.config.plHelix) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Max_TP_Down) && (OptionsForm.config.plMaxTpDown) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Requiem) && (OptionsForm.config.plRequiem) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Elegy) && (OptionsForm.config.plElegy) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 else if ((plEffect == StatusEffect.Threnody) && (OptionsForm.config.plThrenody) && (OptionsForm.config.plAttackDown) && playerHelper.IsAbleToCastSpell("Erase"))
                 {
-                    CastSpell(_ELITEAPIPL.Player.Name, "Erase");
+                    CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIPL.Player.Name, "Erase");
                 }
                 #endregion
             }
@@ -1815,191 +1815,191 @@
                 {
                     if ((monitoredEffect == StatusEffect.Doom) && (OptionsForm.config.monitoredDoom) && playerHelper.IsAbleToCastSpell("Cursna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Cursna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Cursna");
                     }
                     else if ((monitoredEffect == StatusEffect.Sleep) && (OptionsForm.config.monitoredSleep) && (OptionsForm.config.wakeSleepEnabled))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, wakeSleepSpellName);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Player.Name, wakeSleepSpellName);
                     }
                     else if ((monitoredEffect == StatusEffect.Sleep2) && (OptionsForm.config.monitoredSleep2) && (OptionsForm.config.wakeSleepEnabled))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, wakeSleepSpellName);
+                        CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Player.Name, wakeSleepSpellName);
                     }
                     else if ((monitoredEffect == StatusEffect.Silence) && (OptionsForm.config.monitoredSilence) && playerHelper.IsAbleToCastSpell("Silena"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Silena");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Silena");
                     }
                     else if ((monitoredEffect == StatusEffect.Petrification) && (OptionsForm.config.monitoredPetrification) && playerHelper.IsAbleToCastSpell("Stona"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Stona");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Stona");
                     }
                     else if ((monitoredEffect == StatusEffect.Paralysis) && (OptionsForm.config.monitoredParalysis) && playerHelper.IsAbleToCastSpell("Paralyna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Paralyna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Paralyna");
                     }
                     else if ((monitoredEffect == StatusEffect.Amnesia) && (OptionsForm.config.monitoredAmnesia) && playerHelper.IsAbleToCastSpell("Esuna") && BuffChecker(0, 418))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Esuna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Esuna");
                     }
                     else if ((monitoredEffect == StatusEffect.Poison) && (OptionsForm.config.monitoredPoison) && playerHelper.IsAbleToCastSpell("Poisona"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Poisona");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Poisona");
                     }
                     else if ((monitoredEffect == StatusEffect.Attack_Down) && (OptionsForm.config.monitoredAttackDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Blindness) && (OptionsForm.config.monitoredBlindness) && playerHelper.IsAbleToCastSpell("Blindna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Blindna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Blindna");
                     }
                     else if ((monitoredEffect == StatusEffect.Bind) && (OptionsForm.config.monitoredBind) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Weight) && (OptionsForm.config.monitoredWeight) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Slow) && (OptionsForm.config.monitoredSlow) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Curse) && (OptionsForm.config.monitoredCurse) && playerHelper.IsAbleToCastSpell("Cursna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Cursna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Cursna");
                     }
                     else if ((monitoredEffect == StatusEffect.Curse2) && (OptionsForm.config.monitoredCurse2) && playerHelper.IsAbleToCastSpell("Cursna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Cursna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Cursna");
                     }
                     else if ((monitoredEffect == StatusEffect.Addle) && (OptionsForm.config.monitoredAddle) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Bane) && (OptionsForm.config.monitoredBane) && playerHelper.IsAbleToCastSpell("Cursna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Cursna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Cursna");
                     }
                     else if ((monitoredEffect == StatusEffect.Plague) && (OptionsForm.config.monitoredPlague) && playerHelper.IsAbleToCastSpell("Viruna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Viruna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Viruna");
                     }
                     else if ((monitoredEffect == StatusEffect.Disease) && (OptionsForm.config.monitoredDisease) && playerHelper.IsAbleToCastSpell("Viruna"))
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Viruna");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Viruna");
                     }
                     else if ((monitoredEffect == StatusEffect.Burn) && (OptionsForm.config.monitoredBurn) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Frost) && (OptionsForm.config.monitoredFrost) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Choke) && (OptionsForm.config.monitoredChoke) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Rasp) && (OptionsForm.config.monitoredRasp) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Shock) && (OptionsForm.config.monitoredShock) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Drown) && (OptionsForm.config.monitoredDrown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Dia) && (OptionsForm.config.monitoredDia) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Bio) && (OptionsForm.config.monitoredBio) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.STR_Down) && (OptionsForm.config.monitoredStrDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.DEX_Down) && (OptionsForm.config.monitoredDexDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.VIT_Down) && (OptionsForm.config.monitoredVitDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.AGI_Down) && (OptionsForm.config.monitoredAgiDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.INT_Down) && (OptionsForm.config.monitoredIntDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.MND_Down) && (OptionsForm.config.monitoredMndDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.CHR_Down) && (OptionsForm.config.monitoredChrDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Max_HP_Down) && (OptionsForm.config.monitoredMaxHpDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Max_MP_Down) && (OptionsForm.config.monitoredMaxMpDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Accuracy_Down) && (OptionsForm.config.monitoredAccuracyDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Evasion_Down) && (OptionsForm.config.monitoredEvasionDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Defense_Down) && (OptionsForm.config.monitoredDefenseDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Flash) && (OptionsForm.config.monitoredFlash) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Magic_Acc_Down) && (OptionsForm.config.monitoredMagicAccDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Magic_Atk_Down) && (OptionsForm.config.monitoredMagicAtkDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Helix) && (OptionsForm.config.monitoredHelix) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Max_TP_Down) && (OptionsForm.config.monitoredMaxTpDown) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Requiem) && (OptionsForm.config.monitoredRequiem) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Elegy) && (OptionsForm.config.monitoredElegy) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                     else if ((monitoredEffect == StatusEffect.Threnody) && (OptionsForm.config.monitoredThrenody) && playerHelper.IsAbleToCastSpell("Erase") && plMonitoredSameParty() == true)
                     {
-                        CastSpell(_ELITEAPIMonitored.Player.Name, "Erase");
+                        CastingManager.QueueSpell(SpellType.Debuff, _ELITEAPIMonitored.Player.Name, "Erase");
                     }
                 }
             }
@@ -2131,314 +2131,314 @@
                                                 //DOOM
                                                 if (OptionsForm.config.naCurse && DebuffContains(named_Debuffs, "15") && playerHelper.IsAbleToCastSpell("Cursna"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Cursna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Cursna");
                                                     BreakOut = 1;
                                                 }
                                                 //SLEEP
                                                 else if (DebuffContains(named_Debuffs, "2") && (playerHelper.CheckSpellRecast(wakeSleepSpellName) == 0) && playerHelper.HasSpell(wakeSleepSpellName))
                                                 {
-                                                    CastSpell(ptMember.Name, wakeSleepSpellName);
+                                                    CastingManager.QueueSpell(SpellType.Healing, ptMember.Name, wakeSleepSpellName);
                                                     removeDebuff(ptMember.Name, 2);
                                                     BreakOut = 1;
                                                 }
                                                 //SLEEP 2
                                                 else if (DebuffContains(named_Debuffs, "19") && (playerHelper.CheckSpellRecast(wakeSleepSpellName) == 0) && playerHelper.HasSpell(wakeSleepSpellName))
                                                 {
-                                                    CastSpell(ptMember.Name, wakeSleepSpellName);
+                                                    CastingManager.QueueSpell(SpellType.Healing, ptMember.Name, wakeSleepSpellName);
                                                     removeDebuff(ptMember.Name, 19);
                                                     BreakOut = 1;
                                                 }
                                                 //PETRIFICATION
                                                 else if (OptionsForm.config.naPetrification && DebuffContains(named_Debuffs, "7") && playerHelper.IsAbleToCastSpell("Stona"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Stona");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Stona");
                                                     removeDebuff(ptMember.Name, 7);
                                                     BreakOut = 1;
                                                 }
                                                 //SILENCE
                                                 else if (OptionsForm.config.naSilence && DebuffContains(named_Debuffs, "6") && playerHelper.IsAbleToCastSpell("Silena"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Silena");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Silena");
                                                     removeDebuff(ptMember.Name, 6);
                                                     BreakOut = 1;
                                                 }
                                                 //PARALYSIS
                                                 else if (OptionsForm.config.naParalysis && DebuffContains(named_Debuffs, "4") && playerHelper.IsAbleToCastSpell("Paralyna"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Paralyna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Paralyna");
                                                     removeDebuff(ptMember.Name, 4);
                                                     BreakOut = 1;
                                                 }
                                                 // PLAGUE
                                                 else if (OptionsForm.config.naDisease && DebuffContains(named_Debuffs, "31") && playerHelper.IsAbleToCastSpell("Viruna"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Viruna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Viruna");
                                                     removeDebuff(ptMember.Name, 31);
                                                     BreakOut = 1;
                                                 }
                                                 //DISEASE
                                                 else if (OptionsForm.config.naDisease && DebuffContains(named_Debuffs, "8") && playerHelper.IsAbleToCastSpell("Viruna"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Viruna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Viruna");
                                                     removeDebuff(ptMember.Name, 8);
                                                     BreakOut = 1;
                                                 }
                                                 // AMNESIA
                                                 else if (OptionsForm.config.Esuna && DebuffContains(named_Debuffs, "16") && playerHelper.IsAbleToCastSpell("Esuna") && BuffChecker(1, 418))
                                                 {
-                                                    CastSpell(ptMember.Name, "Esuna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Esuna");
                                                     removeDebuff(ptMember.Name, 16);
                                                     BreakOut = 1;
                                                 }
                                                 //CURSE
                                                 else if (OptionsForm.config.naCurse && DebuffContains(named_Debuffs, "9") && playerHelper.IsAbleToCastSpell("Cursna"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Cursna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Cursna");
                                                     removeDebuff(ptMember.Name, 9);
                                                     BreakOut = 1;
                                                 }
                                                 //BLINDNESS
                                                 else if (OptionsForm.config.naBlindness && DebuffContains(named_Debuffs, "5") && playerHelper.IsAbleToCastSpell("Blindna"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Blindna");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Blindna");
                                                     removeDebuff(ptMember.Name, 5);
                                                     BreakOut = 1;
                                                 }
                                                 //POISON
                                                 else if (OptionsForm.config.naPoison && DebuffContains(named_Debuffs, "3") && playerHelper.IsAbleToCastSpell("Poisona"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Poisona");
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Poisona");
                                                     removeDebuff(ptMember.Name, 3);
                                                     BreakOut = 1;
                                                 }
                                                 // SLOW
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Slow && DebuffContains(named_Debuffs, "13") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Slow → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Slow → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 13);
                                                     BreakOut = 1;
                                                 }
                                                 // BIO
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Bio && DebuffContains(named_Debuffs, "135") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Bio → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Bio → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 135);
                                                     BreakOut = 1;
                                                 }
                                                 // BIND
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Bind && DebuffContains(named_Debuffs, "11") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Bind → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Bind → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 11);
                                                     BreakOut = 1;
                                                 }
                                                 // GRAVITY
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Weight && DebuffContains(named_Debuffs, "12") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Gravity → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Gravity → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 12);
                                                     BreakOut = 1;
                                                 }
                                                 // ACCURACY DOWN
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AccuracyDown && DebuffContains(named_Debuffs, "146") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Acc. Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Acc. Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 146);
                                                     BreakOut = 1;
                                                 }
                                                 // DEFENSE DOWN
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_DefenseDown && DebuffContains(named_Debuffs, "149") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Def. Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Def. Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 149);
                                                     BreakOut = 1;
                                                 }
                                                 // MAGIC DEF DOWN
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicDefenseDown && DebuffContains(named_Debuffs, "167") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Mag. Def. Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Mag. Def. Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 167);
                                                     BreakOut = 1;
                                                 }
                                                 // ATTACK DOWN
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AttackDown && DebuffContains(named_Debuffs, "147") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Attk. Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Attk. Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 147);
                                                     BreakOut = 1;
                                                 }
                                                 // HP DOWN
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxHpDown && DebuffContains(named_Debuffs, "144") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "HP Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "HP Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 144);
                                                     BreakOut = 1;
                                                 }
                                                 // VIT Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_VitDown && DebuffContains(named_Debuffs, "138") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "VIT Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "VIT Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 138);
                                                     BreakOut = 1;
                                                 }
                                                 // Threnody
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Threnody && DebuffContains(named_Debuffs, "217") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Threnody → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Threnody → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 217);
                                                     BreakOut = 1;
                                                 }
                                                 // Shock
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Shock && DebuffContains(named_Debuffs, "132") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Shock → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Shock → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 132);
                                                     BreakOut = 1;
                                                 }
                                                 // StrDown
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_StrDown && DebuffContains(named_Debuffs, "136") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "STR Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "STR Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 136);
                                                     BreakOut = 1;
                                                 }
                                                 // Requiem
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Requiem && DebuffContains(named_Debuffs, "192") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Requiem → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Requiem → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 192);
                                                     BreakOut = 1;
                                                 }
                                                 // Rasp
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Rasp && DebuffContains(named_Debuffs, "131") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Rasp → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Rasp → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 131);
                                                     BreakOut = 1;
                                                 }
                                                 // Max TP Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxTpDown && DebuffContains(named_Debuffs, "189") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Max TP Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Max TP Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 189);
                                                     BreakOut = 1;
                                                 }
                                                 // Max MP Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxMpDown && DebuffContains(named_Debuffs, "145") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Max MP Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Max MP Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 145);
                                                     BreakOut = 1;
                                                 }
                                                 // Magic Attack Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicAttackDown && DebuffContains(named_Debuffs, "175") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Mag. Atk. Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Mag. Atk. Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 175);
                                                     BreakOut = 1;
                                                 }
                                                 // Magic Acc Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicAccDown && DebuffContains(named_Debuffs, "174") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Mag. Acc. Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Mag. Acc. Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 174);
                                                     BreakOut = 1;
                                                 }
                                                 // Mind Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MndDown && DebuffContains(named_Debuffs, "141") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "MND Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "MND Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 141);
                                                     BreakOut = 1;
                                                 }
                                                 // Int Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_IntDown && DebuffContains(named_Debuffs, "140") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "INT Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "INT Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 140);
                                                     BreakOut = 1;
                                                 }
                                                 // Helix
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Helix && DebuffContains(named_Debuffs, "186") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Helix → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Helix → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 186);
                                                     BreakOut = 1;
                                                 }
                                                 // Frost
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Frost && DebuffContains(named_Debuffs, "129") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Frost → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Frost → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 129);
                                                     BreakOut = 1;
                                                 }
                                                 // EvasionDown
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_EvasionDown && DebuffContains(named_Debuffs, "148") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Evasion Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Evasion Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 148);
                                                     BreakOut = 1;
                                                 }
                                                 // ELEGY
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Elegy && DebuffContains(named_Debuffs, "194") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Elegy → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Elegy → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 194);
                                                     BreakOut = 1;
                                                 }
                                                 // Drown
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Drown && DebuffContains(named_Debuffs, "133") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Drown → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Drown → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 133);
                                                     BreakOut = 1;
                                                 }
                                                 // Dia
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Dia && DebuffContains(named_Debuffs, "134") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Dia → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Dia → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 134);
                                                     BreakOut = 1;
                                                 }
                                                 // DexDown
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_DexDown && DebuffContains(named_Debuffs, "137") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "DEX Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "DEX Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 137);
                                                     BreakOut = 1;
                                                 }
                                                 // Choke
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Choke && DebuffContains(named_Debuffs, "130") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Choke → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Choke → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 130);
                                                     BreakOut = 1;
                                                 }
                                                 // ChrDown
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_ChrDown && DebuffContains(named_Debuffs, "142") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "CHR Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "CHR Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 142);
                                                     BreakOut = 1;
                                                 }
                                                 // Burn
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Burn && DebuffContains(named_Debuffs, "128") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Burn → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Burn → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 128);
                                                     BreakOut = 1;
                                                 }
                                                 // Addle
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Addle && DebuffContains(named_Debuffs, "21") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "Addle → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "Addle → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 21);
                                                     BreakOut = 1;
                                                 }
                                                 // AGI Down
                                                 else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AgiDown && DebuffContains(named_Debuffs, "139") && playerHelper.IsAbleToCastSpell("Erase"))
                                                 {
-                                                    CastSpell(ptMember.Name, "Erase", "AGI Down → " + ptMember.Name);
+                                                    CastingManager.QueueSpell(SpellType.Debuff, ptMember.Name, "Erase", "AGI Down → " + ptMember.Name);
                                                     removeDebuff(ptMember.Name, 139);
                                                     BreakOut = 1;
                                                 }
@@ -2491,11 +2491,11 @@
                     {
                         if (OptionsForm.config.curagaTargetType == 0)
                         {
-                            CastSpell(lowestHP_Name, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell);
                         }
                         else
                         {
-                            CastSpell(OptionsForm.config.curagaTargetName, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell);
                         }
                     }
                 }
@@ -2525,11 +2525,11 @@
 
                         if (OptionsForm.config.curagaTargetType == 0)
                         {
-                            CastSpell(lowestHP_Name, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell);
                         }
                         else
                         {
-                            CastSpell(OptionsForm.config.curagaTargetName, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell);
                         }
                     }
                 }
@@ -2558,11 +2558,11 @@
 
                         if (OptionsForm.config.curagaTargetType == 0)
                         {
-                            CastSpell(lowestHP_Name, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell);
                         }
                         else
                         {
-                            CastSpell(OptionsForm.config.curagaTargetName, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell);
                         }
                     }
                 }
@@ -2590,11 +2590,11 @@
 
                         if (OptionsForm.config.curagaTargetType == 0)
                         {
-                            CastSpell(lowestHP_Name, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell);
                         }
                         else
                         {
-                            CastSpell(OptionsForm.config.curagaTargetName, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell);
                         }
                     }
                 }
@@ -2623,11 +2623,11 @@
 
                         if (OptionsForm.config.curagaTargetType == 0)
                         {
-                            CastSpell(lowestHP_Name, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell);
                         }
                         else
                         {
-                            CastSpell(OptionsForm.config.curagaTargetName, cureSpell);
+                            CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell);
                         }
                     }
                 }
@@ -2681,43 +2681,6 @@
             }
         }
 
-
-        private void CastSpell(string partyMemberName, string spellName, [Optional] string OptionalExtras)
-        {
-            if (CastingBackground_Check != true)
-            {
-                InternalHelper.setCooldown(spellName, partyMemberName);
-
-                EliteAPI.ISpell magic = _ELITEAPIPL.Resources.GetSpell(spellName.Trim(), 0);
-
-                castingSpell = magic.Name[0];
-
-                _ELITEAPIPL.ThirdParty.SendString("/ma \"" + castingSpell + "\" " + partyMemberName);
-
-                if (OptionalExtras != null)
-                {
-                    currentAction.Text = "Casting: " + castingSpell + " [" + OptionalExtras + "]";
-                }
-                else
-                {
-                    currentAction.Text = "Casting: " + castingSpell;
-                }
-
-                CastingBackground_Check = true;
-
-                if (OptionsForm.config.trackCastingPackets == true && OptionsForm.config.EnableAddOn == true)
-                {
-                    if (!ProtectCasting.IsBusy) { ProtectCasting.RunWorkerAsync(); }
-                }
-                else
-                {
-                    castingLockLabel.Text = "Casting is LOCKED";
-                    if (!ProtectCasting.IsBusy) { ProtectCasting.RunWorkerAsync(); }
-                }
-
-            }
-
-        }
 
         private bool ActiveSpikes()
         {
@@ -2789,18 +2752,7 @@
             //Failsafe in case it gets stuck for longer than 5 seconds
             //This is a temporary fix until i find out whats causing this, i suspect some parallel processing issue.
             //The result is in the char doing nothing anymore
-            if (CastingBackground_Check != true)
-            {
-                CastingBackground_Check_timer = DateTime.Now;
-            }
-            else
-            {
-                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
-                {
-                    //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
-                    CastingBackground_Check = false;
-                }
-            }
+           
             //Failsafe in case it gets stuck for longer than 5 seconds
             if (JobAbilityLock_Check != true)
             {
@@ -2813,6 +2765,14 @@
                     //_ELITEAPIPL.ThirdParty.SendString("/p Activating super jobabillity powers!");
                     JobAbilityLock_Check = false;
                 }
+            }
+        }
+
+        private async void cureTimer_TickAsync(object sender, EventArgs e)
+        {
+            if(CastingManager != null)
+            {
+                CastingManager.Run();
             }
         }
 
@@ -2839,14 +2799,14 @@
 
             if(prioCast != null)
             {
-                if (CastingBackground_Check)
+                if (!CastingManager.CanCast())
                 {
                     return; //waiting on stuff to finish
                 }
                 else
                 {
                     prioCast = PrioQueueHelper.popQueueItem();
-                    CastSpell(prioCast.Target, prioCast.SpellName);
+                    CastingManager.QueueSpell(SpellType.Prio, prioCast.Target, prioCast.SpellName);
                 }
                 
             }
@@ -2916,14 +2876,13 @@
 
             int songs_currently_up1 = _ELITEAPIMonitored.Player.GetPlayerInfo().Buffs.Where(b => b == 197 || b == 198 || b == 195 || b == 199 || b == 200 || b == 215 || b == 196 || b == 214 || b == 216 || b == 218 || b == 222).Count();
 
-
-
             // IF ENABLED PAUSE ON KO
             if (OptionsForm.config.pauseOnKO && (_ELITEAPIPL.Player.Status == 2 || _ELITEAPIPL.Player.Status == 3))
             {
                 pauseButton.Text = "Paused!";
                 pauseButton.ForeColor = Color.Red;
                 actionTimer.Enabled = false;
+                cureTimer.Enabled = false;
                 ActiveBuffs.Clear();
                 pauseActions = true;
                 if (OptionsForm.config.FFXIDefaultAutoFollow == false)
@@ -2945,11 +2904,8 @@
                 }
             }
 
-            
-
-
             // If CastingLock is not FALSE and you're not Terrorized, Petrified, or Stunned run the actions
-            if (JobAbilityLock_Check != true && CastingBackground_Check != true && !plStatusCheck(StatusEffect.Terror) && !plStatusCheck(StatusEffect.Petrification) && !plStatusCheck(StatusEffect.Stun))
+            if (JobAbilityLock_Check != true && CastingManager.CanCast() && !plStatusCheck(StatusEffect.Terror) && !plStatusCheck(StatusEffect.Petrification) && !plStatusCheck(StatusEffect.Stun))
             {
 
                 // FIRST IF YOU ARE SILENCED OR DOOMED ATTEMPT REMOVAL NOW
@@ -2993,12 +2949,12 @@
                         _ELITEAPIPL.ThirdParty.SendString("/ja \"Full Circle\" <me>");
                         await Task.Delay(2000);
                         string SpellCheckedResult = ReturnGeoSpell(OptionsForm.config.RadialArcana_Spell, 2);
-                        CastSpell("<me>", SpellCheckedResult);
+                        CastingManager.QueueSpell(SpellType.Buff, "<me>", SpellCheckedResult);
                     }
                     else
                     {
                         string SpellCheckedResult = ReturnGeoSpell(OptionsForm.config.RadialArcana_Spell, 2);
-                        CastSpell("<me>", SpellCheckedResult);
+                        CastingManager.QueueSpell(SpellType.Healing, "<me>", SpellCheckedResult);
                     }
                 }
                 else if (OptionsForm.config.FullCircle)
@@ -3113,7 +3069,7 @@
                 if (_ELITEAPIPL.Player.Status == (uint)Status.Healing) { return; } //Healing do nothing 
 
                 // Only perform actions if PL is stationary PAUSE GOES HERE
-                if ((_ELITEAPIPL.Player.X == plX) && (_ELITEAPIPL.Player.Y == plY) && (_ELITEAPIPL.Player.Z == plZ) && (_ELITEAPIPL.Player.LoginStatus == (int)LoginStatus.LoggedIn) && JobAbilityLock_Check != true && CastingBackground_Check != true && curePlease_autofollow == false && ((_ELITEAPIPL.Player.Status == (uint)Status.Standing) || (_ELITEAPIPL.Player.Status == (uint)Status.Fighting)))
+                if ((_ELITEAPIPL.Player.X == plX) && (_ELITEAPIPL.Player.Y == plY) && (_ELITEAPIPL.Player.Z == plZ) && (_ELITEAPIPL.Player.LoginStatus == (int)LoginStatus.LoggedIn) && JobAbilityLock_Check != true && CastingManager.CanCast() && curePlease_autofollow == false && ((_ELITEAPIPL.Player.Status == (uint)Status.Standing) || (_ELITEAPIPL.Player.Status == (uint)Status.Fighting)))
                 {
                     // IF SILENCED THIS NEEDS TO BE REMOVED BEFORE ANY MAGIC IS ATTEMPTED
                     if (OptionsForm.config.plSilenceItem == 0)
@@ -3308,7 +3264,7 @@
                     SpellsData enspell = EnSpells.enspells.Where(c => c.spell_position == OptionsForm.config.plEnspell_Spell && c.type == 1).SingleOrDefault();
                     SpellsData stormspell = StormSpells.stormspells.Where(c => c.spell_position == OptionsForm.config.plStormSpell_Spell).SingleOrDefault();
 
-                    if (_ELITEAPIPL.Player.LoginStatus == (int)LoginStatus.LoggedIn && JobAbilityLock_Check != true && CastingBackground_Check != true)
+                    if (_ELITEAPIPL.Player.LoginStatus == (int)LoginStatus.LoggedIn && JobAbilityLock_Check != true && CastingManager.CanCast())
                     {
                         #region "self_buffs"
                         if ((OptionsForm.config.Composure) && (!plStatusCheck(StatusEffect.Composure)) && (GetAbilityRecast("Composure") == 0) && (HasAbility("Composure")))
@@ -3344,19 +3300,19 @@
 
                             if ((OptionsForm.config.plReraise_Level == 1) && _ELITEAPIPL.Player.HasSpell(_ELITEAPIPL.Resources.GetSpell("Reraise", 0).Index) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise");
                             }
                             else if ((OptionsForm.config.plReraise_Level == 2) && _ELITEAPIPL.Player.HasSpell(_ELITEAPIPL.Resources.GetSpell("Reraise II", 0).Index) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise II");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise II");
                             }
                             else if ((OptionsForm.config.plReraise_Level == 3) && _ELITEAPIPL.Player.HasSpell(_ELITEAPIPL.Resources.GetSpell("Reraise III", 0).Index) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise III");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise III");
                             }
                             else if ((OptionsForm.config.plReraise_Level == 4) && _ELITEAPIPL.Player.HasSpell(_ELITEAPIPL.Resources.GetSpell("Reraise III", 0).Index) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise III");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise III");
                             }
 
                         }
@@ -3364,30 +3320,30 @@
                         {
                             if ((OptionsForm.config.plReraise_Level == 1) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise");
                             }
                             else if ((OptionsForm.config.plReraise_Level == 2) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise II");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise II");
                             }
                             else if ((OptionsForm.config.plReraise_Level == 3) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise III");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise III");
                             }
                             else if ((OptionsForm.config.plReraise_Level == 4) && _ELITEAPIPL.Player.MP > 150)
                             {
-                                CastSpell("<me>", "Reraise IV");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Reraise IV");
                             }
                         }
                         else if ((OptionsForm.config.plUtsusemi) && (BuffChecker(444, 0) != true && BuffChecker(445, 0) != true && BuffChecker(446, 0) != true))
                         {
                             if (playerHelper.CheckSpellRecast("Utsusemi: Ni") == 0 && playerHelper.HasSpell("Utsusemi: Ni") && playerHelper.JobChecker("Utsusemi: Ni") == true && GetInventoryItemCount(_ELITEAPIPL, GetItemId("Shihei")) > 0)
                             {
-                                CastSpell("<me>", "Utsusemi: Ni");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Utsusemi: Ni");
                             }
                             else if (playerHelper.CheckSpellRecast("Utsusemi: Ichi") == 0 && playerHelper.HasSpell("Utsusemi: Ichi") && playerHelper.JobChecker("Utsusemi: Ichi") == true && (BuffChecker(62, 0) != true && BuffChecker(444, 0) != true && BuffChecker(445, 0) != true && BuffChecker(446, 0) != true) && GetInventoryItemCount(_ELITEAPIPL, GetItemId("Shihei")) > 0)
                             {
-                                CastSpell("<me>", "Utsusemi: Ichi");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Utsusemi: Ichi");
                             }
                         }
                         else if ((OptionsForm.config.plProtect) && (!plStatusCheck(StatusEffect.Protect)))
@@ -3425,7 +3381,7 @@
                                     }
                                 }
 
-                                CastSpell("<me>", protectSpell);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", protectSpell);
                             }
                         }
                         else if ((OptionsForm.config.plShell) && (!plStatusCheck(StatusEffect.Shell)))
@@ -3463,7 +3419,7 @@
                                     }
                                 }
 
-                                CastSpell("<me>", shellSpell);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell);
                             }
                         }
                         else if ((OptionsForm.config.plBlink) && (!plStatusCheck(StatusEffect.Blink)) && (playerHelper.CheckSpellRecast("Blink") == 0) && (playerHelper.HasSpell("Blink")))
@@ -3481,7 +3437,7 @@
                                 return;
                             }
 
-                            CastSpell("<me>", "Blink");
+                            CastingManager.QueueSpell(SpellType.Healing, "<me>", "Blink");
                         }
                         else if ((OptionsForm.config.plPhalanx) && (!plStatusCheck(StatusEffect.Phalanx)) && (playerHelper.CheckSpellRecast("Phalanx") == 0) && (playerHelper.HasSpell("Phalanx")) && playerHelper.JobChecker("Phalanx") == true)
                         {
@@ -3497,7 +3453,7 @@
                                 return;
                             }
 
-                            CastSpell("<me>", "Phalanx");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Phalanx");
                         }
                         else if ((OptionsForm.config.plRefresh) && (!plStatusCheck(StatusEffect.Refresh)) && CheckRefreshLevelPossession())
                         {
@@ -3515,15 +3471,15 @@
                                     return;
                                 }
 
-                                CastSpell("<me>", "Refresh");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh");
                             }
                             else if ((OptionsForm.config.plRefresh_Level == 2) && (playerHelper.CheckSpellRecast("Refresh II") == 0) && (playerHelper.HasSpell("Refresh II")) && playerHelper.JobChecker("Refresh II") == true)
                             {
-                                CastSpell("<me>", "Refresh II");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh II");
                             }
                             else if ((OptionsForm.config.plRefresh_Level == 3) && (playerHelper.CheckSpellRecast("Refresh III") == 0) && (playerHelper.HasSpell("Refresh III")) && playerHelper.JobChecker("Refresh III") == true)
                             {
-                                CastSpell("<me>", "Refresh III");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh III");
                             }
                         }
                         else if ((OptionsForm.config.plRegen) && (!plStatusCheck(StatusEffect.Regen)) && CheckRegenLevelPossession() == true)
@@ -3542,23 +3498,23 @@
 
                             if ((OptionsForm.config.plRegen_Level == 1) && _ELITEAPIPL.Player.MP > 15)
                             {
-                                CastSpell("<me>", "Regen");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen");
                             }
                             else if ((OptionsForm.config.plRegen_Level == 2) && _ELITEAPIPL.Player.MP > 36)
                             {
-                                CastSpell("<me>", "Regen II");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen II");
                             }
                             else if ((OptionsForm.config.plRegen_Level == 3) && _ELITEAPIPL.Player.MP > 64)
                             {
-                                CastSpell("<me>", "Regen III");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen III");
                             }
                             else if ((OptionsForm.config.plRegen_Level == 4) && _ELITEAPIPL.Player.MP > 82)
                             {
-                                CastSpell("<me>", "Regen IV");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen IV");
                             }
                             else if ((OptionsForm.config.plRegen_Level == 5) && _ELITEAPIPL.Player.MP > 100)
                             {
-                                CastSpell("<me>", "Regen V");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen V");
                             }
                         }
                         else if ((OptionsForm.config.plAdloquium) && (!plStatusCheck(StatusEffect.Regain)) && (playerHelper.CheckSpellRecast("Adloquium") == 0) && (playerHelper.HasSpell("Adloquium")) && playerHelper.JobChecker("Adloquium") == true)
@@ -3575,7 +3531,7 @@
                                 return;
                             }
 
-                            CastSpell("<me>", "Adloquium");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Adloquium");
                         }
                         else if ((OptionsForm.config.plStoneskin) && (!plStatusCheck(StatusEffect.Stoneskin)) && (playerHelper.CheckSpellRecast("Stoneskin") == 0) && (playerHelper.HasSpell("Stoneskin")) && playerHelper.JobChecker("Stoneskin") == true)
                         {
@@ -3591,7 +3547,7 @@
                                 return;
                             }
 
-                            CastSpell("<me>", "Stoneskin");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Stoneskin");
                         }
                         else if ((OptionsForm.config.plAquaveil) && (!plStatusCheck(StatusEffect.Aquaveil)) && (playerHelper.CheckSpellRecast("Aquaveil") == 0) && (playerHelper.HasSpell("Aquaveil")) && playerHelper.JobChecker("Aquaveil") == true)
                         {
@@ -3607,15 +3563,15 @@
                                 return;
                             }
 
-                            CastSpell("<me>", "Aquaveil");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Aquaveil");
                         }
                         else if ((OptionsForm.config.plShellra) && (!plStatusCheck(StatusEffect.Shell)) && CheckShellraLevelPossession() == true)
                         {
-                            CastSpell("<me>", GetShellraLevel(OptionsForm.config.plShellra_Level));
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetShellraLevel(OptionsForm.config.plShellra_Level));
                         }
                         else if ((OptionsForm.config.plProtectra) && (!plStatusCheck(StatusEffect.Protect)) && CheckProtectraLevelPossession() == true)
                         {
-                            CastSpell("<me>", GetProtectraLevel(OptionsForm.config.plProtectra_Level));
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetProtectraLevel(OptionsForm.config.plProtectra_Level));
                         }
                         else if ((OptionsForm.config.plBarElement) && (!BuffChecker(BarspellBuffID, 0) && (playerHelper.CheckSpellRecast(BarspellName) == 0) && (playerHelper.HasSpell(BarspellName)) && playerHelper.JobChecker(BarspellName) == true))
                         {
@@ -3631,7 +3587,7 @@
                                 return;
                             }
 
-                            CastSpell("<me>", BarspellName);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", BarspellName);
                         }
                         else if ((OptionsForm.config.plBarStatus) && (!BuffChecker(BarstatusBuffID, 0) && (playerHelper.CheckSpellRecast(BarstatusName) == 0) && (playerHelper.HasSpell(BarstatusName)) && playerHelper.JobChecker(BarstatusName) == true))
                         {
@@ -3647,63 +3603,63 @@
                                 return;
                             }
 
-                            CastSpell("<me>", BarstatusName);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", BarstatusName);
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 0) && !plStatusCheck(StatusEffect.STR_Boost2) && (playerHelper.CheckSpellRecast("Gain-STR") == 0) && (playerHelper.HasSpell("Gain-STR")))
                         {
-                            CastSpell("<me>", "Gain-STR");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-STR");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 1) && !plStatusCheck(StatusEffect.DEX_Boost2) && (playerHelper.CheckSpellRecast("Gain-DEX") == 0) && (playerHelper.HasSpell("Gain-DEX")))
                         {
-                            CastSpell("<me>", "Gain-DEX");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-DEX");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 2) && !plStatusCheck(StatusEffect.VIT_Boost2) && (playerHelper.CheckSpellRecast("Gain-VIT") == 0) && (playerHelper.HasSpell("Gain-VIT")))
                         {
-                            CastSpell("<me>", "Gain-VIT");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-VIT");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 3) && !plStatusCheck(StatusEffect.AGI_Boost2) && (playerHelper.CheckSpellRecast("Gain-AGI") == 0) && (playerHelper.HasSpell("Gain-AGI")))
                         {
-                            CastSpell("<me>", "Gain-AGI");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-AGI");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 4) && !plStatusCheck(StatusEffect.INT_Boost2) && (playerHelper.CheckSpellRecast("Gain-INT") == 0) && (playerHelper.HasSpell("Gain-INT")))
                         {
-                            CastSpell("<me>", "Gain-INT");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-INT");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 5) && !plStatusCheck(StatusEffect.MND_Boost2) && (playerHelper.CheckSpellRecast("Gain-MND") == 0) && (playerHelper.HasSpell("Gain-MND")))
                         {
-                            CastSpell("<me>", "Gain-MND");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-MND");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 6) && !plStatusCheck(StatusEffect.CHR_Boost2) && (playerHelper.CheckSpellRecast("Gain-CHR") == 0) && (playerHelper.HasSpell("Gain-CHR")))
                         {
-                            CastSpell("<me>", "Gain-CHR");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-CHR");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 7) && !plStatusCheck(StatusEffect.STR_Boost2) && (playerHelper.CheckSpellRecast("Boost-STR") == 0) && (playerHelper.HasSpell("Boost-STR")))
                         {
-                            CastSpell("<me>", "Boost-STR");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-STR");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 8) && !plStatusCheck(StatusEffect.DEX_Boost2) && (playerHelper.CheckSpellRecast("Boost-DEX") == 0) && (playerHelper.HasSpell("Boost-DEX")))
                         {
-                            CastSpell("<me>", "Boost-DEX");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-DEX");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 9) && !plStatusCheck(StatusEffect.VIT_Boost2) && (playerHelper.CheckSpellRecast("Boost-VIT") == 0) && (playerHelper.HasSpell("Boost-VIT")))
                         {
-                            CastSpell("<me>", "Boost-VIT");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-VIT");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 10) && !plStatusCheck(StatusEffect.AGI_Boost2) && (playerHelper.CheckSpellRecast("Boost-AGI") == 0) && (playerHelper.HasSpell("Boost-AGI")))
                         {
-                            CastSpell("<me>", "Boost-AGI");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-AGI");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 11) && !plStatusCheck(StatusEffect.INT_Boost2) && (playerHelper.CheckSpellRecast("Boost-INT") == 0) && (playerHelper.HasSpell("Boost-INT")))
                         {
-                            CastSpell("<me>", "Boost-INT");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-INT");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 12) && !plStatusCheck(StatusEffect.MND_Boost2) && (playerHelper.CheckSpellRecast("Boost-MND") == 0) && (playerHelper.HasSpell("Boost-MND")))
                         {
-                            CastSpell("<me>", "Boost-MND");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-MND");
                         }
                         else if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 13) && !plStatusCheck(StatusEffect.CHR_Boost2) && (playerHelper.CheckSpellRecast("Boost-CHR") == 0) && (playerHelper.HasSpell("Boost-CHR")))
                         {
-                            CastSpell("<me>", "Boost-CHR");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-CHR");
                         }
                         else if ((OptionsForm.config.plStormSpell) && (!BuffChecker(stormspell.buffID, 0) && (playerHelper.CheckSpellRecast(stormspell.Spell_Name) == 0) && (playerHelper.HasSpell(stormspell.Spell_Name)) && playerHelper.JobChecker(stormspell.Spell_Name) == true))
                         {
@@ -3719,50 +3675,50 @@
                                 return;
                             }
 
-                            CastSpell("<me>", stormspell.Spell_Name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", stormspell.Spell_Name);
                         }
                         else if ((OptionsForm.config.plKlimaform) && !plStatusCheck(StatusEffect.Klimaform))
                         {
                             if ((playerHelper.CheckSpellRecast("Klimaform") == 0) && (playerHelper.HasSpell("Klimaform")))
                             {
-                                CastSpell("<me>", "Klimaform");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Klimaform");
                             }
                         }
                         else if ((OptionsForm.config.plTemper) && (!plStatusCheck(StatusEffect.Multi_Strikes)))
                         {
                             if ((OptionsForm.config.plTemper_Level == 1) && (playerHelper.CheckSpellRecast("Temper") == 0) && (playerHelper.HasSpell("Temper")))
                             {
-                                CastSpell("<me>", "Temper");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Temper");
                             }
                             else if ((OptionsForm.config.plTemper_Level == 2) && (playerHelper.CheckSpellRecast("Temper II") == 0) && (playerHelper.HasSpell("Temper II")))
                             {
-                                CastSpell("<me>", "Temper II");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Temper II");
                             }
                         }
                         else if ((OptionsForm.config.plHaste) && (!plStatusCheck(StatusEffect.Haste)))
                         {
                             if ((OptionsForm.config.plHaste_Level == 1) && (playerHelper.CheckSpellRecast("Haste") == 0) && (playerHelper.HasSpell("Haste")))
                             {
-                                CastSpell("<me>", "Haste");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Haste");
                             }
                             else if ((OptionsForm.config.plHaste_Level == 2) && (playerHelper.CheckSpellRecast("Haste II") == 0) && (playerHelper.HasSpell("Haste II")))
                             {
-                                CastSpell("<me>", "Haste II");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Haste II");
                             }
                         }
                         else if ((OptionsForm.config.plSpikes) && ActiveSpikes() == false)
                         {
                             if ((OptionsForm.config.plSpikes_Spell == 0) && (playerHelper.CheckSpellRecast("Blaze Spikes") == 0) && (playerHelper.HasSpell("Blaze Spikes")))
                             {
-                                CastSpell("<me>", "Blaze Spikes");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Blaze Spikes");
                             }
                             else if ((OptionsForm.config.plSpikes_Spell == 1) && (playerHelper.CheckSpellRecast("Ice Spikes") == 0) && (playerHelper.HasSpell("Ice Spikes")))
                             {
-                                CastSpell("<me>", "Ice Spikes");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Ice Spikes");
                             }
                             else if ((OptionsForm.config.plSpikes_Spell == 2) && (playerHelper.CheckSpellRecast("Shock Spikes") == 0) && (playerHelper.HasSpell("Shock Spikes")))
                             {
-                                CastSpell("<me>", "Shock Spikes");
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Shock Spikes");
                             }
                         }
                         else if ((OptionsForm.config.plEnspell) && (!BuffChecker(enspell.buffID, 0) && (playerHelper.CheckSpellRecast(enspell.Spell_Name) == 0) && (playerHelper.HasSpell(enspell.Spell_Name)) && playerHelper.JobChecker(enspell.Spell_Name) == true))
@@ -3779,11 +3735,11 @@
                                 return;
                             }
 
-                            CastSpell("<me>", enspell.Spell_Name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", enspell.Spell_Name);
                         }
                         else if ((OptionsForm.config.plAuspice) && (!plStatusCheck(StatusEffect.Auspice)) && (playerHelper.CheckSpellRecast("Auspice") == 0) && (playerHelper.HasSpell("Auspice")))
                         {
-                            CastSpell("<me>", "Auspice");
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Auspice");
                         }
 
                         // ENTRUSTED INDI SPELL CASTING, WILL BE CAST SO LONG AS ENTRUST IS ACTIVE
@@ -3802,11 +3758,11 @@
                             {
                                 if (OptionsForm.config.EntrustedSpell_Target == string.Empty)
                                 {
-                                    CastSpell(_ELITEAPIMonitored.Player.Name, SpellCheckedResult);
+                                    CastingManager.QueueSpell(SpellType.Buff, _ELITEAPIMonitored.Player.Name, SpellCheckedResult);
                                 }
                                 else
                                 {
-                                    CastSpell(OptionsForm.config.EntrustedSpell_Target, SpellCheckedResult);
+                                    CastingManager.QueueSpell(SpellType.Buff, OptionsForm.config.EntrustedSpell_Target, SpellCheckedResult);
                                 }
                             }
                         }
@@ -3826,7 +3782,7 @@
                             }
                             else
                             {
-                                CastSpell("<me>", SpellCheckedResult);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", SpellCheckedResult);
                             }
 
                         }
@@ -3866,7 +3822,7 @@
                                             EclipticStillUp = true;
                                         }
 
-                                        CastSpell(_ELITEAPIMonitored.Player.Name, SpellCheckedResult);
+                                        CastingManager.QueueSpell(SpellType.Buff, _ELITEAPIMonitored.Player.Name, SpellCheckedResult);
                                     }
                                     else
                                     {
@@ -3875,7 +3831,7 @@
                                             EclipticStillUp = true;
                                         }
 
-                                        CastSpell(OptionsForm.config.LuopanSpell_Target, SpellCheckedResult);
+                                        CastingManager.QueueSpell(SpellType.Buff, OptionsForm.config.LuopanSpell_Target, SpellCheckedResult);
                                     }
                                 }
                                 else
@@ -3896,7 +3852,7 @@
                                                 EclipticStillUp = true;
                                             }
 
-                                            CastSpell("<t>", SpellCheckedResult);
+                                            CastingManager.QueueSpell(SpellType.Buff, "<t>", SpellCheckedResult);
                                             await Task.Delay(TimeSpan.FromSeconds(4));
                                             if (OptionsForm.config.DisableTargettingCancel == false)
                                             {
@@ -3917,7 +3873,7 @@
 
                                 if (enemyID != 0 && enemyID != lastKnownEstablisherTarget)
                                 {
-                                    CastSpell(OptionsForm.config.autoTarget_Target, OptionsForm.config.autoTargetSpell);
+                                    CastingManager.QueueSpell(SpellType.Buff, OptionsForm.config.autoTarget_Target, OptionsForm.config.autoTargetSpell);
                                     lastKnownEstablisherTarget = enemyID;
                                 }
                             }
@@ -3929,7 +3885,7 @@
                                 {
                                     _ELITEAPIPL.Target.SetTarget(enemyID);
                                     await Task.Delay(TimeSpan.FromMilliseconds(500));
-                                    CastSpell("<t>", OptionsForm.config.autoTargetSpell);
+                                    CastingManager.QueueSpell(SpellType.Buff, "<t>", OptionsForm.config.autoTargetSpell);
                                     lastKnownEstablisherTarget = enemyID;
                                     await Task.Delay(TimeSpan.FromMilliseconds(1000));
 
@@ -4129,58 +4085,58 @@
                                 var spell = "Haste";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Haste) && !plStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Haste II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Haste) && !plStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Adloquium";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !BuffChecker(170, 0))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Flurry";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !BuffChecker(581, 0) && !plStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Flurry II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !BuffChecker(581, 0) && !plStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetShellSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Shell))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetProtectSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Protect))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Phalanx II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Phalanx))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetRegenSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Regen))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetRefreshSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !plStatusCheck(StatusEffect.Refresh))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
                                 if(spell != "Dummy") { 
                                     if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && !BuffChecker(PTstormspell.buffID, 0) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true)
                                     {
-                                        CastSpell(charDATA.Name, spell);
+                                        CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                     }
                                 }
                                 #endregion
@@ -4192,61 +4148,61 @@
                                 #region "monitored"
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Haste) && !monitoredStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Haste II";
 
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Haste) && !monitoredStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Adloquium";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !BuffChecker(170, 1))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
 
                                 }
                                 spell = "Flurry";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !BuffChecker(581, 1) && !monitoredStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Flurry II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !BuffChecker(581, 1) && !monitoredStatusCheck(StatusEffect.Slow))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetShellSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Shell))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetProtectSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Protect))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Phalanx II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Phalanx))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetRegenSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Regen))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetRefreshSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Refresh))
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
                                 if (spell != "Dummy")
                                 {
                                     if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && !BuffChecker(PTstormspell.buffID, 1) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true)
                                     {
-                                        CastSpell(charDATA.Name, spell);
+                                        CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                     }
                                 }
                                 #endregion
@@ -4257,59 +4213,59 @@
                                 var spell = "Haste";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoHasteMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Haste II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoHasteMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Adloquium";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoAdloquiumMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Flurry";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoHasteMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Flurry II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoHasteMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetShellSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoShellMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetProtectSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoProtect_Minutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = "Phalanx II";
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoPhalanxIIMinutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetRegenSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoRegen_Minutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetRefreshSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoRefresh_Minutes)
                                 {
-                                    CastSpell(charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
                                 spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
                                 if (spell != "Dummy")
                                 {
                                     if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && (playerHelper.CastingPossible(charDATA.Name)) && playerHelper.CheckSpellRecast(spell) == 0 && playerHelper.HasSpell(spell) && playerHelper.JobChecker(spell) == true && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoStormspellMinutes)
                                     {
-                                        CastSpell(charDATA.Name, spell);
+                                        CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                     }
                                 }
                                 #endregion
@@ -4664,7 +4620,7 @@
 
         private void Item_Wait(string ItemName)
         {
-            if (CastingBackground_Check != true && JobAbilityLock_Check != true)
+            if (CastingManager.CanCast() && JobAbilityLock_Check != true)
             {
                 Invoke((MethodInvoker)(async () =>
                 {
@@ -4683,7 +4639,7 @@
 
         private void JobAbility_Wait(string JobabilityDATA, string JobAbilityName)
         {
-            if (CastingBackground_Check != true && JobAbilityLock_Check != true)
+            if (CastingManager.CanCast() && JobAbilityLock_Check != true)
             {
                 Invoke((MethodInvoker)(async () =>
           {
@@ -4763,7 +4719,7 @@
 
         private void autoPhalanxIIToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            InternalHelper.setAutoEnable("Phalanx II", playerOptionsSelected, !InternalHelper.getAutoEnable("Phalanx II", playerOptionsSelected));
+            InternalHelper.setAutoEnable("Phalanx II", autoOptionsSelected, !InternalHelper.getAutoEnable("Phalanx II", autoOptionsSelected));
         }
 
         private void autoRegenVToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4778,7 +4734,7 @@
 
         private void hasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell("Haste", playerOptionsSelected);
+            CastingManager.QueueSpell(SpellType.Buff, "Haste", playerOptionsSelected);
         }
 
         private void followToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4811,95 +4767,96 @@
             OptionsForm.config.autoTarget_Target = playerOptionsSelected;
         }
 
-        private void phalanxIIToolStripMenuItem_Click(object sender, EventArgs e)
+        /* NOT USED ATM COMMENTED FOR LATER USE
+         * private void phalanxIIToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Phalanx II");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Phalanx II");
         }
 
         private void invisibleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Invisible");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Invisible");
         }
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Refresh");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Refresh");
         }
 
         private void refreshIIToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Refresh II");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Refresh II");
         }
 
         private void refreshIIIToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Refresh III");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Refresh III");
         }
 
         private void sneakToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Sneak");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Sneak");
         }
 
         private void regenIIToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Regen II");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Regen II");
         }
 
         private void regenIIIToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Regen III");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Regen III");
         }
 
         private void regenIVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Regen IV");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Regen IV");
         }
 
         private void eraseToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Erase");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Erase");
         }
 
         private void sacrificeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Sacrifice");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Sacrifice");
         }
 
         private void blindnaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Blindna");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Blindna");
         }
 
         private void cursnaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Cursna");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Cursna");
         }
 
         private void paralynaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Paralyna");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Paralyna");
         }
 
         private void poisonaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Poisona");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Poisona");
         }
 
         private void stonaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Stona");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Stona");
         }
 
         private void silenaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Silena");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Silena");
         }
 
         private void virunaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Viruna");
-        }
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Viruna");
+        }*/
 
         private void setAllStormsFalse(string player)
         {
@@ -4961,25 +4918,26 @@
             toggleStormSpell("Aurorastorm", autoOptionsSelected);
         }
 
-        private void protectIVToolStripMenuItem_Click(object sender, EventArgs e)
+        /* NOT USED COMMENTED FOR LATER USE
+         * private void protectIVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Protect IV");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Protect IV");
         }
 
         private void protectVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Protect V");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Protect V");
         }
 
         private void shellIVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Shell IV");
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Shell IV");
         }
 
         private void shellVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CastSpell(playerOptionsSelected, "Shell V");
-        }
+            CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Shell V");
+        }*/
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -4993,6 +4951,7 @@
                 pauseButton.Text = "Paused!";
                 pauseButton.ForeColor = Color.Red;
                 actionTimer.Enabled = false;
+                cureTimer.Enabled = false;
                 ActiveBuffs.Clear();
                 pauseActions = true;
                 if (OptionsForm.config.FFXIDefaultAutoFollow == false)
@@ -5005,6 +4964,7 @@
                 pauseButton.Text = "Pause";
                 pauseButton.ForeColor = Color.Black;
                 actionTimer.Enabled = true;
+                cureTimer.Enabled = true;
                 pauseActions = false;
 
                 if (OptionsForm.config.MinimiseonStart == true && WindowState != FormWindowState.Minimized)
@@ -5053,14 +5013,10 @@
 
         private void Debug_Click(object sender, EventArgs e)
         {
-            if (_ELITEAPIMonitored == null)
-            {
+            if (CastingManager == null) { MessageBox.Show("Attach to process before pressing this button", "Error"); return; }
+            new CastingMonitorForm(CastingManager).Show();
 
-                MessageBox.Show("Attach to process before pressing this button", "Error");
-                return;
-            }
-
-            MessageBox.Show(debug_MSG_show);
+            //MessageBox.Show(debug_MSG_show);
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -5435,6 +5391,7 @@
             pauseButton.Text = "Error!";
             pauseButton.ForeColor = Color.Red;
             actionTimer.Enabled = false;
+            cureTimer.Enabled = false;
             MessageBox.Show(ErrorMessage);
         }
 
@@ -5924,6 +5881,7 @@
                                 pauseButton.Text = "Paused!";
                                 pauseButton.ForeColor = Color.Red;
                                 actionTimer.Enabled = false;
+                                cureTimer.Enabled = false;
                                 ActiveBuffs.Clear();
                                 pauseActions = true;
                                 song_casting = 0;
@@ -5938,6 +5896,7 @@
                                 pauseButton.Text = "Pause";
                                 pauseButton.ForeColor = Color.Black;
                                 actionTimer.Enabled = true;
+                                cureTimer.Enabled = true;
                                 pauseActions = false;
                                 song_casting = 0;
                                 ForceSongRecast = true;
@@ -5958,6 +5917,7 @@
                                 pauseButton.Text = "Paused!";
                                 pauseButton.ForeColor = Color.Red;
                                 actionTimer.Enabled = false;
+                                cureTimer.Enabled = false;
                                 ActiveBuffs.Clear();
                                 pauseActions = true;
                                 song_casting = 0;
@@ -5972,6 +5932,7 @@
                                 pauseButton.Text = "Pause";
                                 pauseButton.ForeColor = Color.Black;
                                 actionTimer.Enabled = true;
+                                cureTimer.Enabled = true;
                                 pauseActions = false;
                                 song_casting = 0;
                                 ForceSongRecast = true;
@@ -6069,14 +6030,14 @@
                     {
                         if (playerHelper.CheckSpellRecast(dummy2_song.song_name) == 0 && (playerHelper.HasSpell(dummy2_song.song_name)) && playerHelper.JobChecker(dummy2_song.song_name) == true)
                         {
-                            CastSpell("<me>", dummy2_song.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", dummy2_song.song_name);
                         }
                     }
                     else
                     {
                         if (playerHelper.CheckSpellRecast(song_4.song_name) == 0 && (playerHelper.HasSpell(song_4.song_name)) && playerHelper.JobChecker(song_4.song_name) == true)
                         {
-                            CastSpell("<me>", song_4.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", song_4.song_name);
                             Last_Song_Cast = song_4.song_name;
                             Last_SongCast_Timer[0] = DateTime.Now;
                             playerSong4[0] = DateTime.Now;
@@ -6098,14 +6059,14 @@
                     {
                         if (playerHelper.CheckSpellRecast(dummy1_song.song_name) == 0 && (playerHelper.HasSpell(dummy1_song.song_name)) && playerHelper.JobChecker(dummy1_song.song_name) == true)
                         {
-                            CastSpell("<me>", dummy1_song.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", dummy1_song.song_name);
                         }
                     }
                     else
                     {
                         if (playerHelper.CheckSpellRecast(song_3.song_name) == 0 && (playerHelper.HasSpell(song_3.song_name)) && playerHelper.JobChecker(song_3.song_name) == true)
                         {
-                            CastSpell("<me>", song_3.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", song_3.song_name);
                             Last_Song_Cast = song_3.song_name;
                             Last_SongCast_Timer[0] = DateTime.Now;
                             playerSong3[0] = DateTime.Now;
@@ -6124,7 +6085,7 @@
                 {
                     if (playerHelper.CheckSpellRecast(song_2.song_name) == 0 && (playerHelper.HasSpell(song_2.song_name)) && playerHelper.JobChecker(song_2.song_name) == true)
                     {
-                        CastSpell("<me>", song_2.song_name);
+                        CastingManager.QueueSpell(SpellType.Buff, "<me>", song_2.song_name);
                         Last_Song_Cast = song_2.song_name;
                         Last_SongCast_Timer[0] = DateTime.Now;
                         playerSong2[0] = DateTime.Now;
@@ -6141,7 +6102,7 @@
                 {
                     if (playerHelper.CheckSpellRecast(song_1.song_name) == 0 && (playerHelper.HasSpell(song_1.song_name)) && playerHelper.JobChecker(song_1.song_name) == true)
                     {
-                        CastSpell("<me>", song_1.song_name);
+                        CastingManager.QueueSpell(SpellType.Buff, "<me>", song_1.song_name);
                         Last_Song_Cast = song_1.song_name;
                         Last_SongCast_Timer[0] = DateTime.Now;
                         playerSong1[0] = DateTime.Now;
@@ -6162,7 +6123,7 @@
                     {
                         if (playerHelper.CheckSpellRecast(song_1.song_name) == 0 && (playerHelper.HasSpell(song_1.song_name)) && playerHelper.JobChecker(song_1.song_name) == true)
                         {
-                            CastSpell("<me>", song_1.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", song_1.song_name);
                             playerSong1[0] = DateTime.Now;
                             song_casting = 0;
                         }
@@ -6174,7 +6135,7 @@
                     {
                         if (playerHelper.CheckSpellRecast(song_2.song_name) == 0 && (playerHelper.HasSpell(song_2.song_name)) && playerHelper.JobChecker(song_2.song_name) == true)
                         {
-                            CastSpell("<me>", song_2.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", song_2.song_name);
                             playerSong2[0] = DateTime.Now;
                             song_casting = 0;
                         }
@@ -6186,7 +6147,7 @@
                     {
                         if (playerHelper.CheckSpellRecast(song_3.song_name) == 0 && (playerHelper.HasSpell(song_3.song_name)) && playerHelper.JobChecker(song_3.song_name) == true)
                         {
-                            CastSpell("<me>", song_3.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", song_3.song_name);
                             playerSong3[0] = DateTime.Now;
                             song_casting = 0;
                         }
@@ -6198,7 +6159,7 @@
                     {
                         if (playerHelper.CheckSpellRecast(song_4.song_name) == 0 && (playerHelper.HasSpell(song_4.song_name)) && playerHelper.JobChecker(song_4.song_name) == true)
                         {
-                            CastSpell("<me>", song_4.song_name);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", song_4.song_name);
                             playerSong4[0] = DateTime.Now;
                             song_casting = 0;
                         }
@@ -6464,11 +6425,15 @@
                             {
                                 Invoke((MethodInvoker)(() =>
                           {
-                              CastingBackground_Check = true; // most likely cause for deadlock, when this is activated but never unlocked 
+                              // most likely cause for deadlock, when this is activated but never unlocked (happens when lag is involved)
+                              // when spells are cast from cureplease this is useless since we should already have lock 
+                              // if a spell is cast manually the worst that can happen is cureplease atempting to cast when its already casting
+                              // since this is the lesser evil i comment this in order to have less deadlocks
+                              //CastingManager.GetLock(); 
                               castingLockLabel.Text = "PACKET: Casting is LOCKED";
                           }));
 
-                                if (!ProtectCasting.IsBusy) { ProtectCasting.RunWorkerAsync(); }
+                                //if (!ProtectCasting.IsBusy) { ProtectCasting.RunWorkerAsync(); }
                             }
                             else if (commands[2] == "interrupted")
                             {
@@ -6478,7 +6443,7 @@
                               castingLockLabel.Text = "PACKET: Casting is INTERRUPTED";
                               await Task.Delay(TimeSpan.FromSeconds(1));
                               castingLockLabel.Text = "Casting is UNLOCKED";
-                              CastingBackground_Check = false;
+                              CastingManager.FreeLock("ADDON: Interrupt", CastingManager.CastingBackground_Check_timer);
                           }));
                             }
                             else if (commands[2] == "finished")
@@ -6492,7 +6457,7 @@
                               castingLockLabel.Text = "Casting is UNLOCKED";
                               currentAction.Text = string.Empty;
                               castingSpell = string.Empty;
-                              CastingBackground_Check = false;
+                              CastingManager.FreeLock("ADDON: Finished", CastingManager.CastingBackground_Check_timer);
                           }));
                             }
                         }
@@ -6513,6 +6478,7 @@
                                     pauseButton.Text = "Pause";
                                     pauseButton.ForeColor = Color.Black;
                                     actionTimer.Enabled = true;
+                                    cureTimer.Enabled = true;
                                     pauseActions = false;
                                     song_casting = 0;
                                     ForceSongRecast = true;
@@ -6526,6 +6492,7 @@
                                     pauseButton.Text = "Paused!";
                                     pauseButton.ForeColor = Color.Red;
                                     actionTimer.Enabled = false;
+                                    cureTimer.Enabled = false;
                                     ActiveBuffs.Clear();
                                     pauseActions = true;
                                     if (OptionsForm.config.FFXIDefaultAutoFollow == false)    
@@ -6670,8 +6637,10 @@
             }
         }
 
-        private void CastingCheck_BackgroundTask_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        /*private void CastingCheck_BackgroundTask_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
+            DateTime lockStamp = (DateTime)e.Argument;
+
             if (_ELITEAPIMonitored != null && _ELITEAPIPL != null)
             {
                 if (_ELITEAPIPL.Player.LoginStatus == (int)LoginStatus.Loading || _ELITEAPIMonitored.Player.LoginStatus == (int)LoginStatus.Loading)
@@ -6682,7 +6651,7 @@
                 var count = 0;
                 float lastPercent = 0;
                 var castPercent = _ELITEAPIPL.CastBar.Percent;
-                while (castPercent < 1 && CastingBackground_Check == true)
+                while (castPercent < 1 && !CastingManager.CanCast())
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(0.1));
                     castPercent = _ELITEAPIPL.CastBar.Percent;
@@ -6702,19 +6671,21 @@
                     }
                 }
                 Thread.Sleep(TimeSpan.FromSeconds(2));
-                CastingBackground_Check = false;
+                CastingManager.FreeLock("CastingCheck_BackgroundTask_DoWork", lockStamp);
             }
             else {
-                CastingBackground_Check = false;
+                CastingManager.FreeLock("CastingCheck_BackgroundTask_DoWork", lockStamp);
                 return; 
             }
 
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
-        }
+        }*/
 
         private void ProtectCasting_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            Thread.Sleep(TimeSpan.FromSeconds(1.0));
+            DateTime lockStamp = (DateTime)e.Argument;
+
+            Thread.Sleep(TimeSpan.FromSeconds(2.0));
             int count = 0;
             float lastPercent = 0;
             float castPercent = _ELITEAPIPL.CastBar.Percent;
@@ -6729,7 +6700,6 @@
                 }
                 else if (count == 10)
                 {
-
                     break;
                 }
                 else
@@ -6741,12 +6711,10 @@
 
             //Thread.Sleep(TimeSpan.FromSeconds(1.0));
 
-            castingSpell = string.Empty;
-
             castingLockLabel.Invoke(new Action(() => { castingLockLabel.Text = "Casting is UNLOCKED"; }));
             castingSpell = string.Empty;
 
-            CastingBackground_Check = false;
+            CastingManager.FreeLock("ProtectCasting_DoWork", lockStamp);
         }
 
         private void JobAbility_Delay_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -6881,6 +6849,11 @@
         private void player17raiseButton_Click(object sender, EventArgs e)
         {
             RaiseButtonClick(17);
+        }
+
+        private void DebugButton_Click(object sender, EventArgs e)
+        {
+           
         }
     }
 
