@@ -1778,12 +1778,12 @@ namespace CurePlease
             // 
             // actionTimer
             // 
-            this.actionTimer.Interval = 500;
+            this.actionTimer.Interval = 200;
             this.actionTimer.Tick += new System.EventHandler(this.actionTimer_TickAsync);
             // 
             // cureTimer
             // 
-            this.cureTimer.Interval = 200;
+            this.cureTimer.Interval = 500;
             this.cureTimer.Tick += new System.EventHandler(this.cureTimer_TickAsync);
             // 
             // player6

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CurePlease.Helpers
@@ -29,10 +30,13 @@ namespace CurePlease.Helpers
         private EliteAPI _ELITEAPIPL;
         private EliteAPI _ELITEAPIMonitored;
         private CurePleaseForm _Form;
+        public float plX;
+        public float plY;
+        public float plZ;
 
 
-        private bool CastingBackground_Check = false;
-        public DateTime CastingBackground_Check_timer = DateTime.Now;
+        private bool IsPerformingAction = false;
+        public DateTime IsPerformingAction_Timer = DateTime.Now;
 
         public CastingHelper(CurePleaseForm form, EliteAPI pl, EliteAPI monitor)
         {
@@ -61,6 +65,7 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
+            if(_Cures.Count > 0) { return; }
             //DEBUFFS
             foreach (CastingAction action in _Debuffs.ToList().Where(x => x.Target == "<me>"))
             {
@@ -69,6 +74,7 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
+            if (_Cures.Count > 0) { return; }
             foreach (CastingAction action in _Debuffs.ToList())
             {
                 if (DeQueueSpell(_Debuffs, action))
@@ -76,7 +82,7 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
-
+            if (_Cures.Count > 0) { return; }
             //BUFFS
             foreach (CastingAction action in _Buffs.ToList().Where(x => x.Target == "<me>"))
             {
@@ -85,6 +91,7 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
+            if (_Cures.Count > 0) { return; }
             foreach (CastingAction action in _Buffs.ToList())
             {
                 if (DeQueueSpell(_Buffs, action))
@@ -92,18 +99,21 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
+            if (_Cures.Count > 0) { return; }
         }
 
         public bool DeQueueSpell(LinkedList<CastingAction> list, CastingAction action)
         {
             if (!HasApi()) { return false; } //this should not be happening
+            if (IsMoving()) { return false; } 
+            if (!CanCast()) { return false; } 
             if (!SpellRecastReady(action.SpellName)) { return false; } //try next spell
-            if (CanCast())
+            if (CanAct())
             {
                 var lockStamp = GetLock();
                 list.Remove(action);
                 var currentTime = DateTime.Now;
-                if (currentTime.Subtract(CastingBackground_Check_timer) <= TimeSpan.FromSeconds(2)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
+                if (currentTime.Subtract(IsPerformingAction_Timer) <= TimeSpan.FromSeconds(2)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
                 {
                     CastSpell(action.Target, action.SpellName, lockStamp, action.DisplayText);
                 }
@@ -178,7 +188,6 @@ namespace CurePlease.Helpers
                 if (OptionsForm.config.trackCastingPackets == true && OptionsForm.config.EnableAddOn == true)
                 {
                     //This is more or less here as failsafe if we dont get a package from the addon back that the cast is done (due to lag for example)
-                    //We assume the cast is done after 50 percent of the castbar
                     if (!_Form.ProtectCasting.IsBusy) { _Form.ProtectCasting.RunWorkerAsync(argument: lockStamp); }
                 }
                 else
@@ -223,33 +232,38 @@ namespace CurePlease.Helpers
             }
         }
 
+
+        private bool IsMoving()
+        {
+            return (_ELITEAPIPL.Player.X != plX) || (_ELITEAPIPL.Player.Y != plY) || (_ELITEAPIPL.Player.Z != plZ);
+        }
         private void FailSafe()
         {
             var currentTime = DateTime.Now;
-            if (!CanCast()) {
-                if (currentTime.Subtract(CastingBackground_Check_timer) > TimeSpan.FromSeconds(5))
+            if (!CanAct()) {
+                if (currentTime.Subtract(IsPerformingAction_Timer) > TimeSpan.FromSeconds(10))
                 {
                     //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
-                    _Log.Add(new LogEntry("Uh-Oh! Failsafe kicked in! ["+currentTime.Subtract(CastingBackground_Check_timer)+"]", Color.Violet));
-                    FreeLock("Failsafe", CastingBackground_Check_timer);
+                    _Log.Add(new LogEntry("Uh-Oh! Failsafe kicked in! ["+currentTime.Subtract(IsPerformingAction_Timer)+"]", Color.Violet));
+                    FreeLock("Failsafe", IsPerformingAction_Timer);
                 }
             }
         }
 
         public DateTime GetLock()
         {
-            CastingBackground_Check = true;
-            CastingBackground_Check_timer = DateTime.Now;
-            _Log.Add(new LogEntry("Lock aquired [" + CastingBackground_Check_timer.ToString("mm:ss:fff") + "] ", Color.Red)) ;
-            return CastingBackground_Check_timer;
+            IsPerformingAction = true;
+            IsPerformingAction_Timer = DateTime.Now;
+            _Log.Add(new LogEntry("Lock aquired [" + IsPerformingAction_Timer.ToString("mm:ss:fff") + "] ", Color.Red)) ;
+            return IsPerformingAction_Timer;
         }
 
         public void FreeLock(string input, DateTime lockStamp)
         {
             //timestamp is used to make sure you only release the lock of the same cast and not of the new one which might have already started
-            if(CastingBackground_Check_timer == lockStamp)
+            if(IsPerformingAction_Timer == lockStamp)
             {
-                CastingBackground_Check = false;
+                IsPerformingAction = false;
                 _Log.Add(new LogEntry("[" + input + "] Lock realeased [" + lockStamp.ToString("mm:ss:fff") + "]", Color.Green));
             }
             else
@@ -258,14 +272,55 @@ namespace CurePlease.Helpers
             }
         }
 
+        public bool CanAct()
+        {
+            return !IsPerformingAction;
+        }
+
         public bool CanCast()
         {
-            return !CastingBackground_Check;
+            if (plStatusCheck(StatusEffect.Silence) && OptionsForm.config.plSilenceItemEnabled)
+            {
+                // Check to make sure we have echo drops
+                if (ItemHelper.HasItem(_ELITEAPIPL, ItemHelper.GetSilenaItem()))
+                {
+                    _Form.Item_Wait(ItemHelper.GetSilenaItem());
+                    return false;
+                }
+                else
+                {
+                    _ELITEAPIPL.ThirdParty.SendString("//get \"" + ItemHelper.GetSilenaItem() + "\""); //try to get it
+                }
+            }
+            else if ((plStatusCheck(StatusEffect.Doom) && OptionsForm.config.plDoomEnabled) /* Add more options from UI HERE*/)
+            {
+                // Check to make sure we have holy water
+                if (ItemHelper.HasItem(_ELITEAPIPL, ItemHelper.GetCursnaItem()))
+                {
+                    _Form.Item_Wait(ItemHelper.GetCursnaItem());
+                    return false;
+                }
+                else
+                {
+                    _ELITEAPIPL.ThirdParty.SendString("//get \"" + ItemHelper.GetCursnaItem() + "\""); //try to get it
+                }
+            }
+            return !plStatusCheck(StatusEffect.Silence) && !plStatusCheck(StatusEffect.Terror) && !plStatusCheck(StatusEffect.Petrification) && !plStatusCheck(StatusEffect.Stun);
         }
 
         private bool HasApi()
         {
             return _ELITEAPIMonitored != null && _ELITEAPIPL != null;
+        }
+
+        private bool plStatusCheck(StatusEffect requestedStatus)
+        {
+            bool statusFound = false;
+            foreach (StatusEffect status in _ELITEAPIPL.Player.Buffs.Cast<StatusEffect>().Where(status => requestedStatus == status))
+            {
+                statusFound = true;
+            }
+            return statusFound;
         }
     }
 }
