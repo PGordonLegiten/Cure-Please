@@ -51,7 +51,7 @@ namespace CurePlease.Helpers
         {
             FailSafe();
             //PRIO
-            foreach (CastingAction action in _Priority.ToList())
+            foreach (CastingAction action in _Priority.ToList().OrderBy(x => x.Priority))
             {
                 if (DeQueueSpell(_Priority, action))
                 {
@@ -59,25 +59,17 @@ namespace CurePlease.Helpers
                 }
                
             }
-            //CURES
-            foreach (CastingAction action in _Cures.ToList())
+            //CURES, CURAGA FIRST
+            foreach (CastingAction action in _Cures.ToList().OrderBy(x => x.Priority))
             {
                 if (DeQueueSpell(_Cures, action))
                 {
                     return;
                 }
             }
-            if(_Cures.Count > 0) { return; }
-            //DEBUFFS
-            foreach (CastingAction action in _Debuffs.ToList().Where(x => x.Target == "<me>"))
-            {
-                if (DeQueueSpell(_Debuffs, action))
-                {
-                    return;
-                }
-            }
             if (_Cures.Count > 0) { return; }
-            foreach (CastingAction action in _Debuffs.ToList())
+            //DEBUFFS
+            foreach (CastingAction action in _Debuffs.ToList().OrderBy(x => x.Priority))
             {
                 if (DeQueueSpell(_Debuffs, action))
                 {
@@ -86,15 +78,7 @@ namespace CurePlease.Helpers
             }
             if (_Cures.Count > 0) { return; }
             //BUFFS
-            foreach (CastingAction action in _Buffs.ToList().Where(x => x.Target == "<me>"))
-            {
-                if (DeQueueSpell(_Buffs, action))
-                {
-                    return;
-                }
-            }
-            if (_Cures.Count > 0) { return; }
-            foreach (CastingAction action in _Buffs.ToList())
+            foreach (CastingAction action in _Buffs.ToList().OrderBy(x => x.Priority))
             {
                 if (DeQueueSpell(_Buffs, action))
                 {
@@ -139,7 +123,7 @@ namespace CurePlease.Helpers
                     if (action.Type == SpellType.GEO) {
                         _GoeHelper.GetTargetOnCast(action.Target);
                     }
-                    CastSpell(action.Target, spellName, lockStamp, action.DisplayText);
+                    CastSpell(action.Target, spellName, lockStamp);
                 }
                 else
                 {
@@ -149,10 +133,14 @@ namespace CurePlease.Helpers
             return true;
         }
 
-        public void QueueSpell(SpellType type, string partyMemberName, string spellName, [Optional] string OptionalExtras)
+        public void QueueSpell(SpellType type, string partyMemberName, string spellName)
+        {
+            QueueSpell(type, partyMemberName, spellName, SpellPrio.Low);
+        }
+        public void QueueSpell(SpellType type, string partyMemberName, string spellName, SpellPrio priority)
         {
             //doesnt do anything yet, prepraration for a queueing system
-            CastingAction action = new CastingAction(type, spellName, partyMemberName, OptionalExtras);
+            CastingAction action = new CastingAction(type, spellName, partyMemberName, priority);
             switch (type)
             {
                 case SpellType.Prio:
@@ -181,7 +169,7 @@ namespace CurePlease.Helpers
             list.AddFirst(action);
         }
 
-        public void CastSpell(string partyMemberName, string spellName, long lockStamp, [Optional] string OptionalExtras)
+        public void CastSpell(string partyMemberName, string spellName, long lockStamp)
         {
             if (!HasApi()) { return; }
 
@@ -194,16 +182,11 @@ namespace CurePlease.Helpers
             var cast = "/ma \"" + castingSpell + "\" " + partyMemberName;
             _ELITEAPIPL.ThirdParty.SendString(cast);
             _ELITEAPIPL.ThirdParty.SendString(string.Format("//cpaddon lock {0}", lockStamp));
+            Thread.Sleep(200);
+            _ELITEAPIPL.ThirdParty.SendString(cast);
             _Log.Add(new LogEntry(cast, Color.Black));
 
-            if (OptionalExtras != null)
-            {
-                _Form.currentAction.Text = "Casting: " + castingSpell + " [" + OptionalExtras + "]";
-            }
-            else
-            {
-                _Form.currentAction.Text = "Casting: " + castingSpell;
-            }
+           _Form.currentAction.Text = "Casting: " + castingSpell+ " → "+ partyMemberName;
 
             if (OptionsForm.config.trackCastingPackets == true && OptionsForm.config.EnableAddOn == true)
             {
@@ -218,6 +201,7 @@ namespace CurePlease.Helpers
         }
         public bool SpellRecastReady(string checked_recastspellName)
         {
+            if(checked_recastspellName == null) { return false; }
             checked_recastspellName = checked_recastspellName.Trim().ToLower();
 
             if (checked_recastspellName == "honor march")

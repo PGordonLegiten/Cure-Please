@@ -16,22 +16,28 @@ namespace CurePlease.DataStructures
         GEO = 4,
         Raise = 5,
     }
+    public enum SpellPrio : byte
+    {
+        Low = 1,
+        Middle = 5,
+        Top = 10,
+    }
     public class CastingAction : IEquatable<CastingAction>
     {
         public string ActionId { get; set; }
         public string SpellName { get; set; }
         public string Target { get; set; }
         public SpellType Type { get; set; }
-        public string DisplayText { get; set; }
         public DateTime Invoked { get; set; }
+        public SpellPrio Priority { get; set; }
 
-        public CastingAction(SpellType type, string spell, string target, [Optional] string OptionalExtras)
+        public CastingAction(SpellType type, string spell, string target, SpellPrio priority)
         {
             SpellName = spell;
             Target = target;
             ActionId = target + spell;
             Invoked = DateTime.Now;
-            DisplayText = OptionalExtras;
+            Priority = priority;
             Type = type;
         }
 
