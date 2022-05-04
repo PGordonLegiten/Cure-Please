@@ -2726,8 +2726,8 @@ namespace CurePlease
             // 
             // EclipticTimer
             // 
-            this.EclipticTimer.Interval = 1000;
-            this.EclipticTimer.Tick += new System.EventHandler(this.EclipticTimer_Tick);
+            ///this.EclipticTimer.Interval = 1000;
+            //this.EclipticTimer.Tick += new System.EventHandler(this.EclipticTimer_Tick);
             // 
             // CustomCommand_Tracker
             // 

@@ -25,7 +25,11 @@ namespace CurePlease.Helpers
 
         public bool IsAbleToCastSpell(string spell)
         {
-            return HasSpell(spell) && JobChecker(spell) == true;
+            return HasSpell(spell);
+        }
+        public bool CanCastSpellNow(string spell)
+        {
+            return HasSpell(spell) && IsSpellRecastReady(spell);
         }
 
         public bool isAbleToBuff(string spell, string player)
@@ -35,6 +39,8 @@ namespace CurePlease.Helpers
 
         public bool CastingPossible(string memberName)
         {
+            if(memberName == "<me>") { return true; }
+            if(memberName == "<t>") { return true; }
             var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
             if (member == null) { return false; }
             if ((_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance < 21) && (_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance > 0) && (member.CurrentHP > 0) || (_ELITEAPIPL.Party.GetPartyMember(0).ID == member.ID) && (member.CurrentHP > 0))
@@ -176,14 +182,13 @@ namespace CurePlease.Helpers
         // TODO
         // REMOVE THIS FROM UNIVERSE
         // SPELL RECAST SHOULD BE HANDLED IN CASTING HELPER
-        public int CheckSpellRecast(string checked_recastspellName)
+        public bool IsSpellRecastReady(string checked_recastspellName)
         {
-            return 0;
             checked_recastspellName = checked_recastspellName.Trim().ToLower();
 
             if (checked_recastspellName == "honor march")
             {
-                return 0;
+                return true;
             }
 
             if (checked_recastspellName != "blank")
@@ -198,17 +203,17 @@ namespace CurePlease.Helpers
                 {
                     if (_ELITEAPIPL.Recast.GetSpellRecast(magic.Index) == 0)
                     {
-                        return 0;
+                        return true;
                     }
                     else
                     {
-                        return 1;
+                        return false;
                     }
                 }
             }
             else
             {
-                return 1;
+                return false;
             }
         }
     }

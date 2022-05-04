@@ -6,6 +6,7 @@ _addon.commands = {'cpaddon', 'cp'}
 
 local port = 19769
 local ip = "127.0.0.1"
+local lock_timestamp = ""
 
 local socket = require("socket")
 require ('packets')
@@ -95,6 +96,10 @@ if args ~= nil then
     CP_connect:settimeout(1)
     assert(CP_connect:sendto("CUREPLEASE_spell_"..args[1]:lower().."_"..args[2]:lower(), ip, port))
     CP_connect:close()
+  elseif cmd == "lock" then
+    if args[1] then
+		lock_timestamp = args[1] 
+	end
   end
 
 end
@@ -104,12 +109,14 @@ windower.register_event('action', function (data)
 casting = nil
 if data.actor_id == windower.ffxi.get_player().id then
   if data.category == 4 then
-    casting = 'CUREPLEASE_casting_finished'
+	--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '.. " data.category: " .. data.category .. " / data.param: " .. data.param))
+    casting = 'CUREPLEASE_casting_finished_'..lock_timestamp
   elseif data.category == 8 then
+	--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '.. " data.category: " .. data.category .. " / data.param: " .. data.param))
     if data.param == 28787 then
-      casting = 'CUREPLEASE_casting_interrupted'
+      casting = 'CUREPLEASE_casting_interrupted_'..lock_timestamp
     elseif data.param == 24931 then
-      casting = 'CUREPLEASE_casting_blocked'
+      casting = 'CUREPLEASE_casting_blocked_'..lock_timestamp
     end
   end
   if casting ~= nil then

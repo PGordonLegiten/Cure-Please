@@ -20,7 +20,7 @@ namespace CurePlease.Helpers
         }
         public static void pushQueueItem(string spell, string player)
         {
-            queue.Enqueue(new CastingAction(spell, player));
+            queue.Enqueue(new CastingAction(SpellType.Prio, spell, player));
         }
     }
 }
