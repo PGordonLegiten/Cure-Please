@@ -27,6 +27,7 @@ namespace CurePlease.Helpers
         private CureHelper _CureHelper;
         private GeoHelper _GoeHelper;
         private PlayerHelper _PlayerHelper;
+        private SpellsHelper _SpellsHelper;
         public float plX;
         public float plY;
         public float plZ;
@@ -42,6 +43,7 @@ namespace CurePlease.Helpers
             _ELITEAPIPL = pl;
             _CureHelper = new CureHelper(pl, monitor);
             _PlayerHelper = new PlayerHelper(pl, monitor);
+            _SpellsHelper = new SpellsHelper(_PlayerHelper);
             _GoeHelper = new GeoHelper(pl, monitor);
         }
 
@@ -106,8 +108,17 @@ namespace CurePlease.Helpers
             if (!HasApi()) { return false; } //this should not be happening
             if (IsMoving()) { return false; } 
             if (!CanCast()) { return false; }
-            if (!_PlayerHelper.CastingPossible(action.Target)) { return false; }
             var spellName = action.SpellName;
+            if (action.Type == SpellType.Raise)
+            {
+                if (!_PlayerHelper.RaisingPossible(action.Target)) { return false; }
+                spellName = _SpellsHelper.GetRaiseSpell();
+            }
+            else 
+            {
+                if (!_PlayerHelper.CastingPossible(action.Target)) { return false; }
+            }
+            
             if (action.Type == SpellType.Healing)
             {
                 //Special Case for cures since when its on recast we check lower tiers
@@ -123,7 +134,7 @@ namespace CurePlease.Helpers
             {
                 var lockStamp = GetLock();
                 list.Remove(action);
-                if (DateTime.Now.Subtract(action.Invoked) <= TimeSpan.FromSeconds(5)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
+                if (DateTime.Now.Subtract(action.Invoked) <= TimeSpan.FromSeconds(10)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
                 {
                     if (action.Type == SpellType.GEO) {
                         _GoeHelper.GetTargetOnCast(action.Target);
@@ -145,6 +156,7 @@ namespace CurePlease.Helpers
             switch (type)
             {
                 case SpellType.Prio:
+                case SpellType.Raise:
                     AddToQueue(_Priority, action);
                     break;
                 case SpellType.Healing:

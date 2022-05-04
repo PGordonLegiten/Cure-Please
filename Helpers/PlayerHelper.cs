@@ -39,9 +39,10 @@ namespace CurePlease.Helpers
 
         public bool CastingPossible(string memberName)
         {
-            if(memberName == "<me>") { return true; }
+            if(memberName == null) { return false; }
             if(memberName == "<t>") { return true; }
-            var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
+            if(memberName == "<me>") { return true; }
+            var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name.ToLower() == memberName.ToLower()).FirstOrDefault();
             if (member == null) { return false; }
             if ((_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance < 21) && (_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance > 0) && (member.CurrentHP > 0) || (_ELITEAPIPL.Party.GetPartyMember(0).ID == member.ID) && (member.CurrentHP > 0))
             {
@@ -50,7 +51,7 @@ namespace CurePlease.Helpers
             return false;
         }
 
-        public bool raisePossible(string memberName)
+        public bool RaisingPossible(string memberName)
         {
             var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
             if (member == null) { return false; }

@@ -688,16 +688,19 @@
 
                     raiseButton.Visible = true;
                     raiseButton.Enabled = false;
-                    if (playerHelper.raisePossible(member.Name))
+                    if (playerHelper.RaisingPossible(member.Name))
                     {
                         raiseButton.Enabled = true;
                     }
                     autoButton.Enabled = false;
+                    autoButton.Visible = false;
                 }
                 else
                 {
                     raiseButton.Visible = false;
                     raiseButton.Enabled = false;
+                    autoButton.Visible = true;
+                    autoButton.Enabled = true;
                 }
             }
         }
@@ -3451,7 +3454,7 @@
                                                     if (pData.Name == OptionsForm.config.DevotionTargetName)
                                                     {
                                                         EliteAPI.XiEntity playerInfo = _ELITEAPIPL.Entity.GetEntity((int)pData.TargetIndex);
-                                                        if (playerInfo.Distance < 10 && playerInfo.Distance > 0 && pData.CurrentMP <= OptionsForm.config.DevotionMP && pData.CurrentMPP <= 30)
+                                                        if (playerInfo.Distance < 10 && playerInfo.Distance > 0 && pData.CurrentMP <= OptionsForm.config.DevotionMP && pData.CurrentMPP <= 30 && pData.CurrentHP > 0)
                                                         {
                                                             JobAbility_Wait("Devotion", "Devotion", OptionsForm.config.DevotionTargetName);
                                                             break;
@@ -3462,7 +3465,7 @@
                                                 {
                                                     EliteAPI.XiEntity playerInfo = _ELITEAPIPL.Entity.GetEntity((int)pData.TargetIndex);
 
-                                                    if ((pData.CurrentMP <= OptionsForm.config.DevotionMP) && (playerInfo.Distance < 10) && pData.CurrentMPP <= 30)
+                                                    if ((pData.CurrentMP <= OptionsForm.config.DevotionMP) && (playerInfo.Distance < 10) && pData.CurrentMPP <= 30 && pData.CurrentHP > 0)
                                                     {
                                                         JobAbility_Wait("Devotion", "Devotion", pData.Name);
                                                         break;
@@ -3479,7 +3482,7 @@
                                                     if (pData.Name == OptionsForm.config.DevotionTargetName)
                                                     {
                                                         EliteAPI.XiEntity playerInfo = _ELITEAPIPL.Entity.GetEntity((int)pData.TargetIndex);
-                                                        if (playerInfo.Distance < 10 && playerInfo.Distance > 0 && pData.CurrentMP <= OptionsForm.config.DevotionMP)
+                                                        if (playerInfo.Distance < 10 && playerInfo.Distance > 0 && pData.CurrentMP <= OptionsForm.config.DevotionMP && pData.CurrentHP > 0)
                                                         {
                                                             JobAbility_Wait("Devotion", "Devotion", OptionsForm.config.DevotionTargetName);
                                                             break;
@@ -3490,7 +3493,7 @@
                                                 {
                                                     EliteAPI.XiEntity playerInfo = _ELITEAPIPL.Entity.GetEntity((int)pData.TargetIndex);
 
-                                                    if ((pData.CurrentMP <= OptionsForm.config.DevotionMP) && (playerInfo.Distance < 10) && pData.CurrentMPP <= 50)
+                                                    if ((pData.CurrentMP <= OptionsForm.config.DevotionMP) && (playerInfo.Distance < 10) && pData.CurrentMPP <= 50 && pData.CurrentHP > 0)
                                                     {
                                                         JobAbility_Wait("Devotion", "Devotion", pData.Name);
                                                         break;
@@ -3507,7 +3510,7 @@
                                                     if (pData.Name == OptionsForm.config.DevotionTargetName)
                                                     {
                                                         EliteAPI.XiEntity playerInfo = _ELITEAPIPL.Entity.GetEntity((int)pData.TargetIndex);
-                                                        if (playerInfo.Distance < 10 && playerInfo.Distance > 0 && pData.CurrentMP <= OptionsForm.config.DevotionMP)
+                                                        if (playerInfo.Distance < 10 && playerInfo.Distance > 0 && pData.CurrentMP <= OptionsForm.config.DevotionMP && pData.CurrentHP > 0)
                                                         {
                                                             JobAbility_Wait("Devotion", "Devotion", OptionsForm.config.DevotionTargetName);
                                                             break;
@@ -3518,7 +3521,7 @@
                                                 {
                                                     EliteAPI.XiEntity playerInfo = _ELITEAPIPL.Entity.GetEntity((int)pData.TargetIndex);
 
-                                                    if ((pData.CurrentMP <= OptionsForm.config.DevotionMP) && (playerInfo.Distance < 10) && pData.CurrentMPP <= 50)
+                                                    if ((pData.CurrentMP <= OptionsForm.config.DevotionMP) && (playerInfo.Distance < 10) && pData.CurrentMPP <= 50 && pData.CurrentHP > 0)
                                                     {
                                                         JobAbility_Wait("Devotion", "Devotion", pData.Name);
                                                         break;
@@ -4116,6 +4119,7 @@
             {
                 Invoke((MethodInvoker)(async () =>
                   {
+                      CastingManager._Log.Add(new LogEntry("/ja \"" + JobAbilityName + "\" " + target + "", Color.Black));
                       var time = CastingManager.GetLock();
                       castingLockLabel.Text = "Casting is LOCKED for a JA.";
                       currentAction.Text = "Using a Job Ability: " + JobabilityDATA;
@@ -5927,7 +5931,16 @@
                             EliteAPI.ISpell magic = _ELITEAPIPL.Resources.GetSpell(commands[2].Trim(), 0);
                             if(magic != null)
                             {
-                                PrioQueueHelper.pushQueueItem(commands[2], commands[3]);
+                                var spell = commands[2];
+                                var target = commands[3];
+                                if(spell.ToLower().Contains("raise") || spell.ToLower().Contains("arise"))
+                                {
+                                    CastingManager.QueueSpell(SpellType.Raise, target, spell);
+                                }
+                                else
+                                {
+                                    CastingManager.QueueSpell(SpellType.Prio, target, spell);
+                                }
                             }
                             else
                             {
@@ -6144,17 +6157,9 @@
         private void RaiseButtonClick(byte pos)
         {
             string generated_name = _ELITEAPIMonitored.Party.GetPartyMembers()[pos].Name;
-            var helper = new SpellsHelper(playerHelper);
-            var spell = helper.GetRaiseSpell();
-            if(spell != null)
-            {
-                currentAction.Text = "Queued -> "+spell+ " on -> " + generated_name;
-                PrioQueueHelper.pushQueueItem(spell, generated_name);
-            }
-            else
-            {
-                currentAction.Text = "No Raise available!";
-            }
+            
+            currentAction.Text = "Queued -> Raise on -> " + generated_name;
+            CastingManager.QueueSpell(SpellType.Raise, generated_name, "Arise");
         }
 
         private void player0raiseButton_Click(object sender, EventArgs e)

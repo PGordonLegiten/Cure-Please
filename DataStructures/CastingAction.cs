@@ -14,6 +14,7 @@ namespace CurePlease.DataStructures
         Buff = 2,
         Debuff = 3,
         GEO = 4,
+        Raise = 5,
     }
     public class CastingAction : IEquatable<CastingAction>
     {

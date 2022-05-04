@@ -117,7 +117,6 @@
     <Compile Include="Helpers\ItemHelper.cs" />
     <Compile Include="Helpers\PlayerHelper.cs" />
     <Compile Include="Helpers\InternalHelper.cs" />
-    <Compile Include="Helpers\PrioQueueHelper.cs" />
     <Compile Include="Helpers\SpellsHelper.cs" />
     <Compile Include="OptionsForm.cs">
       <SubType>Form</SubType>

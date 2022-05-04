@@ -62,7 +62,7 @@ namespace CurePlease.Helpers
         {
             foreach(var spell in raise_spells)
             {
-                if (_PlayerHelper.IsAbleToCastSpell(spell))
+                if (_PlayerHelper.CanCastSpellNow(spell))
                 {
                     return spell;
                 }
