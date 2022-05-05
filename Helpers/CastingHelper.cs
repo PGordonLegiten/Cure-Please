@@ -41,26 +41,25 @@ namespace CurePlease.Helpers
             _Form = form;
             _ELITEAPIMonitored = monitor;
             _ELITEAPIPL = pl;
-            _CureHelper = new CureHelper(pl, monitor);
+            _CureHelper = new CureHelper(form, pl, monitor, this);
             _PlayerHelper = new PlayerHelper(pl, monitor);
             _SpellsHelper = new SpellsHelper(_PlayerHelper);
             _GoeHelper = new GeoHelper(pl, monitor);
         }
 
-        public void Run()
+        public async void Run()
         {
             FailSafe();
             //PRIO
-            foreach (CastingAction action in _Priority.ToList().OrderBy(x => x.Priority))
+            foreach (CastingAction action in _Priority.ToList().OrderByDescending(x => x.Priority))
             {
                 if (DeQueueSpell(_Priority, action))
                 {
                     return;                
                 }
-               
             }
             //CURES, CURAGA FIRST
-            foreach (CastingAction action in _Cures.ToList().OrderBy(x => x.Priority))
+            foreach (CastingAction action in _Cures.ToList().OrderByDescending(x => x.Priority))
             {
                 if (DeQueueSpell(_Cures, action))
                 {
@@ -69,7 +68,7 @@ namespace CurePlease.Helpers
             }
             if (_Cures.Count > 0) { return; }
             //DEBUFFS
-            foreach (CastingAction action in _Debuffs.ToList().OrderBy(x => x.Priority))
+            foreach (CastingAction action in _Debuffs.ToList().OrderByDescending(x => x.Priority))
             {
                 if (DeQueueSpell(_Debuffs, action))
                 {
@@ -78,7 +77,7 @@ namespace CurePlease.Helpers
             }
             if (_Cures.Count > 0) { return; }
             //BUFFS
-            foreach (CastingAction action in _Buffs.ToList().OrderBy(x => x.Priority))
+            foreach (CastingAction action in _Buffs.ToList().OrderByDescending(x => x.Priority))
             {
                 if (DeQueueSpell(_Buffs, action))
                 {
@@ -118,7 +117,7 @@ namespace CurePlease.Helpers
             {
                 var lockStamp = GetLock();
                 list.Remove(action);
-                if (DateTime.Now.Subtract(action.Invoked) <= TimeSpan.FromSeconds(10)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
+                if (DateTime.Now.Subtract(action.Invoked) <= GetQueueExpiration(action.Type)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
                 {
                     if (action.Type == SpellType.GEO) {
                         _GoeHelper.GetTargetOnCast(action.Target);
@@ -137,7 +136,7 @@ namespace CurePlease.Helpers
         {
             QueueSpell(type, partyMemberName, spellName, SpellPrio.Low);
         }
-        public void QueueSpell(SpellType type, string partyMemberName, string spellName, SpellPrio priority)
+        public void QueueSpell(SpellType type, string partyMemberName, string spellName, Enum priority)
         {
             //doesnt do anything yet, prepraration for a queueing system
             CastingAction action = new CastingAction(type, spellName, partyMemberName, priority);
@@ -186,18 +185,10 @@ namespace CurePlease.Helpers
             _ELITEAPIPL.ThirdParty.SendString(cast);
             _Log.Add(new LogEntry(cast, Color.Black));
 
-           _Form.currentAction.Text = "Casting: " + castingSpell+ " → "+ partyMemberName;
+            _Form.currentAction.Text = "Casting: " + castingSpell+ " → "+ partyMemberName;
 
-            if (OptionsForm.config.trackCastingPackets == true && OptionsForm.config.EnableAddOn == true)
-            {
-                //This is more or less here as failsafe if we dont get a package from the addon back that the cast is done (due to lag for example)
-                if (!_Form.ProtectCasting.IsBusy) { _Form.ProtectCasting.RunWorkerAsync(argument: lockStamp); }
-            }
-            else
-            {
-                _Form.castingLockLabel.Text = "Casting is LOCKED";
-                if (!_Form.ProtectCasting.IsBusy) { _Form.ProtectCasting.RunWorkerAsync(argument: lockStamp); }
-            }
+            _Form.ProtectCasting.CancelAsync();
+            if (!_Form.ProtectCasting.IsBusy) { _Form.ProtectCasting.RunWorkerAsync(argument: lockStamp); }
         }
         public bool SpellRecastReady(string checked_recastspellName)
         {
@@ -318,6 +309,22 @@ namespace CurePlease.Helpers
         private bool HasApi()
         {
             return _ELITEAPIMonitored != null && _ELITEAPIPL != null;
+        }
+
+
+        private TimeSpan GetQueueExpiration(SpellType type)
+        {
+            switch (type)
+            {
+                case SpellType.Healing:
+                    return TimeSpan.FromSeconds(5);
+                case SpellType.Buff:
+                    return TimeSpan.FromSeconds(60);
+                case SpellType.Debuff:
+                    return TimeSpan.FromSeconds(10);
+                default:
+                    return TimeSpan.FromSeconds(5);
+            }
         }
 
         private bool plStatusCheck(StatusEffect requestedStatus)

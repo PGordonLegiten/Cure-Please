@@ -217,5 +217,59 @@ namespace CurePlease.Helpers
                 return false;
             }
         }
+
+        public bool plStatusCheck(StatusEffect requestedStatus)
+        {
+            bool statusFound = false;
+            foreach (StatusEffect status in _ELITEAPIPL.Player.Buffs.Cast<StatusEffect>().Where(status => requestedStatus == status))
+            {
+                statusFound = true;
+            }
+            return statusFound;
+        }
+        public bool HasAbility(string checked_abilityName)
+        {
+            if (_ELITEAPIPL.Player.GetPlayerInfo().Buffs.Any(b => b == 261) || _ELITEAPIPL.Player.GetPlayerInfo().Buffs.Any(b => b == 16)) // IF YOU HAVE INPAIRMENT/AMNESIA THEN BLOCK JOB ABILITY CASTING
+            {
+                return false;
+            }
+            else if (_ELITEAPIPL.Player.HasAbility(_ELITEAPIPL.Resources.GetAbility(checked_abilityName, 0).ID))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool PLInParty()
+        {
+            // FALSE IS WANTED WHEN NOT IN PARTY
+
+            if (_ELITEAPIPL.Player.Name == _ELITEAPIMonitored.Player.Name) // MONITORED AND POL ARE BOTH THE SAME THEREFORE IN THE PARTY
+            {
+                return true;
+            }
+
+            var PARTYD = _ELITEAPIPL.Party.GetPartyMembers().Where(p => p.Active != 0 && p.Zone == _ELITEAPIPL.Player.ZoneId);
+
+            List<string> gen = new List<string>();
+            foreach (EliteAPI.PartyMember pData in PARTYD)
+            {
+                if (pData != null && pData.Name != "")
+                {
+                    gen.Add(pData.Name);
+                }
+            }
+
+            if (gen.Contains(_ELITEAPIPL.Player.Name) && gen.Contains(_ELITEAPIMonitored.Player.Name))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

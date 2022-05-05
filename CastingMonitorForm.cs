@@ -37,6 +37,8 @@ namespace CurePlease
             {
                 castlog_box.AppendText("[" + DateTime.Now.ToString("mm:ss:fff") + "] " + text, color);
                 castlog_box.AppendText(Environment.NewLine);
+                castlog_box.SelectionStart = castlog_box.Text.Length;
+                castlog_box.ScrollToCaret();
             }
         }
 
@@ -53,22 +55,22 @@ namespace CurePlease
             healingqueue_box.Clear();
             debuffqueue_box.Clear();
             buffqueue_box.Clear();
-            foreach (CastingAction action in _Monitor._Priority.ToList())
+            foreach (CastingAction action in _Monitor._Priority.ToList().OrderByDescending(x => x.Priority))
             {
                 prioqueue_box.AppendText(action.ToString());
                 prioqueue_box.AppendText(Environment.NewLine);
             }
-            foreach (CastingAction action in _Monitor._Cures.ToList())
+            foreach (CastingAction action in _Monitor._Cures.ToList().OrderByDescending(x => x.Priority))
             {
                 healingqueue_box.AppendText(action.ToString());
                 healingqueue_box.AppendText(Environment.NewLine);
             }
-            foreach (CastingAction action in _Monitor._Debuffs.ToList())
+            foreach (CastingAction action in _Monitor._Debuffs.ToList().OrderByDescending(x => x.Priority))
             {
                 debuffqueue_box.AppendText(action.ToString());
                 debuffqueue_box.AppendText(Environment.NewLine);
             }
-            foreach (CastingAction action in _Monitor._Buffs.ToList())
+            foreach (CastingAction action in _Monitor._Buffs.ToList().OrderByDescending(x => x.Priority))
             {
                 buffqueue_box.AppendText(action.ToString());
                 buffqueue_box.AppendText(Environment.NewLine);

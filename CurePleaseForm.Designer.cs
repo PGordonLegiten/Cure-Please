@@ -171,6 +171,7 @@ namespace CurePlease
             this.player12 = new System.Windows.Forms.Label();
             this.partyMembersUpdate = new System.Windows.Forms.Timer(this.components);
             this.actionTimer = new System.Windows.Forms.Timer(this.components);
+            this.castingTimer = new System.Windows.Forms.Timer(this.components);
             this.cureTimer = new System.Windows.Forms.Timer(this.components);
             this.player6 = new System.Windows.Forms.Label();
             this.player7 = new System.Windows.Forms.Label();
@@ -1781,9 +1782,14 @@ namespace CurePlease
             this.actionTimer.Interval = 200;
             this.actionTimer.Tick += new System.EventHandler(this.actionTimer_TickAsync);
             // 
+            // castingTimer
+            // 
+            this.castingTimer.Interval = 500;
+            this.castingTimer.Tick += new System.EventHandler(this.castingTimer_TickAsync);
+            // 
             // cureTimer
             // 
-            this.cureTimer.Interval = 500;
+            this.cureTimer.Interval = 100;
             this.cureTimer.Tick += new System.EventHandler(this.cureTimer_TickAsync);
             // 
             // player6
@@ -2796,26 +2802,26 @@ namespace CurePlease
 
         private System.Windows.Forms.GroupBox party0;
         private System.Windows.Forms.Label player0;
-        private System.Windows.Forms.CheckBox player0enabled;
+        public  System.Windows.Forms.CheckBox player0enabled;
         private System.Windows.Forms.ComboBox POLID;
         private System.Windows.Forms.Label plLabel;
-        private System.Windows.Forms.CheckBox player1enabled;
+        public  System.Windows.Forms.CheckBox player1enabled;
         private System.Windows.Forms.Label player1;
-        private System.Windows.Forms.CheckBox player5enabled;
-        private System.Windows.Forms.CheckBox player4enabled;
-        private System.Windows.Forms.CheckBox player3enabled;
-        private System.Windows.Forms.CheckBox player2enabled;
+        public  System.Windows.Forms.CheckBox player5enabled;
+        public  System.Windows.Forms.CheckBox player4enabled;
+        public  System.Windows.Forms.CheckBox player3enabled;
+        public  System.Windows.Forms.CheckBox player2enabled;
         private System.Windows.Forms.Label player5;
         private System.Windows.Forms.Label player4;
         private System.Windows.Forms.Label player3;
         private System.Windows.Forms.Label player2;
         private System.Windows.Forms.GroupBox party2;
-        private System.Windows.Forms.CheckBox player17enabled;
-        private System.Windows.Forms.CheckBox player16enabled;
-        private System.Windows.Forms.CheckBox player15enabled;
-        private System.Windows.Forms.CheckBox player14enabled;
-        private System.Windows.Forms.CheckBox player13enabled;
-        private System.Windows.Forms.CheckBox player12enabled;
+        public  System.Windows.Forms.CheckBox player17enabled;
+        public  System.Windows.Forms.CheckBox player16enabled;
+        public  System.Windows.Forms.CheckBox player15enabled;
+        public  System.Windows.Forms.CheckBox player14enabled;
+        public  System.Windows.Forms.CheckBox player13enabled;
+        public  System.Windows.Forms.CheckBox player12enabled;
         private System.Windows.Forms.Label player17;
         private System.Windows.Forms.Label player16;
         private System.Windows.Forms.Label player15;
@@ -2824,6 +2830,7 @@ namespace CurePlease
         private System.Windows.Forms.Label player12;
         private System.Windows.Forms.Timer partyMembersUpdate;
         private System.Windows.Forms.Timer actionTimer;
+        private System.Windows.Forms.Timer castingTimer;
         private System.Windows.Forms.Timer cureTimer;
         private System.Windows.Forms.Label player6;
         private System.Windows.Forms.Label player7;
@@ -2831,34 +2838,34 @@ namespace CurePlease
         private System.Windows.Forms.Label player9;
         private System.Windows.Forms.Label player10;
         private System.Windows.Forms.Label player11;
-        private System.Windows.Forms.CheckBox player6enabled;
-        private System.Windows.Forms.CheckBox player7enabled;
-        private System.Windows.Forms.CheckBox player8enabled;
-        private System.Windows.Forms.CheckBox player9enabled;
-        private System.Windows.Forms.CheckBox player10enabled;
-        private System.Windows.Forms.CheckBox player11enabled;
+        public  System.Windows.Forms.CheckBox player6enabled;
+        public  System.Windows.Forms.CheckBox player7enabled;
+        public  System.Windows.Forms.CheckBox player8enabled;
+        public  System.Windows.Forms.CheckBox player9enabled;
+        public  System.Windows.Forms.CheckBox player10enabled;
+        public  System.Windows.Forms.CheckBox player11enabled;
         private System.Windows.Forms.GroupBox party1;
         private System.Windows.Forms.ComboBox POLID2;
         private System.Windows.Forms.Label monitoredLabel;
         private System.Windows.Forms.Timer hpUpdates;
-        private System.Windows.Forms.CheckBox player5priority;
-        private System.Windows.Forms.CheckBox player4priority;
-        private System.Windows.Forms.CheckBox player3priority;
-        private System.Windows.Forms.CheckBox player2priority;
-        private System.Windows.Forms.CheckBox player1priority;
-        private System.Windows.Forms.CheckBox player0priority;
-        private System.Windows.Forms.CheckBox player17priority;
-        private System.Windows.Forms.CheckBox player16priority;
-        private System.Windows.Forms.CheckBox player15priority;
-        private System.Windows.Forms.CheckBox player14priority;
-        private System.Windows.Forms.CheckBox player13priority;
-        private System.Windows.Forms.CheckBox player12priority;
-        private System.Windows.Forms.CheckBox player11priority;
-        private System.Windows.Forms.CheckBox player10priority;
-        private System.Windows.Forms.CheckBox player9priority;
-        private System.Windows.Forms.CheckBox player8priority;
-        private System.Windows.Forms.CheckBox player7priority;
-        private System.Windows.Forms.CheckBox player6priority;
+        public  System.Windows.Forms.CheckBox player5priority;
+        public  System.Windows.Forms.CheckBox player4priority;
+        public  System.Windows.Forms.CheckBox player3priority;
+        public  System.Windows.Forms.CheckBox player2priority;
+        public  System.Windows.Forms.CheckBox player1priority;
+        public  System.Windows.Forms.CheckBox player0priority;
+        public  System.Windows.Forms.CheckBox player17priority;
+        public  System.Windows.Forms.CheckBox player16priority;
+        public  System.Windows.Forms.CheckBox player15priority;
+        public  System.Windows.Forms.CheckBox player14priority;
+        public  System.Windows.Forms.CheckBox player13priority;
+        public  System.Windows.Forms.CheckBox player12priority;
+        public  System.Windows.Forms.CheckBox player11priority;
+        public  System.Windows.Forms.CheckBox player10priority;
+        public  System.Windows.Forms.CheckBox player9priority;
+        public  System.Windows.Forms.CheckBox player8priority;
+        public  System.Windows.Forms.CheckBox player7priority;
+        public  System.Windows.Forms.CheckBox player6priority;
         private System.Windows.Forms.Timer plPosition;
         private System.Windows.Forms.ContextMenuStrip playerOptions;
         private System.Windows.Forms.ToolStripMenuItem paralynaToolStripMenuItem;
