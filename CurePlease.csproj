@@ -96,6 +96,7 @@
     <Compile Include="CurePleaseForm.Designer.cs">
       <DependentUpon>CurePleaseForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataStructures\JobAbility.cs" />
     <Compile Include="DataStructures\CastingAction.cs" />
     <Compile Include="DataStructures\HelperStructures.cs" />
     <Compile Include="DataStructures\LogEntry.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Helpers\CureHelper.cs" />
     <Compile Include="Helpers\GeoHelper.cs" />
     <Compile Include="Helpers\ItemHelper.cs" />
+    <Compile Include="Helpers\JaHelper.cs" />
     <Compile Include="Helpers\PlayerHelper.cs" />
     <Compile Include="Helpers\InternalHelper.cs" />
     <Compile Include="Helpers\SpellsHelper.cs" />

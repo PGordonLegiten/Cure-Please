@@ -47,8 +47,12 @@ namespace CurePlease.DataStructures
         public SpellType Type { get; set; }
         public DateTime Invoked { get; set; }
         public int Priority { get; set; }
+        public List<JobAbility> JobAbilities { get; set; }
 
-        public CastingAction(SpellType type, string spell, string target, Enum priority)
+        public CastingAction()
+        {
+        }
+        public CastingAction(SpellType type, string spell, string target, Enum priority, List<JobAbility> jas)
         {
             SpellName = spell;
             Target = target;
@@ -56,6 +60,7 @@ namespace CurePlease.DataStructures
             Invoked = DateTime.Now;
             Priority = Convert.ToInt32(priority);
             Type = type;
+            JobAbilities = jas;
         }
 
         public override string ToString()

@@ -12,6 +12,7 @@ namespace CurePlease.Helpers
     internal class CureHelper
     {
         PlayerHelper _PlayerHelper;
+        JaHelper _JaHelper;
         EliteAPI _ELITEAPIPL;
         EliteAPI _ELITEAPIMonitored;
         CastingHelper _CastingManager;
@@ -19,6 +20,7 @@ namespace CurePlease.Helpers
         public CureHelper(CurePleaseForm form, EliteAPI plApi, EliteAPI monitoredApi, CastingHelper helper)
         {
             _PlayerHelper = new PlayerHelper(plApi, monitoredApi);
+            _JaHelper = new JaHelper(form, plApi, monitoredApi, helper);
             _ELITEAPIPL = plApi;
             _ELITEAPIMonitored = monitoredApi;
             _CastingManager = helper;
@@ -206,7 +208,7 @@ namespace CurePlease.Helpers
                 {
                     if (!_PlayerHelper.plStatusCheck(StatusEffect.Accession))
                     {
-                        _Form.JobAbility_Wait($"{aoeSpell}, Accession", "Accession");
+                        _JaHelper.JobAbility_Wait($"{aoeSpell}, Accession", "Accession");
                     }
                 }
 
@@ -248,19 +250,16 @@ namespace CurePlease.Helpers
                 }
                 else if (OptionsForm.config.cure3enabled && HP_Loss >= OptionsForm.config.cure3amount && _ELITEAPIPL.Player.MP > 46 && _PlayerHelper.HasSpell("Cure III"))
                 {
-                    //if (OptionsForm.config.PrioritiseOverLowerTier == true) { RunDebuffChecker(); } TODO MOVE THIS TO CASTING HELPER
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure III", CurePrio.CureIII);
                     cureCasted = true;
                 }
                 else if (OptionsForm.config.cure2enabled && HP_Loss >= OptionsForm.config.cure2amount && _ELITEAPIPL.Player.MP > 24 && _PlayerHelper.HasSpell("Cure II"))
                 {
-                    //if (OptionsForm.config.PrioritiseOverLowerTier == true) { RunDebuffChecker(); } TODO MOVE THIS TO CASTING HELPER
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure II", CurePrio.CureII);
                     cureCasted = true;
                 }
                 else if (OptionsForm.config.cure1enabled && HP_Loss >= OptionsForm.config.cure1amount && _ELITEAPIPL.Player.MP > 8 && _PlayerHelper.HasSpell("Cure"))
                 {
-                    //if (OptionsForm.config.PrioritiseOverLowerTier == true) { RunDebuffChecker(); } TODO MOVE THIS TO CASTING HELPER
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure", CurePrio.CureI);
                     cureCasted = true;
                 }
@@ -293,19 +292,16 @@ namespace CurePlease.Helpers
                 }
                 else if (OptionsForm.config.cure3enabled && HP_Loss >= OptionsForm.config.cure3amount && _ELITEAPIPL.Player.MP > 46 && _PlayerHelper.HasSpell("Cure III"))
                 {
-                   // if (OptionsForm.config.PrioritiseOverLowerTier == true) { RunDebuffChecker(); } TODO MOVE THIS TO CASTING HELPER
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure III", CurePrio.CureIII);
                     cureCasted = true;
                 }
                 else if (OptionsForm.config.cure2enabled && HP_Loss >= OptionsForm.config.cure2amount && _ELITEAPIPL.Player.MP > 24 && _PlayerHelper.HasSpell("Cure II"))
                 {
-                    //if (OptionsForm.config.PrioritiseOverLowerTier == true) { RunDebuffChecker(); } TODO MOVE THIS TO CASTING HELPER
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure II", CurePrio.CureII);
                     cureCasted = true;
                 }
                 else if (OptionsForm.config.cure1enabled && HP_Loss >= OptionsForm.config.cure1amount && _ELITEAPIPL.Player.MP > 8 && _PlayerHelper.HasSpell("Cure"))
                 {
-                    //if (OptionsForm.config.PrioritiseOverLowerTier == true) { RunDebuffChecker(); } TODO MOVE THIS TO CASTING HELPER
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure", CurePrio.CureI);
                     cureCasted = true;
                 }

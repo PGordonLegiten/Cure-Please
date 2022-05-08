@@ -52,7 +52,7 @@
             foreach (BuffStorage ailment in f1.ActiveBuffs.ToList())
             {
                 // First add Character name and a Line Break.
-                ailment_list.AppendText(ailment.CharacterName.ToUpper() + "\n");
+                ailment_list.AppendText(ailment.CharacterName.ToUpper() + ": ");
 
                 // Now create a list and loop through each buff and name them
                 List<string> named_buffs = ailment.CharacterBuffs.Split(',').ToList();
@@ -79,7 +79,7 @@
                     }
                 }
 
-                ailment_list.AppendText("\n\n");
+                ailment_list.AppendText("\n");
             }
         }
     }

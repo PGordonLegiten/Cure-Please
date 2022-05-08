@@ -41,6 +41,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.buffqueue_box = new System.Windows.Forms.RichTextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.debufflist_box = new System.Windows.Forms.RichTextBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.SuspendLayout();
             // 
             // castlog_box
@@ -49,7 +51,7 @@
             this.castlog_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.castlog_box.Location = new System.Drawing.Point(45, 32);
             this.castlog_box.Name = "castlog_box";
-            this.castlog_box.Size = new System.Drawing.Size(408, 417);
+            this.castlog_box.Size = new System.Drawing.Size(408, 424);
             this.castlog_box.TabIndex = 0;
             this.castlog_box.Text = "";
             // 
@@ -64,7 +66,7 @@
             this.charselect.ForeColor = System.Drawing.SystemColors.GrayText;
             this.charselect.Location = new System.Drawing.Point(26, 12);
             this.charselect.Name = "charselect";
-            this.charselect.Size = new System.Drawing.Size(443, 450);
+            this.charselect.Size = new System.Drawing.Size(443, 464);
             this.charselect.TabIndex = 17;
             this.charselect.TabStop = false;
             this.charselect.Text = "Log";
@@ -75,7 +77,7 @@
             this.prioqueue_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.prioqueue_box.Location = new System.Drawing.Point(498, 32);
             this.prioqueue_box.Name = "prioqueue_box";
-            this.prioqueue_box.Size = new System.Drawing.Size(219, 417);
+            this.prioqueue_box.Size = new System.Drawing.Size(219, 251);
             this.prioqueue_box.TabIndex = 18;
             this.prioqueue_box.Text = "";
             // 
@@ -85,7 +87,7 @@
             this.groupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
             this.groupBox1.Location = new System.Drawing.Point(479, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(254, 450);
+            this.groupBox1.Size = new System.Drawing.Size(254, 288);
             this.groupBox1.TabIndex = 19;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Prio Queue";
@@ -96,7 +98,7 @@
             this.healingqueue_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.healingqueue_box.Location = new System.Drawing.Point(762, 32);
             this.healingqueue_box.Name = "healingqueue_box";
-            this.healingqueue_box.Size = new System.Drawing.Size(219, 417);
+            this.healingqueue_box.Size = new System.Drawing.Size(219, 251);
             this.healingqueue_box.TabIndex = 20;
             this.healingqueue_box.Text = "";
             // 
@@ -106,7 +108,7 @@
             this.groupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
             this.groupBox2.Location = new System.Drawing.Point(743, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(254, 450);
+            this.groupBox2.Size = new System.Drawing.Size(254, 288);
             this.groupBox2.TabIndex = 21;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Healing Queue";
@@ -117,7 +119,7 @@
             this.debuffqueue_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.debuffqueue_box.Location = new System.Drawing.Point(1026, 32);
             this.debuffqueue_box.Name = "debuffqueue_box";
-            this.debuffqueue_box.Size = new System.Drawing.Size(219, 417);
+            this.debuffqueue_box.Size = new System.Drawing.Size(219, 251);
             this.debuffqueue_box.TabIndex = 22;
             this.debuffqueue_box.Text = "";
             // 
@@ -127,7 +129,7 @@
             this.groupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
             this.groupBox3.Location = new System.Drawing.Point(1007, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(254, 450);
+            this.groupBox3.Size = new System.Drawing.Size(254, 288);
             this.groupBox3.TabIndex = 23;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Debuffs Queue";
@@ -138,7 +140,7 @@
             this.buffqueue_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.buffqueue_box.Location = new System.Drawing.Point(1291, 32);
             this.buffqueue_box.Name = "buffqueue_box";
-            this.buffqueue_box.Size = new System.Drawing.Size(219, 417);
+            this.buffqueue_box.Size = new System.Drawing.Size(219, 251);
             this.buffqueue_box.TabIndex = 24;
             this.buffqueue_box.Text = "";
             // 
@@ -148,16 +150,39 @@
             this.groupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
             this.groupBox4.Location = new System.Drawing.Point(1272, 12);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(254, 450);
+            this.groupBox4.Size = new System.Drawing.Size(254, 288);
             this.groupBox4.TabIndex = 25;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Buffs Queue";
+            // 
+            // debufflist_box
+            // 
+            this.debufflist_box.BackColor = System.Drawing.SystemColors.Control;
+            this.debufflist_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.debufflist_box.Location = new System.Drawing.Point(498, 325);
+            this.debufflist_box.Name = "debufflist_box";
+            this.debufflist_box.Size = new System.Drawing.Size(1012, 131);
+            this.debufflist_box.TabIndex = 26;
+            this.debufflist_box.Text = "";
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.BackColor = System.Drawing.Color.Transparent;
+            this.groupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.groupBox5.Location = new System.Drawing.Point(479, 305);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(1047, 171);
+            this.groupBox5.TabIndex = 27;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Active Debuffs";
             // 
             // CastingMonitorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1578, 500);
+            this.Controls.Add(this.debufflist_box);
+            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.buffqueue_box);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.debuffqueue_box);
@@ -188,5 +213,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RichTextBox buffqueue_box;
         private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.RichTextBox debufflist_box;
+        private System.Windows.Forms.GroupBox groupBox5;
     }
 }

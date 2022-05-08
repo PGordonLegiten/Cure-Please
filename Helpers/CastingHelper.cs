@@ -19,7 +19,7 @@ namespace CurePlease.Helpers
         public LinkedList<CastingAction> _Debuffs = new LinkedList<CastingAction>();
         public LinkedList<CastingAction> _Priority = new LinkedList<CastingAction>();
 
-        public List<LogEntry> _Log = new List<LogEntry>();
+        public LinkedList<LogEntry> _Log = new LinkedList<LogEntry>();
 
         private EliteAPI _ELITEAPIPL;
         private EliteAPI _ELITEAPIMonitored;
@@ -27,6 +27,7 @@ namespace CurePlease.Helpers
         private CureHelper _CureHelper;
         private GeoHelper _GoeHelper;
         private PlayerHelper _PlayerHelper;
+        private JaHelper _JaHelper;
         private SpellsHelper _SpellsHelper;
         public float plX;
         public float plY;
@@ -42,6 +43,7 @@ namespace CurePlease.Helpers
             _ELITEAPIMonitored = monitor;
             _ELITEAPIPL = pl;
             _CureHelper = new CureHelper(form, pl, monitor, this);
+            _JaHelper = new JaHelper(form, pl, monitor, this);
             _PlayerHelper = new PlayerHelper(pl, monitor);
             _SpellsHelper = new SpellsHelper(_PlayerHelper);
             _GoeHelper = new GeoHelper(pl, monitor);
@@ -58,15 +60,18 @@ namespace CurePlease.Helpers
                     return;                
                 }
             }
-            //CURES, CURAGA FIRST
+            //CURES
             foreach (CastingAction action in _Cures.ToList().OrderByDescending(x => x.Priority))
             {
+                if (OptionsForm.config.PrioritiseOverLowerTier == true && action.Priority < Convert.ToInt32(CurePrio.CureIV) && (_Debuffs.Count > 0 || _Buffs.Count > 0))
+                {
+                    break; //skip all the lower cures if debuffs or buffs are present
+                }
                 if (DeQueueSpell(_Cures, action))
                 {
                     return;
                 }
             }
-            if (_Cures.Count > 0) { return; }
             //DEBUFFS
             foreach (CastingAction action in _Debuffs.ToList().OrderByDescending(x => x.Priority))
             {
@@ -75,7 +80,6 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
-            if (_Cures.Count > 0) { return; }
             //BUFFS
             foreach (CastingAction action in _Buffs.ToList().OrderByDescending(x => x.Priority))
             {
@@ -84,7 +88,6 @@ namespace CurePlease.Helpers
                     return;
                 }
             }
-            if (_Cures.Count > 0) { return; }
         }
         public bool DeQueueSpell(LinkedList<CastingAction> list, CastingAction action)
         {
@@ -110,23 +113,25 @@ namespace CurePlease.Helpers
             }
             else
             {
-                if (!SpellRecastReady(spellName)) { return false; } //try next spell
+                if (!SpellRecastReady(new CastingAction() { SpellName = spellName, JobAbilities = action.JobAbilities })) { return false; } //try next spell
             }
-            _Log.Add(new LogEntry("Attempting to cast [" + spellName + "] on [" + action.Target + "]", Color.LightGray));
+            AddLog(new LogEntry("Attempting to cast [" + spellName + "] on [" + action.Target + "]", Color.DimGray));
             if (CanAct())
             {
-                var lockStamp = GetLock();
-                list.Remove(action);
-                if (DateTime.Now.Subtract(action.Invoked) <= GetQueueExpiration(action.Type)) //THIS VALUE NEEDS TO BE TESTED (MAYBE TOO SHORT?)
+                if (DateTime.Now.Subtract(action.Invoked) <= GetQueueExpiration(action.Type))
                 {
+                    var lockStamp = GetLock();
+                    list.Remove(action);
+                
                     if (action.Type == SpellType.GEO) {
                         _GoeHelper.GetTargetOnCast(action.Target);
                     }
-                    CastSpell(action.Target, spellName, lockStamp);
+                    CastSpell(action.Target, spellName, lockStamp, action.JobAbilities);
                 }
                 else
                 {
-                    FreeLock("Queue Timeout", lockStamp);
+                    list.Remove(action);
+                    AddLog(new LogEntry("Queue Timeout", Color.DimGray));
                 }
             }
             return true;
@@ -138,8 +143,12 @@ namespace CurePlease.Helpers
         }
         public void QueueSpell(SpellType type, string partyMemberName, string spellName, Enum priority)
         {
+            QueueSpell(type, partyMemberName, spellName, priority, new List<JobAbility>());
+        }
+        public void QueueSpell(SpellType type, string partyMemberName, string spellName, Enum priority, List<JobAbility> jas)
+        {
             //doesnt do anything yet, prepraration for a queueing system
-            CastingAction action = new CastingAction(type, spellName, partyMemberName, priority);
+            CastingAction action = new CastingAction(type, spellName, partyMemberName, priority, jas);
             switch (type)
             {
                 case SpellType.Prio:
@@ -168,7 +177,7 @@ namespace CurePlease.Helpers
             list.AddFirst(action);
         }
 
-        public void CastSpell(string partyMemberName, string spellName, long lockStamp)
+        public void CastSpell(string partyMemberName, string spellName, long lockStamp, List<JobAbility> jas)
         {
             if (!HasApi()) { return; }
 
@@ -178,22 +187,29 @@ namespace CurePlease.Helpers
 
             var castingSpell = magic.Name[0];
 
+            if(jas.Count > 0)
+            {
+                foreach(JobAbility ja in jas)
+                {
+                    _JaHelper.DoAbility(ja);
+                }
+            }
             var cast = "/ma \"" + castingSpell + "\" " + partyMemberName;
             _ELITEAPIPL.ThirdParty.SendString(cast);
             _ELITEAPIPL.ThirdParty.SendString(string.Format("//cpaddon lock {0}", lockStamp));
             Thread.Sleep(200);
             _ELITEAPIPL.ThirdParty.SendString(cast);
-            _Log.Add(new LogEntry(cast, Color.Black));
+            AddLog(new LogEntry(cast, Color.Black));
 
             _Form.currentAction.Text = "Casting: " + castingSpell+ " → "+ partyMemberName;
 
             _Form.ProtectCasting.CancelAsync();
             if (!_Form.ProtectCasting.IsBusy) { _Form.ProtectCasting.RunWorkerAsync(argument: lockStamp); }
         }
-        public bool SpellRecastReady(string checked_recastspellName)
+        public bool SpellRecastReady(CastingAction action)
         {
-            if(checked_recastspellName == null) { return false; }
-            checked_recastspellName = checked_recastspellName.Trim().ToLower();
+            if(action == null) { return false; }
+            var checked_recastspellName = action.SpellName.Trim().ToLower();
 
             if (checked_recastspellName == "honor march")
             {
@@ -212,7 +228,22 @@ namespace CurePlease.Helpers
                 {
                     if (_ELITEAPIPL.Recast.GetSpellRecast(magic.Index) == 0)
                     {
-                        return true;
+                        if (action.JobAbilities.Count > 0)
+                        {
+                            var ja_recasts = true;
+                            foreach (JobAbility ja in action.JobAbilities)
+                            {
+                                if (!_PlayerHelper.plStatusCheck(ja.Status) && !_JaHelper.IsJaReady(ja))
+                                {
+                                    ja_recasts = false;
+                                }
+                            }
+                            return ja_recasts;
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                     else
                     {
@@ -226,7 +257,6 @@ namespace CurePlease.Helpers
             }
         }
 
-
         private bool IsMoving()
         {
             return (_ELITEAPIPL.Player.X != plX) || (_ELITEAPIPL.Player.Y != plY) || (_ELITEAPIPL.Player.Z != plZ);
@@ -234,10 +264,10 @@ namespace CurePlease.Helpers
         private void FailSafe()
         {
             if (!CanAct()) {
-                if (GetUnix() - IsPerformingAction_Timer > 10000)
+                if (GetUnix() - IsPerformingAction_Timer > 6000)
                 {
                     //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
-                    _Log.Add(new LogEntry("Uh-Oh! Failsafe kicked in! ["+ (GetUnix() - IsPerformingAction_Timer) + "]", Color.Violet));
+                    AddLog(new LogEntry("Uh-Oh! Failsafe kicked in! ["+ (GetUnix() - IsPerformingAction_Timer) + "]", Color.Violet));
                     FreeLock("Failsafe", IsPerformingAction_Timer);
                 }
             }
@@ -247,7 +277,7 @@ namespace CurePlease.Helpers
         {
             IsPerformingAction = true;
             IsPerformingAction_Timer = GetUnix();
-            _Log.Add(new LogEntry("Lock aquired [" + IsPerformingAction_Timer + "] ", Color.Red)) ;
+            AddLog(new LogEntry("Lock aquired [" + IsPerformingAction_Timer + "] ", Color.Red)) ;
             return IsPerformingAction_Timer;
         }
 
@@ -257,11 +287,11 @@ namespace CurePlease.Helpers
             if(IsPerformingAction_Timer == lockStamp)
             {
                 IsPerformingAction = false;
-                _Log.Add(new LogEntry("[" + input + "] Lock realeased [" + lockStamp + "]", Color.Green));
+                AddLog(new LogEntry("[" + input + "] Lock realeased [" + lockStamp + "]", Color.Green));
             }
             else
             {
-                _Log.Add(new LogEntry("[" + input + "] Lock expired [" + lockStamp + "]", Color.Blue));
+                AddLog(new LogEntry("[" + input + "] Lock expired [" + lockStamp + "]", Color.Blue));
             }
         }
 
@@ -314,16 +344,17 @@ namespace CurePlease.Helpers
 
         private TimeSpan GetQueueExpiration(SpellType type)
         {
+            //THIS VALUES NEEDS TO BE TESTED (MAYBE TOO SHORT?)
             switch (type)
             {
                 case SpellType.Healing:
-                    return TimeSpan.FromSeconds(5);
+                    return TimeSpan.FromSeconds(2);
                 case SpellType.Buff:
-                    return TimeSpan.FromSeconds(60);
+                    return TimeSpan.FromSeconds(20);
                 case SpellType.Debuff:
-                    return TimeSpan.FromSeconds(10);
-                default:
                     return TimeSpan.FromSeconds(5);
+                default:
+                    return TimeSpan.FromSeconds(3);
             }
         }
 
@@ -335,6 +366,15 @@ namespace CurePlease.Helpers
                 statusFound = true;
             }
             return statusFound;
+        }
+
+        public void AddLog(LogEntry entry)
+        {
+            if(_Log.Count() > 500)
+            {
+                _Log.RemoveFirst();
+            }
+            _Log.AddLast(entry);    
         }
     }
 }
