@@ -92,6 +92,10 @@ namespace CurePlease.Helpers
         public bool DeQueueSpell(LinkedList<CastingAction> list, CastingAction action)
         {
             if (!HasApi()) { return false; } //this should not be happening
+            if (DateTime.Now.Subtract(action.Invoked) >= GetQueueExpiration(action.Type)) {
+                list.Remove(action);
+                AddLog(new LogEntry("Queue Timeout", Color.DimGray));
+            }
             if (IsMoving()) { return false; } 
             if (!CanCast()) { return false; }
             var spellName = action.SpellName;
@@ -118,23 +122,20 @@ namespace CurePlease.Helpers
             AddLog(new LogEntry("Attempting to cast [" + spellName + "] on [" + action.Target + "]", Color.DimGray));
             if (CanAct())
             {
-                if (DateTime.Now.Subtract(action.Invoked) <= GetQueueExpiration(action.Type))
-                {
-                    var lockStamp = GetLock();
-                    list.Remove(action);
+                var lockStamp = GetLock();
+                list.Remove(action);
                 
-                    if (action.Type == SpellType.GEO) {
-                        _GoeHelper.GetTargetOnCast(action.Target);
-                    }
-                    CastSpell(action.Target, spellName, lockStamp, action.JobAbilities);
+                if (action.Type == SpellType.GEO) {
+                    _GoeHelper.GetTargetOnCast(action.Target);
                 }
-                else
-                {
-                    list.Remove(action);
-                    AddLog(new LogEntry("Queue Timeout", Color.DimGray));
-                }
+                CastSpell(action.Target, spellName, lockStamp, action.JobAbilities);
             }
             return true;
+        }
+
+        public void Cleanup()
+        {
+
         }
 
         public void QueueSpell(SpellType type, string partyMemberName, string spellName)
@@ -225,7 +226,7 @@ namespace CurePlease.Helpers
                     throw new Exception("Error detected, please Report Error: #SpellRecastError #" + checked_recastspellName);
                 }
                 else
-                {
+                {   
                     if (_ELITEAPIPL.Recast.GetSpellRecast(magic.Index) == 0)
                     {
                         if (action.JobAbilities.Count > 0)
@@ -237,6 +238,10 @@ namespace CurePlease.Helpers
                                 {
                                     ja_recasts = false;
                                 }
+                            }
+                            if (!_JaHelper.HasTotalStratagems(action.JobAbilities)) //check there is enough stratagems for all sch ja's
+                            {
+                                ja_recasts = false;
                             }
                             return ja_recasts;
                         }

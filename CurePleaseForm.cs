@@ -2441,7 +2441,6 @@
                                 if (OptionsForm.config.Accession && OptionsForm.config.accessionProShell && _ELITEAPIPL.Party.GetPartyMembers().Count() > 2 && ((_ELITEAPIPL.Player.MainJob == 5 && _ELITEAPIPL.Player.SubJob == 20) || _ELITEAPIPL.Player.MainJob == 20) && playerHelper.HasAbility("Accession"))
                                 {
                                     CastingManager.QueueSpell(SpellType.Buff, "<me>", protectSpell, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
-                                        //JaManager.JobAbility_Wait("Protect, Accession", "Accession");
                                 }
                                 else
                                 {
@@ -2478,7 +2477,6 @@
                                 if (OptionsForm.config.Accession && OptionsForm.config.accessionProShell && _ELITEAPIPL.Party.GetPartyMembers().Count() > 2 && ((_ELITEAPIPL.Player.MainJob == 5 && _ELITEAPIPL.Player.SubJob == 20) || _ELITEAPIPL.Player.MainJob == 20) && currentSCHCharges >= 1 && (playerHelper.HasAbility("Accession")))
                                 {
                                     CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
-                                    //JaManager.JobAbility_Wait("Shell, Accession", "Accession");
                                 }
                                 else
                                 {
@@ -2486,261 +2484,250 @@
                                 }
                             }
                         }
+                        var jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plBlink) && (!playerHelper.plStatusCheck(StatusEffect.Blink)) && playerHelper.IsAbleToCastSpell("Blink"))
                         {
-
-                            if (OptionsForm.config.Accession && OptionsForm.config.blinkAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            jaList = new List<JobAbility>();
+                            if (OptionsForm.config.Accession && OptionsForm.config.blinkAccession && playerHelper.HasAbility("Accession"))
                             {
-
-                                JaManager.JobAbility_Wait("Blink, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.blinkPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.blinkPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Blink, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Healing, "<me>", "Blink", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Blink", SpellPrio.High, jaList);
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plPhalanx) && (!playerHelper.plStatusCheck(StatusEffect.Phalanx)) && playerHelper.IsAbleToCastSpell("Phalanx"))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.phalanxAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.phalanxAccession && playerHelper.HasAbility("Accession"))
                             {
-                                JaManager.JobAbility_Wait("Phalanx, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.phalanxPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.phalanxPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Phalanx, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Phalanx", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Phalanx", SpellPrio.High, jaList);
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plRefresh) && (!playerHelper.plStatusCheck(StatusEffect.Refresh)) && CheckRefreshLevelPossession())
                         {
                             if ((OptionsForm.config.plRefresh_Level == 1) && playerHelper.IsAbleToCastSpell("Refresh"))
                             {
-                                if (OptionsForm.config.Accession && OptionsForm.config.refreshAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                                if (OptionsForm.config.Accession && OptionsForm.config.refreshAccession && playerHelper.HasAbility("Accession"))
                                 {
-                                    JaManager.JobAbility_Wait("Refresh, Accession", "Accession");
-                                    return;
+                                    jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                                 }
 
-                                if (OptionsForm.config.Perpetuance && OptionsForm.config.refreshPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                                if (OptionsForm.config.Perpetuance && OptionsForm.config.refreshPerpetuance && playerHelper.HasAbility("Perpetuance"))
                                 {
-                                    JaManager.JobAbility_Wait("Refresh, Perpetuance", "Perpetuance");
-                                    return;
+                                    jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                                 }
 
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh", SpellPrio.High, jaList);
                             }
                             else if ((OptionsForm.config.plRefresh_Level == 2) && playerHelper.IsAbleToCastSpell("Refresh II"))
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh II", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh II", SpellPrio.High, jaList);
                             }
                             else if ((OptionsForm.config.plRefresh_Level == 3) && playerHelper.IsAbleToCastSpell("Refresh III"))
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh III", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Refresh III", SpellPrio.High, jaList);
                             }
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plRegen) && (!playerHelper.plStatusCheck(StatusEffect.Regen)) && CheckRegenLevelPossession() == true)
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.regenAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.regenAccession && playerHelper.HasAbility("Accession"))
                             {
-                                JaManager.JobAbility_Wait("Regen, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.regenPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.regenPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Regen, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
                             if ((OptionsForm.config.plRegen_Level == 1) && _ELITEAPIPL.Player.MP > 15)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen", SpellPrio.High, jaList);
                             }
                             else if ((OptionsForm.config.plRegen_Level == 2) && _ELITEAPIPL.Player.MP > 36)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen II", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen II", SpellPrio.High, jaList);
                             }
                             else if ((OptionsForm.config.plRegen_Level == 3) && _ELITEAPIPL.Player.MP > 64)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen III", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen III", SpellPrio.High, jaList);
                             }
                             else if ((OptionsForm.config.plRegen_Level == 4) && _ELITEAPIPL.Player.MP > 82)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen IV", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen IV", SpellPrio.High, jaList);
                             }
                             else if ((OptionsForm.config.plRegen_Level == 5) && _ELITEAPIPL.Player.MP > 100)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen V", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen V", SpellPrio.High, jaList);
                             }
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plAdloquium) && (!playerHelper.plStatusCheck(StatusEffect.Regain)) && playerHelper.IsAbleToCastSpell("Adloquium"))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.adloquiumAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.adloquiumAccession && playerHelper.HasAbility("Accession"))
                             {
-                                JaManager.JobAbility_Wait("Adloquium, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.adloquiumPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.adloquiumPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Adloquium, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Adloquium", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Adloquium", SpellPrio.High, jaList);
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plStoneskin) && (!playerHelper.plStatusCheck(StatusEffect.Stoneskin)) && playerHelper.IsAbleToCastSpell("Stoneskin"))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.stoneskinAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.stoneskinAccession && playerHelper.HasAbility("Accession"))
                             {
-                                JaManager.JobAbility_Wait("Stoneskin, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.stoneskinPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.stoneskinPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Stoneskin, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Stoneskin", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Stoneskin", SpellPrio.High, jaList);
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plAquaveil) && (!playerHelper.plStatusCheck(StatusEffect.Aquaveil)) && playerHelper.IsAbleToCastSpell("Aquaveil"))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.aquaveilAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.aquaveilAccession && playerHelper.HasAbility("Accession"))
                             {
-                                JaManager.JobAbility_Wait("Aquaveil, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.aquaveilPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.aquaveilPerpetuance && playerHelper.HasAbility("Perpetuance") && playerHelper.plStatusCheck(StatusEffect.Perpetuance))
                             {
-                                JaManager.JobAbility_Wait("Aquaveil, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Aquaveil", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Aquaveil", SpellPrio.High, jaList);
                         }
                         if ((OptionsForm.config.plShellra) && (!playerHelper.plStatusCheck(StatusEffect.Shell)) && CheckShellraLevelPossession() == true)
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetShellraLevel(OptionsForm.config.plShellra_Level), SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetShellraLevel(OptionsForm.config.plShellra_Level), SpellPrio.High);
                         }
                         if ((OptionsForm.config.plProtectra) && (!playerHelper.plStatusCheck(StatusEffect.Protect)) && CheckProtectraLevelPossession() == true)
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetProtectraLevel(OptionsForm.config.plProtectra_Level), SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetProtectraLevel(OptionsForm.config.plProtectra_Level), SpellPrio.High);
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plBarElement) && !BuffChecker(BarspellBuffID, 0) && playerHelper.IsAbleToCastSpell(BarspellName))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.barspellAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && BarSpell_AOE == false && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.barspellAccession && playerHelper.HasAbility("Accession") && BarSpell_AOE == false)
                             {
-                                JaManager.JobAbility_Wait("Barspell, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.barspellPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.barspellPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Barspell, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", BarspellName, SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", BarspellName, SpellPrio.High, jaList);
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plBarStatus) && !BuffChecker(BarstatusBuffID, 0) && playerHelper.IsAbleToCastSpell(BarstatusName))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.barstatusAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && BarStatus_AOE == false && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.barstatusAccession && playerHelper.HasAbility("Accession") && BarStatus_AOE == false)
                             {
-                                JaManager.JobAbility_Wait("Barstatus, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.barstatusPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.barstatusPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Barstatus, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", BarstatusName, SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", BarstatusName, SpellPrio.High, jaList);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 0) && !playerHelper.plStatusCheck(StatusEffect.STR_Boost2) && playerHelper.IsAbleToCastSpell("Gain-STR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-STR", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-STR", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 1) && !playerHelper.plStatusCheck(StatusEffect.DEX_Boost2) && playerHelper.IsAbleToCastSpell("Gain-DEX"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-DEX", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-DEX", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 2) && !playerHelper.plStatusCheck(StatusEffect.VIT_Boost2) && playerHelper.IsAbleToCastSpell("Gain-VIT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-VIT", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-VIT", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 3) && !playerHelper.plStatusCheck(StatusEffect.AGI_Boost2) && playerHelper.IsAbleToCastSpell("Gain-AGI"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-AGI", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-AGI", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 4) && !playerHelper.plStatusCheck(StatusEffect.INT_Boost2) && playerHelper.IsAbleToCastSpell("Gain-INT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-INT", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-INT", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 5) && !playerHelper.plStatusCheck(StatusEffect.MND_Boost2) && playerHelper.IsAbleToCastSpell("Gain-MND"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-MND", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-MND", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 6) && !playerHelper.plStatusCheck(StatusEffect.CHR_Boost2) && playerHelper.IsAbleToCastSpell("Gain-CHR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-CHR", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-CHR", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 7) && !playerHelper.plStatusCheck(StatusEffect.STR_Boost2) && playerHelper.IsAbleToCastSpell("Boost-STR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-STR", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-STR", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 8) && !playerHelper.plStatusCheck(StatusEffect.DEX_Boost2) && playerHelper.IsAbleToCastSpell("Boost-DEX"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-DEX", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-DEX", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 9) && !playerHelper.plStatusCheck(StatusEffect.VIT_Boost2) && playerHelper.IsAbleToCastSpell("Boost-VIT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-VIT", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-VIT", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 10) && !playerHelper.plStatusCheck(StatusEffect.AGI_Boost2) && playerHelper.IsAbleToCastSpell("Boost-AGI"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-AGI", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-AGI", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 11) && !playerHelper.plStatusCheck(StatusEffect.INT_Boost2) && playerHelper.IsAbleToCastSpell("Boost-INT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-INT", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-INT", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 12) && !playerHelper.plStatusCheck(StatusEffect.MND_Boost2) && playerHelper.IsAbleToCastSpell("Boost-MND"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-MND", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-MND", SpellPrio.High);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 13) && !playerHelper.plStatusCheck(StatusEffect.CHR_Boost2) && playerHelper.IsAbleToCastSpell("Boost-CHR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-CHR", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-CHR", SpellPrio.High);
                         }
+                        jaList = new List<JobAbility>();
                         if (OptionsForm.config.plStormSpell && !BuffChecker(stormspell.buffID, 0) && playerHelper.IsAbleToCastSpell(stormspell.Spell_Name))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.stormspellAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.stormspellAccession && playerHelper.HasAbility("Accession"))
                             {
-                                JaManager.JobAbility_Wait("Stormspell, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.stormspellPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.stormspellPerpetuance && playerHelper.HasAbility("Perpetuance"))
                             {
-                                JaManager.JobAbility_Wait("Stormspell, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", stormspell.Spell_Name, SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", stormspell.Spell_Name, SpellPrio.High, jaList);
                         }
                         if ((OptionsForm.config.plKlimaform) && !playerHelper.plStatusCheck(StatusEffect.Klimaform))
                         {
@@ -2786,21 +2773,20 @@
                                 CastingManager.QueueSpell(SpellType.Buff, "<me>", "Shock Spikes", SpellPrio.Top);
                             }
                         }
+                        jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plEnspell) && !BuffChecker(enspell.buffID, 0) && playerHelper.IsAbleToCastSpell(enspell.Spell_Name))
                         {
-                            if (OptionsForm.config.Accession && OptionsForm.config.enspellAccession && currentSCHCharges > 0 && playerHelper.HasAbility("Accession") && enspell.spell_position < 6 && !playerHelper.plStatusCheck(StatusEffect.Accession))
+                            if (OptionsForm.config.Accession && OptionsForm.config.enspellAccession && playerHelper.HasAbility("Accession") && enspell.spell_position < 6)
                             {
-                                JaManager.JobAbility_Wait("Enspell, Accession", "Accession");
-                                return;
+                                jaList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                             }
 
-                            if (OptionsForm.config.Perpetuance && OptionsForm.config.enspellPerpetuance && currentSCHCharges > 0 && playerHelper.HasAbility("Perpetuance") && enspell.spell_position < 6 && !playerHelper.plStatusCheck(StatusEffect.Perpetuance))
+                            if (OptionsForm.config.Perpetuance && OptionsForm.config.enspellPerpetuance && playerHelper.HasAbility("Perpetuance") && enspell.spell_position < 6)
                             {
-                                JaManager.JobAbility_Wait("Enspell, Perpetuance", "Perpetuance");
-                                return;
+                                jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", enspell.Spell_Name, SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", enspell.Spell_Name, SpellPrio.Top, jaList);
                         }
                         if ((OptionsForm.config.plAuspice) && (!playerHelper.plStatusCheck(StatusEffect.Auspice)) && playerHelper.IsAbleToCastSpell("Auspice"))
                         {

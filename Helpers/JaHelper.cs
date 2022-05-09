@@ -20,7 +20,7 @@ namespace CurePlease.Helpers
         private Dictionary<string,long> _AbilityCooldown = new Dictionary<string,long>();
         public long IsPerformingAction_Timer = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        private List<string> ScholarJas = new List<string>()
+        public List<string> ScholarJas = new List<string>()
         {
             //LIGHT ARTS
             "Accession",
@@ -93,6 +93,19 @@ namespace CurePlease.Helpers
             _Form.currentAction.Text = string.Empty;
             _Form.castingSpell = string.Empty;
             _CastingManager.FreeLock("JobAbility_Wait", time);
+        }
+
+        public bool HasTotalStratagems(List<JobAbility> jas)
+        {
+            var strataCount = 0;
+            foreach (JobAbility ja in jas)
+            {
+                if (ScholarJas.Contains(ja.Name))
+                {
+                    strataCount++;
+                }
+            }
+            return strataCount <= _Form.currentSCHCharges;
         }
 
         public bool IsJaReady(string name)
