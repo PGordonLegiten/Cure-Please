@@ -209,7 +209,7 @@ namespace CurePlease.Helpers
         }
         public bool SpellRecastReady(CastingAction action)
         {
-            if(action == null) { return false; }
+            if(action == null || action.SpellName == null) { return false; }
             var checked_recastspellName = action.SpellName.Trim().ToLower();
 
             if (checked_recastspellName == "honor march")

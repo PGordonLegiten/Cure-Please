@@ -113,9 +113,21 @@ namespace CurePlease.Helpers
             return IsJaReady(new JobAbility() { Name = name });
         }
 
+        public bool OnCooldown(string name)
+        {
+            if (_AbilityCooldown.ContainsKey(name) && DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - _AbilityCooldown[name] < 5000) //same ability spam prevention (causes problem with SCH accession)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public bool IsJaReady(JobAbility ja)
         {
-            if (_AbilityCooldown.ContainsKey(ja.Name) && DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - _AbilityCooldown[ja.Name] < 5000) //same ability spam prevention (causes problem with SCH accession)
+            if (OnCooldown(ja.Name)) //same ability spam prevention (causes problem with SCH accession)1
             {
                 return false;
             }

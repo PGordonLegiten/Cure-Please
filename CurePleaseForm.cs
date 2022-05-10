@@ -2474,7 +2474,7 @@
 
                             if (shellSpell != string.Empty && playerHelper.IsAbleToCastSpell(shellSpell))
                             {
-                                if (OptionsForm.config.Accession && OptionsForm.config.accessionProShell && _ELITEAPIPL.Party.GetPartyMembers().Count() > 2 && ((_ELITEAPIPL.Player.MainJob == 5 && _ELITEAPIPL.Player.SubJob == 20) || _ELITEAPIPL.Player.MainJob == 20) && currentSCHCharges >= 1 && (playerHelper.HasAbility("Accession")))
+                                if (OptionsForm.config.Accession && OptionsForm.config.accessionProShell && _ELITEAPIPL.Party.GetPartyMembers().Count() > 2 && ((_ELITEAPIPL.Player.MainJob == 5 && _ELITEAPIPL.Player.SubJob == 20) || _ELITEAPIPL.Player.MainJob == 20) && (playerHelper.HasAbility("Accession")))
                                 {
                                     CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
                                 }
@@ -5272,6 +5272,20 @@
             new AboutForm().Show();
         }
 
+        private Int32 GetFreePort()
+        {
+            var startingAtPort = Convert.ToInt32(OptionsForm.config.listeningPort);
+            var maxNumberOfPortsToCheck = 500;
+            var range = Enumerable.Range(startingAtPort, maxNumberOfPortsToCheck);
+            var portsInUse =
+                from p in range
+                join used in System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners()
+                on p equals used.Port
+                select p;
+
+            return range.Except(portsInUse).FirstOrDefault();
+        }
+
         private void AddonReader_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             if (OptionsForm.config.EnableAddOn == true && pauseActions == false && _ELITEAPIMonitored != null && _ELITEAPIPL != null)
@@ -5279,8 +5293,17 @@
 
                 bool done = false;
 
-                UdpClient listener = new UdpClient(Convert.ToInt32(OptionsForm.config.listeningPort));
-                IPEndPoint groupEP = new IPEndPoint(IPAddress.Parse(OptionsForm.config.ipAddress), Convert.ToInt32(OptionsForm.config.listeningPort));
+                var freePort = GetFreePort();
+
+                UdpClient listener = new UdpClient(freePort);
+                IPEndPoint groupEP = new IPEndPoint(IPAddress.Parse(OptionsForm.config.ipAddress), freePort);
+
+                OptionsForm.config.listeningPort = freePort.ToString();
+
+                _ELITEAPIPL.ThirdParty.SendString("//cpaddon settings " + OptionsForm.config.ipAddress + " " + freePort);
+                Thread.Sleep(100);
+                _ELITEAPIPL.ThirdParty.SendString("//cpaddon verify");
+
                 string received_data;
                 byte[] receive_byte_array;
                 try
@@ -5320,7 +5343,10 @@
                                       castingLockLabel.Text = "PACKET: Casting is INTERRUPTED";
                                       await Task.Delay(TimeSpan.FromSeconds(3));
                                       castingLockLabel.Text = "Casting is UNLOCKED";
-                                      CastingManager.FreeLock("ADDON: Interrupt", long.Parse(commands[3]));
+                                      if (long.TryParse(commands[3], out long lockstamp))
+                                      {
+                                          CastingManager.FreeLock("ADDON: Interrupt", lockstamp);
+                                      }
                                   }));
                             }
                             else if (commands[2] == "finished")
@@ -5334,7 +5360,10 @@
                                       castingLockLabel.Text = "Casting is UNLOCKED";
                                       currentAction.Text = string.Empty;
                                       castingSpell = string.Empty;
-                                      CastingManager.FreeLock("ADDON: Finished", long.Parse(commands[3]));
+                                      if (long.TryParse(commands[3], out long lockstamp))
+                                      {
+                                          CastingManager.FreeLock("ADDON: Finished", lockstamp);
+                                      }
                                   }));
                             }
                         }
