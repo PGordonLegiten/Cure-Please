@@ -57,19 +57,19 @@ namespace CurePlease.Helpers
             {
                 if (DeQueueSpell(_Priority, action))
                 {
-                    return;                
+                    continue;                
                 }
             }
             //CURES
             foreach (CastingAction action in _Cures.ToList().OrderByDescending(x => x.Priority))
             {
-                if (OptionsForm.config.PrioritiseOverLowerTier == true && action.Priority < Convert.ToInt32(CurePrio.CureIV) && (_Debuffs.Count > 0 || _Buffs.Count > 0))
+                if (OptionsForm.config.PrioritiseOverLowerTier == true && action.Priority < Convert.ToInt32(CurePrio.CureIV) && (_Debuffs.Count > 0))
                 {
-                    break; //skip all the lower cures if debuffs or buffs are present
+                    break; //skip all the lower cures if debuffs
                 }
                 if (DeQueueSpell(_Cures, action))
                 {
-                    return;
+                    continue;
                 }
             }
             //DEBUFFS
@@ -77,53 +77,65 @@ namespace CurePlease.Helpers
             {
                 if (DeQueueSpell(_Debuffs, action))
                 {
-                    return;
+                    continue;
                 }
             }
             //BUFFS
+            if(_Cures.Where(x => x.Priority >= Convert.ToInt32(CurePrio.CureIV)).Count() > 0) { return; }
             foreach (CastingAction action in _Buffs.ToList().OrderByDescending(x => x.Priority))
             {
                 if (DeQueueSpell(_Buffs, action))
                 {
-                    return;
+                    continue;
                 }
             }
         }
+        private void RemoveSpell(LinkedList<CastingAction> list, CastingAction action, string reason)
+        {
+            list.Remove(action);
+            if (!string.IsNullOrEmpty(reason))
+            {
+                AddLog(new LogEntry(reason, Color.Brown));
+            }
+        }
+
         public bool DeQueueSpell(LinkedList<CastingAction> list, CastingAction action)
         {
             if (!HasApi()) { return false; } //this should not be happening
             if (DateTime.Now.Subtract(action.Invoked) >= GetQueueExpiration(action.Type)) {
-                list.Remove(action);
-                AddLog(new LogEntry("Queue Timeout", Color.DimGray));
+                RemoveSpell(list, action, $"Queue Timeout [{DateTime.Now.Subtract(action.Invoked)}]");
             }
             if (IsMoving()) { return false; } 
             if (!CanCast()) { return false; }
             var spellName = action.SpellName;
             if (action.Type == SpellType.Raise)
             {
-                if (!_PlayerHelper.RaisingPossible(action.Target)) { return false; }
+                if (_PlayerHelper.IsAlive(action.Target)) { RemoveSpell(list, action, $"{action.Target} already alive!"); ; return false; }
                 spellName = _SpellsHelper.GetRaiseSpell();
             }
             else 
             {
-                if (!_PlayerHelper.CastingPossible(action.Target)) { return false; }
+                if (!_PlayerHelper.IsAlive(action.Target)) { RemoveSpell(list, action, $"{action.Target} already dead :("); return false; }
+                
             }
-            
+            if (!_PlayerHelper.CastingPossible(action.Target)) { RemoveSpell(list, action, $"{action.Target} out of range."); return false; }
+
             if (action.Type == SpellType.Healing)
             {
                 //Special Case for cures since when its on recast we check lower tiers
+                var preSpell = spellName;
                 spellName = _CureHelper.GetCureSpell(spellName);
-                if(spellName == "false") { return false; }
+                if(spellName == "false") { RemoveSpell(list, action, $"{preSpell} spell not ready."); return false; }
             }
             else
             {
                 if (!SpellRecastReady(new CastingAction() { SpellName = spellName, JobAbilities = action.JobAbilities })) { return false; } //try next spell
             }
-            AddLog(new LogEntry("Attempting to cast [" + spellName + "] on [" + action.Target + "]", Color.DimGray));
             if (CanAct())
             {
+                AddLog(new LogEntry("Attempting to cast [" + spellName + "] on [" + action.Target + "]", Color.DimGray));
                 var lockStamp = GetLock();
-                list.Remove(action);
+                RemoveSpell(list, action, "");
                 
                 if (action.Type == SpellType.GEO) {
                     _GoeHelper.GetTargetOnCast(action.Target);
@@ -352,14 +364,16 @@ namespace CurePlease.Helpers
             //THIS VALUES NEEDS TO BE TESTED (MAYBE TOO SHORT?)
             switch (type)
             {
+                case SpellType.Prio:
+                    return TimeSpan.FromSeconds(10);
                 case SpellType.Healing:
                     return TimeSpan.FromSeconds(2);
                 case SpellType.Buff:
-                    return TimeSpan.FromSeconds(20);
+                    return TimeSpan.FromSeconds(10);
                 case SpellType.Debuff:
-                    return TimeSpan.FromSeconds(5);
+                    return TimeSpan.FromSeconds(2);
                 default:
-                    return TimeSpan.FromSeconds(3);
+                    return TimeSpan.FromSeconds(2);
             }
         }
 

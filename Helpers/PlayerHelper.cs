@@ -42,24 +42,25 @@ namespace CurePlease.Helpers
             if(memberName == null) { return false; }
             if(memberName == "<t>") { return true; }
             if(memberName == "<me>") { return true; }
-            var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name.ToLower() == memberName.ToLower()).FirstOrDefault();
-            if (member == null) { return false; }
-            if ((_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance < 21) && (_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance > 0) && (member.CurrentHP > 0) || (_ELITEAPIPL.Party.GetPartyMember(0).ID == member.ID) && (member.CurrentHP > 0))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public bool RaisingPossible(string memberName)
-        {
-            var member = _ELITEAPIMonitored.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
+            var member = _ELITEAPIPL.Party.GetPartyMembers().Where(x => x.Name.ToLower() == memberName.ToLower()).FirstOrDefault();
             if (member == null) { return false; }
             if ((_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance < 21) && (_ELITEAPIPL.Entity.GetEntity((int)member.TargetIndex).Distance > 0) || (_ELITEAPIPL.Party.GetPartyMember(0).ID == member.ID))
             {
                 return true;
             }
             return false;
+        }
+
+        public bool IsAlive(string memberName)
+        {
+            if (memberName == "<t>") { return true; }
+            if (memberName == "<me>")
+            {
+                memberName = _ELITEAPIPL.Player.Name;
+            }
+            var member = _ELITEAPIPL.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
+            if (member == null) { return false; }
+            return member.CurrentHP > 0;
         }
 
         public bool JobChecker(string SpellName)

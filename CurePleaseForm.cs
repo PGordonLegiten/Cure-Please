@@ -103,7 +103,6 @@
 
         public static EliteAPI _ELITEAPIPL;
 
-
         public EliteAPI _ELITEAPIMonitored;
         PlayerHelper playerHelper;
 
@@ -654,7 +653,7 @@
 
                     raiseButton.Visible = true;
                     raiseButton.Enabled = false;
-                    if (playerHelper.RaisingPossible(member.Name))
+                    if (playerHelper.CastingPossible(member.Name) && !playerHelper.IsAlive(member.Name))
                     {
                         raiseButton.Enabled = true;
                     }

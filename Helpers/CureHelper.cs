@@ -321,7 +321,7 @@ namespace CurePlease.Helpers
                 {
                     return "Cure V";
                 }
-                else if (_PlayerHelper.CanCastSpellNow("Cure IV") && OptionsForm.config.Undercure)
+                else if (_PlayerHelper.CanCastSpellNow("Cure IV"))
                 {
                     return "Cure IV";
                 }
@@ -336,14 +336,15 @@ namespace CurePlease.Helpers
                 {
                     return "Cure V";
                 }
-                else if (_PlayerHelper.CanCastSpellNow("Cure IV") && OptionsForm.config.Undercure)
-                {
-                    return "Cure IV";
-                }
                 else if (_PlayerHelper.CanCastSpellNow("Cure VI") && OptionsForm.config.Overcure)
                 {
                     return "Cure VI";
                 }
+                else if (_PlayerHelper.CanCastSpellNow("Cure IV") && OptionsForm.config.Undercure)
+                {
+                    return "Cure IV";
+                }
+                
                 else
                 {
                     return "false";
@@ -355,14 +356,15 @@ namespace CurePlease.Helpers
                 {
                     return "Cure IV";
                 }
-                else if (_PlayerHelper.CanCastSpellNow("Cure III") && OptionsForm.config.Undercure)
-                {
-                    return "Cure III";
-                }
                 else if (_PlayerHelper.CanCastSpellNow("Cure V") && OptionsForm.config.Overcure)
                 {
                     return "Cure V";
                 }
+                else if (_PlayerHelper.CanCastSpellNow("Cure III") && OptionsForm.config.Undercure)
+                {
+                    return "Cure III";
+                }
+                
                 else
                 {
                     return "false";
@@ -393,13 +395,13 @@ namespace CurePlease.Helpers
                 {
                     return "Cure II";
                 }
-                else if (_PlayerHelper.CanCastSpellNow("Cure") && OptionsForm.config.Undercure)
-                {
-                    return "Cure";
-                }
                 else if (_PlayerHelper.CanCastSpellNow("Cure III") && OptionsForm.config.Overcure)
                 {
                     return "Cure III";
+                }
+                else if (_PlayerHelper.CanCastSpellNow("Cure") && OptionsForm.config.Undercure)
+                {
+                    return "Cure";
                 }
                 else
                 {
@@ -480,13 +482,13 @@ namespace CurePlease.Helpers
                 {
                     return "Curaga II";
                 }
-                else if (_PlayerHelper.CanCastSpellNow("Curaga") && OptionsForm.config.Undercure)
-                {
-                    return "Curaga";
-                }
                 else if (_PlayerHelper.CanCastSpellNow("Curaga III") && OptionsForm.config.Overcure)
                 {
                     return "Curaga III";
+                }
+                else if (_PlayerHelper.CanCastSpellNow("Curaga") && OptionsForm.config.Undercure)
+                {
+                    return "Curaga";
                 }
                 else
                 {
