@@ -33,11 +33,15 @@ namespace CurePlease.DataStructures
         CureIV = 13,
         CureV = 14,
         CureVI = 15,
+        CureVII = 16, //doenst exist only for prio pourposes
+        CureVIII = 18, //doenst exist only for prio pourposes
         CuragaI = 20,
         CuragaII = 21,
         CuragaIII = 22,
         CuragaIV = 23,
         CuragaV = 24,
+        CuragaVI = 25,//doenst exist only for prio pourposes
+        CuragaVII = 27,//doenst exist only for prio pourposes
     }
     public class CastingAction : IEquatable<CastingAction>
     {

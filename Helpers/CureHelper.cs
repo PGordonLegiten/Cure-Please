@@ -71,14 +71,13 @@ namespace CurePlease.Helpers
             highPriorityBoxes[15] = _Form.player15priority;
             highPriorityBoxes[16] = _Form.player16priority;
             highPriorityBoxes[17] = _Form.player17priority;
-            bool cureCasted = false;
             List<byte> cures_required = new List<byte>();
 
             /////////////////////////// PL CURE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (_ELITEAPIPL.Player.HP > 0 && (_ELITEAPIPL.Player.HPP <= OptionsForm.config.monitoredCurePercentage) && OptionsForm.config.enableOutOfPartyHealing == true && !_PlayerHelper.PLInParty())
             {
-                cureCasted = CureCalculator_PL();
+                CureCalculator_PL();
             }
 
             /////////////////////////// CURAGA //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +125,7 @@ namespace CurePlease.Helpers
                 if (cures_required.Count >= OptionsForm.config.curagaRequiredMembers)
                 {
                     int lowestHP_id = cures_required.First();
-                    cureCasted = CuragaCalculatorsAsync(lowestHP_id);
+                    CuragaCalculatorsAsync(lowestHP_id);
                 }
             }
 
@@ -135,37 +134,33 @@ namespace CurePlease.Helpers
             IEnumerable<byte> playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().OrderBy(p => p.CurrentHPP).Where(p => p.Active >= 1).Select(p => p.MemberNumber);
 
             // First run a check on the monitored target
-            byte playerMonitoredHp = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Name == _ELITEAPIMonitored.Player.Name).OrderBy(p => p.Active == 0).Select(p => p.MemberNumber).FirstOrDefault();
+            byte playerMonitoredHp = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Name == _ELITEAPIMonitored.Player.Name).Select(p => p.MemberNumber).FirstOrDefault();
 
             if (OptionsForm.config.enableMonitoredPriority && _ELITEAPIMonitored.Party.GetPartyMembers()[playerMonitoredHp].Name == _ELITEAPIMonitored.Player.Name && _ELITEAPIMonitored.Party.GetPartyMembers()[playerMonitoredHp].CurrentHP > 0 && (_ELITEAPIMonitored.Party.GetPartyMembers()[playerMonitoredHp].CurrentHPP <= OptionsForm.config.monitoredCurePercentage))
             {
-                CureCalculator(playerMonitoredHp);
-                cureCasted = true;
+                byte prio = 0;
+                if (highPriorityBoxes[playerMonitoredHp].Checked)
+                {
+                    prio = 1;
+                }
+                CureCalculator(playerMonitoredHp, prio);
             }
             else
             {
-                // Now run a scan to check all targets in the High Priority Threshold
-                foreach (byte id in playerHpOrder)
-                {
-                    if ((highPriorityBoxes[id].Checked) && _ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHP > 0 && (_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHPP <= OptionsForm.config.priorityCurePercentage))
-                    {
-                        CureCalculator(id);
-                        cureCasted = true;
-                        break;
-                    }
-                }
-
                 // Now run everyone else
                 foreach (byte id in playerHpOrder)
                 {
+                    byte prio = 0;
+                    if (highPriorityBoxes[id].Checked)
+                    {
+                        prio = 1;
+                    }
                     // Cures First, is casting possible, and enabled?
-                    if (_PlayerHelper.CastingPossible(_ELITEAPIMonitored.Party.GetPartyMembers()[id].Name) && (_ELITEAPIMonitored.Party.GetPartyMembers()[id].Active >= 1) && (enabledBoxes[id].Checked) && (_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHP > 0))
+                    if (_PlayerHelper.CastingPossible(_ELITEAPIMonitored.Party.GetPartyMembers()[id].Name)&& (enabledBoxes[id].Checked) && (_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHP > 0))
                     {
                         if ((_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHPP <= OptionsForm.config.curePercentage) && (_PlayerHelper.CastingPossible(_ELITEAPIMonitored.Party.GetPartyMembers()[id].Name)))
                         {
-                            CureCalculator(id);
-                            cureCasted = true;
-                            break;
+                            CureCalculator(id, prio);
                         }
                     }
                 }
@@ -198,37 +193,32 @@ namespace CurePlease.Helpers
                     )
             )
             {
+                var abilityList = new List<JobAbility>() { };
                 string cureSpell = aoeSpell;
                 if (OptionsForm.config.Accession && OptionsForm.config.accessionCure && _PlayerHelper.HasAbility("Accession") && _Form.currentSCHCharges >= 1 && (_ELITEAPIPL.Player.MainJob == 20 || _ELITEAPIPL.Player.SubJob == 20))
                 {
-                    cureSpell = singleSpell;
-                }
-
-                if ((_PlayerHelper.plStatusCheck(StatusEffect.Light_Arts) || _PlayerHelper.plStatusCheck(StatusEffect.Addendum_White)))
-                {
-                    if (!_PlayerHelper.plStatusCheck(StatusEffect.Accession))
+                    if (_PlayerHelper.plStatusCheck(StatusEffect.Light_Arts) || _PlayerHelper.plStatusCheck(StatusEffect.Addendum_White))
                     {
-                        _JaHelper.JobAbility_Wait($"{aoeSpell}, Accession", "Accession");
+                        cureSpell = singleSpell;
+                        abilityList.Add(new JobAbility("Accession", "<me>", StatusEffect.Accession));
                     }
                 }
 
                 if (OptionsForm.config.curagaTargetType == 0)
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell, prio);
-                    return true;
+                    _CastingManager.QueueSpell(SpellType.Healing, lowestHP_Name, cureSpell, prio, abilityList);
                 }
                 else
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell, prio);
-                    return true;
+                    _CastingManager.QueueSpell(SpellType.Healing, OptionsForm.config.curagaTargetName, cureSpell, prio, abilityList);
                 }
+                return true;
             }
             return false;
         }
-        public bool CureCalculator_PL()
+        public void CureCalculator_PL()
         {
             // FIRST GET HOW MUCH HP IS MISSING FROM THE CURRENT PARTY MEMBER
-            var cureCasted = false;
             if (_ELITEAPIPL.Player.HP > 0)
             {
                 uint HP_Loss = (_ELITEAPIPL.Player.HP * 100) / (_ELITEAPIPL.Player.HPP) - (_ELITEAPIPL.Player.HP);
@@ -236,40 +226,32 @@ namespace CurePlease.Helpers
                 if (OptionsForm.config.cure6enabled && HP_Loss >= OptionsForm.config.cure6amount && _ELITEAPIPL.Player.MP > 227 && _PlayerHelper.HasSpell("Cure VI"))
                 {
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure VI", CurePrio.CureVI);
-                    cureCasted = true;
                 }
                 else if (OptionsForm.config.cure5enabled && HP_Loss >= OptionsForm.config.cure5amount && _ELITEAPIPL.Player.MP > 125 && _PlayerHelper.HasSpell("Cure V"))
                 {
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure V", CurePrio.CureV);
-                    cureCasted = true;
                 }
                 else if (OptionsForm.config.cure4enabled && HP_Loss >= OptionsForm.config.cure4amount && _ELITEAPIPL.Player.MP > 88 && _PlayerHelper.HasSpell("Cure IV"))
                 {
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure IV", CurePrio.CureIV);
-                    cureCasted = true;
                 }
                 else if (OptionsForm.config.cure3enabled && HP_Loss >= OptionsForm.config.cure3amount && _ELITEAPIPL.Player.MP > 46 && _PlayerHelper.HasSpell("Cure III"))
                 {
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure III", CurePrio.CureIII);
-                    cureCasted = true;
                 }
                 else if (OptionsForm.config.cure2enabled && HP_Loss >= OptionsForm.config.cure2amount && _ELITEAPIPL.Player.MP > 24 && _PlayerHelper.HasSpell("Cure II"))
                 {
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure II", CurePrio.CureII);
-                    cureCasted = true;
                 }
                 else if (OptionsForm.config.cure1enabled && HP_Loss >= OptionsForm.config.cure1amount && _ELITEAPIPL.Player.MP > 8 && _PlayerHelper.HasSpell("Cure"))
                 {
                     _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIPL.Player.Name, "Cure", CurePrio.CureI);
-                    cureCasted = true;
                 }
             }
-            return cureCasted;
         }
 
-        public bool CureCalculator(byte partyMemberId)
+        public void CureCalculator(byte partyMemberId, byte prio)
         {
-            bool cureCasted = false;
             // FIRST GET HOW MUCH HP IS MISSING FROM THE CURRENT PARTY MEMBER
             if (_ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].CurrentHP > 0)
             {
@@ -277,36 +259,29 @@ namespace CurePlease.Helpers
 
                 if (OptionsForm.config.cure6enabled && HP_Loss >= OptionsForm.config.cure6amount && _ELITEAPIPL.Player.MP > 227 && _PlayerHelper.HasSpell("Cure VI"))
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure VI", CurePrio.CureVI);
-                    cureCasted = true;
+                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure VI", CurePrio.CureVI + prio);
                 }
                 else if (OptionsForm.config.cure5enabled && HP_Loss >= OptionsForm.config.cure5amount && _ELITEAPIPL.Player.MP > 125 && _PlayerHelper.HasSpell("Cure V"))
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure V", CurePrio.CureV);
-                    cureCasted = true;
+                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure V", CurePrio.CureV + prio);
                 }
                 else if (OptionsForm.config.cure4enabled && HP_Loss >= OptionsForm.config.cure4amount && _ELITEAPIPL.Player.MP > 88 && _PlayerHelper.HasSpell("Cure IV"))
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure IV", CurePrio.CureIV);
-                    cureCasted = true;
+                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure IV", CurePrio.CureIV + prio);
                 }
                 else if (OptionsForm.config.cure3enabled && HP_Loss >= OptionsForm.config.cure3amount && _ELITEAPIPL.Player.MP > 46 && _PlayerHelper.HasSpell("Cure III"))
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure III", CurePrio.CureIII);
-                    cureCasted = true;
+                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure III", CurePrio.CureIII + prio);
                 }
                 else if (OptionsForm.config.cure2enabled && HP_Loss >= OptionsForm.config.cure2amount && _ELITEAPIPL.Player.MP > 24 && _PlayerHelper.HasSpell("Cure II"))
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure II", CurePrio.CureII);
-                    cureCasted = true;
+                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure II", CurePrio.CureII + prio);
                 }
                 else if (OptionsForm.config.cure1enabled && HP_Loss >= OptionsForm.config.cure1amount && _ELITEAPIPL.Player.MP > 8 && _PlayerHelper.HasSpell("Cure"))
                 {
-                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure", CurePrio.CureI);
-                    cureCasted = true;
+                    _CastingManager.QueueSpell(SpellType.Healing, _ELITEAPIMonitored.Party.GetPartyMembers()[partyMemberId].Name, "Cure", CurePrio.CureI + prio);
                 }
             }
-            return cureCasted;
         }
 
         public string GetCureSpell(string cureSpell)

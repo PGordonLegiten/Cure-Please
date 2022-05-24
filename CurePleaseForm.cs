@@ -1646,6 +1646,8 @@
 
                                     string character_name = ailment.CharacterName;
 
+                                    if (!playerHelper.IsAlive(character_name)) { continue }; //no love for the dead
+
                                     if (OptionsForm.config.enablePartyDebuffRemoval && !string.IsNullOrEmpty(character_name) && (characterNames_naRemoval.Contains(character_name) || OptionsForm.config.SpecifiednaSpellsenable == false))
                                     {
                                         //DOOM
@@ -3106,6 +3108,8 @@
                             // Grab storm spell Data for Buff ID etc...
                             SpellsData PTstormspell = StormSpells.stormspells.Where(c => c.Spell_Name == StormSpell_Enabled).SingleOrDefault();
 
+                            if (!playerHelper.IsAlive(charDATA.Name)) { continue; } //no love for the dead
+
                             // PL BASED BUFFS
                             if (_ELITEAPIPL.Player.Name == charDATA.Name)
                             {
@@ -3867,7 +3871,7 @@
             CastingManager.QueueSpell(SpellType.Buff, playerOptionsSelected, "Viruna");
         }*/
 
-                                        private void setAllStormsFalse(string player)
+        private void setAllStormsFalse(string player)
         {
             // MessageBox.Show("SONG DATA: " + activeStorm + " " + autoOptionsSelected);
             InternalHelper.setAutoEnable(SpellsHelper.GetStormVersion("Sandstorm"), player, false);
