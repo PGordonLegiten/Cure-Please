@@ -1646,7 +1646,7 @@
 
                                     string character_name = ailment.CharacterName;
 
-                                    if (!playerHelper.IsAlive(character_name)) { continue }; //no love for the dead
+                                    if (!playerHelper.IsAlive(character_name)) { continue; }; //no love for the dead
 
                                     if (OptionsForm.config.enablePartyDebuffRemoval && !string.IsNullOrEmpty(character_name) && (characterNames_naRemoval.Contains(character_name) || OptionsForm.config.SpecifiednaSpellsenable == false))
                                     {
