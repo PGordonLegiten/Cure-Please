@@ -57,7 +57,7 @@ namespace CurePlease.Helpers
             {
                 if (DeQueueSpell(_Priority, action))
                 {
-                    continue;                
+                    return;                
                 }
             }
             //CURES
@@ -69,7 +69,7 @@ namespace CurePlease.Helpers
                 }
                 if (DeQueueSpell(_Cures, action))
                 {
-                    continue;
+                    return;
                 }
             }
             //DEBUFFS
@@ -77,7 +77,7 @@ namespace CurePlease.Helpers
             {
                 if (DeQueueSpell(_Debuffs, action))
                 {
-                    continue;
+                    return;
                 }
             }
             //BUFFS
@@ -86,7 +86,7 @@ namespace CurePlease.Helpers
             {
                 if (DeQueueSpell(_Buffs, action))
                 {
-                    continue;
+                    return;
                 }
             }
         }
@@ -104,6 +104,7 @@ namespace CurePlease.Helpers
             if (!HasApi()) { return false; } //this should not be happening
             if (DateTime.Now.Subtract(action.Invoked) >= GetQueueExpiration(action.Type)) {
                 RemoveSpell(list, action, $"Queue Timeout [{DateTime.Now.Subtract(action.Invoked)}]");
+                return false;
             }
             if (IsMoving()) { return false; } 
             if (!CanCast()) { return false; }
@@ -141,8 +142,9 @@ namespace CurePlease.Helpers
                     _GoeHelper.GetTargetOnCast(action.Target);
                 }
                 CastSpell(action.Target, spellName, lockStamp, action.JobAbilities);
+                return true;
             }
-            return true;
+            return false;
         }
 
         public void Cleanup()

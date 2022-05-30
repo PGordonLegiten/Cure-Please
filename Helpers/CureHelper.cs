@@ -82,7 +82,7 @@ namespace CurePlease.Helpers
 
             /////////////////////////// CURAGA //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            IOrderedEnumerable<EliteAPI.PartyMember> cParty_curaga = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Active != 0 && p.Zone == _ELITEAPIPL.Player.ZoneId).OrderBy(p => p.CurrentHPP);
+            IOrderedEnumerable<EliteAPI.PartyMember> cParty_curaga = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Active != 0 && p.Zone == _ELITEAPIPL.Player.ZoneId && p.CurrentHP > 0).OrderBy(p => p.CurrentHPP);
 
             int plPartyNumber = GetPLPartyNumber();
 
@@ -131,37 +131,25 @@ namespace CurePlease.Helpers
 
             /////////////////////////// CURE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //var playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Active >= 1).OrderBy(p => p.CurrentHPP).Select(p => p.Index);
-            IEnumerable<byte> playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().OrderBy(p => p.CurrentHPP).Where(p => p.Active >= 1).Select(p => p.MemberNumber);
+            IEnumerable<byte> playerHpOrder = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Active != 0 && p.CurrentHP > 0).OrderBy(p => p.CurrentHPP).Select(p => p.MemberNumber);
 
-            // First run a check on the monitored target
-            byte playerMonitoredHp = _ELITEAPIMonitored.Party.GetPartyMembers().Where(p => p.Name == _ELITEAPIMonitored.Player.Name).Select(p => p.MemberNumber).FirstOrDefault();
-
-            if (OptionsForm.config.enableMonitoredPriority && _ELITEAPIMonitored.Party.GetPartyMembers()[playerMonitoredHp].Name == _ELITEAPIMonitored.Player.Name && _ELITEAPIMonitored.Party.GetPartyMembers()[playerMonitoredHp].CurrentHP > 0 && (_ELITEAPIMonitored.Party.GetPartyMembers()[playerMonitoredHp].CurrentHPP <= OptionsForm.config.monitoredCurePercentage))
+            // Now run everyone else
+            foreach (byte id in playerHpOrder)
             {
                 byte prio = 0;
-                if (highPriorityBoxes[playerMonitoredHp].Checked)
+                if (highPriorityBoxes[id].Checked)
                 {
                     prio = 1;
                 }
-                CureCalculator(playerMonitoredHp, prio);
-            }
-            else
-            {
-                // Now run everyone else
-                foreach (byte id in playerHpOrder)
+
+                var name = _ELITEAPIMonitored.Party.GetPartyMembers()[id].Name;
+
+                // Cures First, is casting possible, and enabled?
+                if (enabledBoxes[id].Checked && _ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHP > 0)
                 {
-                    byte prio = 0;
-                    if (highPriorityBoxes[id].Checked)
+                    if (_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHPP <= OptionsForm.config.curePercentage)
                     {
-                        prio = 1;
-                    }
-                    // Cures First, is casting possible, and enabled?
-                    if (_PlayerHelper.CastingPossible(_ELITEAPIMonitored.Party.GetPartyMembers()[id].Name)&& (enabledBoxes[id].Checked) && (_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHP > 0))
-                    {
-                        if ((_ELITEAPIMonitored.Party.GetPartyMembers()[id].CurrentHPP <= OptionsForm.config.curePercentage) && (_PlayerHelper.CastingPossible(_ELITEAPIMonitored.Party.GetPartyMembers()[id].Name)))
-                        {
-                            CureCalculator(id, prio);
-                        }
+                        CureCalculator(id, prio);
                     }
                 }
             }
