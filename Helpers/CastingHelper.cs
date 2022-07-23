@@ -103,7 +103,7 @@ namespace CurePlease.Helpers
         {
             if (!HasApi()) { return false; } //this should not be happening
             if (DateTime.Now.Subtract(action.Invoked) >= GetQueueExpiration(action.Type)) {
-                RemoveSpell(list, action, $"Queue Timeout [{DateTime.Now.Subtract(action.Invoked)}]");
+                RemoveSpell(list, action, $"Queue Timeout [{action.SpellName}] [{DateTime.Now.Subtract(action.Invoked)}]");
                 return false;
             }
             if (IsMoving()) { return false; } 
@@ -369,7 +369,7 @@ namespace CurePlease.Helpers
                 case SpellType.Prio:
                     return TimeSpan.FromSeconds(10);
                 case SpellType.Healing:
-                    return TimeSpan.FromSeconds(2);
+                    return TimeSpan.FromSeconds(3);
                 case SpellType.Buff:
                     return TimeSpan.FromSeconds(10);
                 case SpellType.Debuff:

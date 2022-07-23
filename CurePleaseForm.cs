@@ -5595,7 +5595,7 @@
         {
             long lockStamp = (long)e.Argument;
 
-            Thread.Sleep(TimeSpan.FromSeconds(2.0));
+            Thread.Sleep(TimeSpan.FromSeconds(3.0));
             int count = 0;
             float lastPercent = 0;
             float castPercent = _ELITEAPIPL.CastBar.Percent;
