@@ -60,7 +60,12 @@ namespace CurePlease
 
         private void chatlogscan_timer_Tick(object sender, EventArgs e)
         {
+            if(prioqueue_box == null) {  return; }
+            if(healingqueue_box == null) {  return; }
+            if(debuffqueue_box == null) {  return; }
+            if(buffqueue_box == null) {  return; }
             if(_Monitor == null) {  return; }
+            if(_Monitor._Log == null) {  return; }
 
             foreach (LogEntry log in _Monitor._Log.ToList())
             {

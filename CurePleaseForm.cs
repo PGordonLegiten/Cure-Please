@@ -5342,7 +5342,7 @@
                             {
                                 Invoke((MethodInvoker)(async () =>
                                   {
-                                      ProtectCasting.CancelAsync();
+                                      //ProtectCasting.CancelAsync();
                                       castingLockLabel.Text = "PACKET: Casting is INTERRUPTED";
                                       await Task.Delay(TimeSpan.FromSeconds(3));
                                       castingLockLabel.Text = "Casting is UNLOCKED";
@@ -5357,7 +5357,7 @@
 
                                 Invoke((MethodInvoker)(async () =>
                                   {
-                                      ProtectCasting.CancelAsync();
+                                      //ProtectCasting.CancelAsync();
                                       castingLockLabel.Text = "PACKET: Casting is soon to be AVAILABLE!";
                                       await Task.Delay(TimeSpan.FromSeconds(3));
                                       castingLockLabel.Text = "Casting is UNLOCKED";
@@ -5591,41 +5591,6 @@
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
         }*/
 
-        private void ProtectCasting_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            long lockStamp = (long)e.Argument;
-
-            Thread.Sleep(TimeSpan.FromSeconds(3.0));
-            int count = 0;
-            float lastPercent = 0;
-            float castPercent = _ELITEAPIPL.CastBar.Percent;
-            while (castPercent < 1)
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(0.1));
-                castPercent = _ELITEAPIPL.CastBar.Percent;
-                if (lastPercent != castPercent)
-                {
-                    count = 0;
-                    lastPercent = castPercent;
-                }
-                else if (count == 10)
-                {
-                    break;
-                }
-                else
-                {
-                    count++;
-                    lastPercent = castPercent;
-                }
-            }
-
-            Thread.Sleep(TimeSpan.FromSeconds(1.0));
-
-            castingLockLabel.Invoke(new Action(() => { castingLockLabel.Text = "Casting is UNLOCKED"; }));
-            castingSpell = string.Empty;
-
-            CastingManager.FreeLock("ProtectCasting_DoWork", lockStamp);
-        }
 
         private void JobAbility_Delay_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {

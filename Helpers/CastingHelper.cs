@@ -1,5 +1,6 @@
 ﻿using CurePlease.DataStructures;
 using EliteMMO.API;
+using Microsoft.Build.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -212,15 +213,44 @@ namespace CurePlease.Helpers
             var cast = "/ma \"" + castingSpell + "\" " + partyMemberName;
             _ELITEAPIPL.ThirdParty.SendString(cast);
             _ELITEAPIPL.ThirdParty.SendString(string.Format("//cpaddon lock {0}", lockStamp));
-            Thread.Sleep(200);
-            _ELITEAPIPL.ThirdParty.SendString(cast);
             AddLog(new LogEntry(cast, Color.Black));
 
             _Form.currentAction.Text = "Casting: " + castingSpell+ " → "+ partyMemberName;
 
-            _Form.ProtectCasting.CancelAsync();
-            if (!_Form.ProtectCasting.IsBusy) { _Form.ProtectCasting.RunWorkerAsync(argument: lockStamp); }
+            new System.Threading.Tasks.Task(() => { ProtectCasting(lockStamp); }).Start();
         }
+        private void ProtectCasting(long lockStamp)
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(3.0));
+            int count = 0;
+            float lastPercent = 0;
+            float castPercent = _ELITEAPIPL.CastBar.Percent;
+            while (castPercent < 1)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(0.1));
+                castPercent = _ELITEAPIPL.CastBar.Percent;
+                if (lastPercent != castPercent)
+                {
+                    count = 0;
+                    lastPercent = castPercent;
+                }
+                else if (count == 10)
+                {
+                    break;
+                }
+                else
+                {
+                    count++;
+                    lastPercent = castPercent;
+                }
+            }
+
+            Thread.Sleep(TimeSpan.FromSeconds(1.0));
+            FreeLock("ProtectCasting_DoWork", lockStamp);
+        }
+
+
+
         public bool SpellRecastReady(CastingAction action)
         {
             if(action == null || action.SpellName == null) { return false; }

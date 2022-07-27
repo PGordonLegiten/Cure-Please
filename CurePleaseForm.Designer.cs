@@ -256,7 +256,7 @@ namespace CurePlease
             this.JobAbilityDelay = new System.ComponentModel.BackgroundWorker();
             this.FullCircle_Timer = new System.Windows.Forms.Timer(this.components);
             this.AddOnStatus = new System.Windows.Forms.Button();
-            this.ProtectCasting = new System.ComponentModel.BackgroundWorker();
+            //this.ProtectCasting = new System.ComponentModel.BackgroundWorker();
             this.JobAbility_Delay = new System.ComponentModel.BackgroundWorker();
             this.EclipticTimer = new System.Windows.Forms.Timer(this.components);
             this.CustomCommand_Tracker = new System.ComponentModel.BackgroundWorker();
@@ -2723,8 +2723,8 @@ namespace CurePlease
             // 
             // ProtectCasting
             // 
-            this.ProtectCasting.WorkerSupportsCancellation = true;
-            this.ProtectCasting.DoWork += new System.ComponentModel.DoWorkEventHandler(this.ProtectCasting_DoWork);
+            //this.ProtectCasting.WorkerSupportsCancellation = true;
+            //this.ProtectCasting.DoWork += new System.ComponentModel.DoWorkEventHandler(this.ProtectCasting_DoWork);
             // 
             // JobAbility_Delay
             // 
