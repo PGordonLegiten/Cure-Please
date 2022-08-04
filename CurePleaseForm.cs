@@ -2795,7 +2795,7 @@
                         }
 
                         // ENTRUSTED INDI SPELL CASTING, WILL BE CAST SO LONG AS ENTRUST IS ACTIVE
-                        if ((OptionsForm.config.EnableGeoSpells) && (playerHelper.plStatusCheck((StatusEffect)584)))
+                        if (OptionsForm.config.Entrust && OptionsForm.config.EnableGeoSpells && JaManager.IsJaReady("Entrust") && playerHelper.HasAbility("Entrust"))
                         {
                             string SpellCheckedResult = ReturnGeoSpell(OptionsForm.config.EntrustedSpell_Spell, 1);
                             if (SpellCheckedResult == "SpellError_Cancel")
@@ -2810,15 +2810,15 @@
                             {
                                 if (OptionsForm.config.EntrustedSpell_Target == string.Empty)
                                 {
-                                    CastingManager.QueueSpell(SpellType.GEO, _ELITEAPIMonitored.Player.Name, SpellCheckedResult);
+                                    CastingManager.QueueSpell(SpellType.GEO, _ELITEAPIMonitored.Player.Name, SpellCheckedResult, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Entrust", "<me>", StatusEffect.Unknown) });
                                 }
                                 else
                                 {
-                                    CastingManager.QueueSpell(SpellType.GEO, OptionsForm.config.EntrustedSpell_Target, SpellCheckedResult);
+                                    CastingManager.QueueSpell(SpellType.GEO, OptionsForm.config.EntrustedSpell_Target, SpellCheckedResult, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Entrust", "<me>", StatusEffect.Unknown) });
                                 }
                             }
                         }
-
+                        
                         // CAST NON ENTRUSTED INDI SPELL
                         if (OptionsForm.config.EnableGeoSpells && !BuffChecker(612, 0) && (CheckEngagedStatus() == true || !OptionsForm.config.IndiWhenEngaged))
                         {
@@ -2844,10 +2844,11 @@
                         // GEO SPELL CASTING 
                         if ((OptionsForm.config.EnableLuopanSpells) && (_ELITEAPIPL.Player.Pet.HealthPercent < 1) && (CheckEngagedStatus() == true))
                         {
+                            var abList = new List<JobAbility>() { };
                             // Use BLAZE OF GLORY if ENABLED
                             if (OptionsForm.config.BlazeOfGlory && JaManager.IsJaReady("Blaze of Glory") && playerHelper.HasAbility("Blaze of Glory") && CheckEngagedStatus() == true && GEO_EnemyCheck() == true)
                             {
-                                JaManager.JobAbility_Wait("Blaze of Glory", "Blaze of Glory");
+                                abList.Add(new JobAbility("Blaze of Glory", "<me>", StatusEffect.Unknown));
                             }
 
                             // Grab GEO spell name
@@ -2868,29 +2869,18 @@
                                 { // PLAYER CHARACTER TARGET
                                     if (OptionsForm.config.LuopanSpell_Target == string.Empty)
                                     {
-
-                                        /*if (BuffChecker(516, 0)) // IF ECLIPTIC IS UP THEN ACTIVATE THE BOOL
-                                        {
-                                            EclipticStillUp = true;
-                                        }*/
-
-                                        CastingManager.QueueSpell(SpellType.GEO, _ELITEAPIMonitored.Player.Name, SpellCheckedResult);
+                                        CastingManager.QueueSpell(SpellType.GEO, _ELITEAPIMonitored.Player.Name, SpellCheckedResult, SpellPrio.Top, abList);
                                     }
                                     else
                                     {
-                                        /*if (BuffChecker(516, 0)) // IF ECLIPTIC IS UP THEN ACTIVATE THE BOOL
-                                        {
-                                            EclipticStillUp = true;
-                                        }*/
-
-                                        CastingManager.QueueSpell(SpellType.GEO, OptionsForm.config.LuopanSpell_Target, SpellCheckedResult);
+                                        CastingManager.QueueSpell(SpellType.GEO, OptionsForm.config.LuopanSpell_Target, SpellCheckedResult, SpellPrio.Top, abList);
                                     }
                                 }
                                 else
                                 { // ENEMY BASED TARGET NEED TO ASSURE PLAYER IS ENGAGED
                                     if (CheckEngagedStatus() == true)
                                     {
-                                        CastingManager.QueueSpell(SpellType.GEO, "<t>", SpellCheckedResult);
+                                        CastingManager.QueueSpell(SpellType.GEO, "<t>", SpellCheckedResult, SpellPrio.Top, abList);
                                     }
                                 }
                             }
@@ -2914,7 +2904,7 @@
 
                                 if (enemyID != 0 && enemyID != lastKnownEstablisherTarget)
                                 {
-                                    CastingManager.QueueSpell(SpellType.GEO, "<t>", OptionsForm.config.autoTargetSpell);
+                                    CastingManager.QueueSpell(SpellType.GEO, "<t>", OptionsForm.config.autoTargetSpell, SpellPrio.Top);
                                     lastKnownEstablisherTarget = enemyID;
                                 }
                             }
@@ -2971,11 +2961,7 @@
                                 JaManager.JobAbility_Wait("Divine Caress", "Divine Caress");
                                 return;
                             }
-                            if (OptionsForm.config.Entrust && !playerHelper.plStatusCheck((StatusEffect)584) && CheckEngagedStatus() == true && JaManager.IsJaReady("Entrust") && playerHelper.HasAbility("Entrust"))
-                            {
-                                JaManager.JobAbility_Wait("Entrust", "Entrust");
-                                return;
-                            }
+                           
                             if (OptionsForm.config.Dematerialize && CheckEngagedStatus() == true && _ELITEAPIPL.Player.Pet.HealthPercent >= 90 && JaManager.IsJaReady("Dematerialize") && playerHelper.HasAbility("Dematerialize"))
                             {
                                 JaManager.JobAbility_Wait("Dematerialize", "Dematerialize");

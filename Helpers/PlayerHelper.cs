@@ -41,6 +41,7 @@ namespace CurePlease.Helpers
         {
             if(memberName == null) { return false; }
             if(memberName == "<t>") { return true; }
+            if(memberName == "<bt>") { return true; }
             if(memberName == "<me>") { return true; }
             var member = _ELITEAPIPL.Party.GetPartyMembers().Where(x => x.Name.ToLower() == memberName.ToLower()).FirstOrDefault();
             if (member == null) { return false; }
@@ -54,11 +55,12 @@ namespace CurePlease.Helpers
         public bool IsAlive(string memberName)
         {
             if (memberName == "<t>") { return true; }
+            if (memberName == "<bt>") { return true; }
             if (memberName == "<me>")
             {
                 memberName = _ELITEAPIPL.Player.Name;
             }
-            var member = _ELITEAPIPL.Party.GetPartyMembers().Where(x => x.Name == memberName).FirstOrDefault();
+            var member = _ELITEAPIPL.Party.GetPartyMembers().Where(x => x.Name.ToLower() == memberName.ToLower()).FirstOrDefault();
             if (member == null) { return false; }
             return member.CurrentHP > 0;
         }

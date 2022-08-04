@@ -423,7 +423,7 @@ namespace CurePlease.Helpers
         {
             if(_Log.Count() > 500)
             {
-                _Log.RemoveFirst();
+                _Log = new LinkedList<LogEntry>();
             }
             _Log.AddLast(entry);    
         }
