@@ -201,7 +201,7 @@ namespace CurePlease.Helpers
 
                 if (magic == null)
                 {
-                    throw new Exception("Error detected, please Report Error: #SpellRecastError #" + checked_recastspellName);
+                    return false;
                 }
                 else
                 {

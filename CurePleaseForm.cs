@@ -2441,11 +2441,11 @@
                             {
                                 if (OptionsForm.config.Accession && OptionsForm.config.accessionProShell && _ELITEAPIPL.Party.GetPartyMembers().Count() > 2 && ((_ELITEAPIPL.Player.MainJob == 5 && _ELITEAPIPL.Player.SubJob == 20) || _ELITEAPIPL.Player.MainJob == 20) && playerHelper.HasAbility("Accession"))
                                 {
-                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", protectSpell, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
+                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", protectSpell, SpellPrio.Higher, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
                                 }
                                 else
                                 {
-                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", protectSpell, SpellPrio.Top);
+                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", protectSpell, SpellPrio.Higher);
                                 }
                             }
                         }
@@ -2477,11 +2477,11 @@
                             {
                                 if (OptionsForm.config.Accession && OptionsForm.config.accessionProShell && _ELITEAPIPL.Party.GetPartyMembers().Count() > 2 && ((_ELITEAPIPL.Player.MainJob == 5 && _ELITEAPIPL.Player.SubJob == 20) || _ELITEAPIPL.Player.MainJob == 20) && (playerHelper.HasAbility("Accession")))
                                 {
-                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell, SpellPrio.Top, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
+                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell, SpellPrio.Higher, new List<JobAbility>() { new JobAbility("Accession", "<me>", StatusEffect.Accession) });
                                 }
                                 else
                                 {
-                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell, SpellPrio.Top);
+                                    CastingManager.QueueSpell(SpellType.Buff, "<me>", shellSpell, SpellPrio.Higher);
                                 }
                             }
                         }

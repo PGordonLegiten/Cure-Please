@@ -399,9 +399,9 @@ namespace CurePlease.Helpers
                 case SpellType.Prio:
                     return TimeSpan.FromSeconds(10);
                 case SpellType.Healing:
-                    return TimeSpan.FromSeconds(3);
+                    return TimeSpan.FromSeconds(5);
                 case SpellType.Buff:
-                    return TimeSpan.FromSeconds(10);
+                    return TimeSpan.FromSeconds(30);
                 case SpellType.Debuff:
                     return TimeSpan.FromSeconds(2);
                 default:

@@ -22,6 +22,7 @@ namespace CurePlease.DataStructures
         Low = 1,
         Middle = 2,
         High = 3,
+        Higher = 5,
         Top = 10,
     }
 
