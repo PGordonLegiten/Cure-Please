@@ -1619,7 +1619,6 @@
                                     // FORCE IT TO BE CAST
                                     if (!DebuffContains(named_Debuffs, "41"))
                                     {
-
                                         InternalHelper.resetCooldown(SpellsHelper.GetShellSpell(), charName);
                                     }
                                     // IF PHALANX II IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER
@@ -1631,7 +1630,7 @@
                                     }
                                     // IF NO STORM SPELL IS ACTIVE DESPITE BEING ENABLED RESET THE TIMER
                                     // TO FORCE IT TO BE CAST
-                                    if (!DebuffContains(named_Debuffs, "178") && !DebuffContains(named_Debuffs, "179") && !DebuffContains(named_Debuffs, "180") && !DebuffContains(named_Debuffs, "181") &&
+                                    if (SpellsHelper.GetEnabledStormSpell(charName) != "Dummy" && !DebuffContains(named_Debuffs, "178") && !DebuffContains(named_Debuffs, "179") && !DebuffContains(named_Debuffs, "180") && !DebuffContains(named_Debuffs, "181") &&
                                         !DebuffContains(named_Debuffs, "182") && !DebuffContains(named_Debuffs, "183") && !DebuffContains(named_Debuffs, "184") && !DebuffContains(named_Debuffs, "185") &&
                                         !DebuffContains(named_Debuffs, "589") && !DebuffContains(named_Debuffs, "590") && !DebuffContains(named_Debuffs, "591") && !DebuffContains(named_Debuffs, "592") &&
                                         !DebuffContains(named_Debuffs, "593") && !DebuffContains(named_Debuffs, "594") && !DebuffContains(named_Debuffs, "595") && !DebuffContains(named_Debuffs, "596"))
@@ -2569,11 +2568,11 @@
                             }
                             else if ((OptionsForm.config.plRegen_Level == 4) && _ELITEAPIPL.Player.MP > 82)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen IV", SpellPrio.High, jaList);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen IV", SpellPrio.Higher, jaList);
                             }
                             else if ((OptionsForm.config.plRegen_Level == 5) && _ELITEAPIPL.Player.MP > 100)
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen V", SpellPrio.High, jaList);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Regen V", SpellPrio.Higher, jaList);
                             }
                         }
                         jaList = new List<JobAbility>();
@@ -2589,7 +2588,7 @@
                                 jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Adloquium", SpellPrio.High, jaList);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Adloquium", SpellPrio.Low, jaList);
                         }
                         jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plStoneskin) && (!playerHelper.plStatusCheck(StatusEffect.Stoneskin)) && playerHelper.IsAbleToCastSpell("Stoneskin"))
@@ -2604,7 +2603,7 @@
                                 jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Stoneskin", SpellPrio.High, jaList);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Stoneskin", SpellPrio.Low, jaList);
                         }
                         jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plAquaveil) && (!playerHelper.plStatusCheck(StatusEffect.Aquaveil)) && playerHelper.IsAbleToCastSpell("Aquaveil"))
@@ -2619,15 +2618,15 @@
                                 jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Aquaveil", SpellPrio.High, jaList);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Aquaveil", SpellPrio.Low, jaList);
                         }
                         if ((OptionsForm.config.plShellra) && (!playerHelper.plStatusCheck(StatusEffect.Shell)) && CheckShellraLevelPossession() == true)
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetShellraLevel(OptionsForm.config.plShellra_Level), SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetShellraLevel(OptionsForm.config.plShellra_Level), SpellPrio.Higher);
                         }
                         if ((OptionsForm.config.plProtectra) && (!playerHelper.plStatusCheck(StatusEffect.Protect)) && CheckProtectraLevelPossession() == true)
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetProtectraLevel(OptionsForm.config.plProtectra_Level), SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", GetProtectraLevel(OptionsForm.config.plProtectra_Level), SpellPrio.Higher);
                         }
                         jaList = new List<JobAbility>();
                         if ((OptionsForm.config.plBarElement) && !BuffChecker(BarspellBuffID, 0) && playerHelper.IsAbleToCastSpell(BarspellName))
@@ -2661,59 +2660,59 @@
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 0) && !playerHelper.plStatusCheck(StatusEffect.STR_Boost2) && playerHelper.IsAbleToCastSpell("Gain-STR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-STR", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-STR", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 1) && !playerHelper.plStatusCheck(StatusEffect.DEX_Boost2) && playerHelper.IsAbleToCastSpell("Gain-DEX"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-DEX", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-DEX", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 2) && !playerHelper.plStatusCheck(StatusEffect.VIT_Boost2) && playerHelper.IsAbleToCastSpell("Gain-VIT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-VIT", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-VIT", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 3) && !playerHelper.plStatusCheck(StatusEffect.AGI_Boost2) && playerHelper.IsAbleToCastSpell("Gain-AGI"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-AGI", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-AGI", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 4) && !playerHelper.plStatusCheck(StatusEffect.INT_Boost2) && playerHelper.IsAbleToCastSpell("Gain-INT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-INT", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-INT", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 5) && !playerHelper.plStatusCheck(StatusEffect.MND_Boost2) && playerHelper.IsAbleToCastSpell("Gain-MND"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-MND", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-MND", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 6) && !playerHelper.plStatusCheck(StatusEffect.CHR_Boost2) && playerHelper.IsAbleToCastSpell("Gain-CHR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-CHR", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Gain-CHR", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 7) && !playerHelper.plStatusCheck(StatusEffect.STR_Boost2) && playerHelper.IsAbleToCastSpell("Boost-STR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-STR", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-STR", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 8) && !playerHelper.plStatusCheck(StatusEffect.DEX_Boost2) && playerHelper.IsAbleToCastSpell("Boost-DEX"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-DEX", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-DEX", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 9) && !playerHelper.plStatusCheck(StatusEffect.VIT_Boost2) && playerHelper.IsAbleToCastSpell("Boost-VIT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-VIT", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-VIT", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 10) && !playerHelper.plStatusCheck(StatusEffect.AGI_Boost2) && playerHelper.IsAbleToCastSpell("Boost-AGI"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-AGI", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-AGI", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 11) && !playerHelper.plStatusCheck(StatusEffect.INT_Boost2) && playerHelper.IsAbleToCastSpell("Boost-INT"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-INT", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-INT", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 12) && !playerHelper.plStatusCheck(StatusEffect.MND_Boost2) && playerHelper.IsAbleToCastSpell("Boost-MND"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-MND", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-MND", SpellPrio.Low);
                         }
                         if (OptionsForm.config.plGainBoost && (OptionsForm.config.plGainBoost_Spell == 13) && !playerHelper.plStatusCheck(StatusEffect.CHR_Boost2) && playerHelper.IsAbleToCastSpell("Boost-CHR"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-CHR", SpellPrio.High);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Boost-CHR", SpellPrio.Low);
                         }
                         jaList = new List<JobAbility>();
                         if (OptionsForm.config.plStormSpell && !BuffChecker(stormspell.buffID, 0) && playerHelper.IsAbleToCastSpell(stormspell.Spell_Name))
@@ -2763,15 +2762,15 @@
                         {
                             if ((OptionsForm.config.plSpikes_Spell == 0) && playerHelper.IsAbleToCastSpell("Blaze Spikes"))
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Blaze Spikes", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Blaze Spikes", SpellPrio.Low);
                             }
                             else if ((OptionsForm.config.plSpikes_Spell == 1) && playerHelper.IsAbleToCastSpell("Ice Spikes"))
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Ice Spikes", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Ice Spikes", SpellPrio.Low);
                             }
                             else if ((OptionsForm.config.plSpikes_Spell == 2) && playerHelper.IsAbleToCastSpell("Shock Spikes"))
                             {
-                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Shock Spikes", SpellPrio.Top);
+                                CastingManager.QueueSpell(SpellType.Buff, "<me>", "Shock Spikes", SpellPrio.Low);
                             }
                         }
                         jaList = new List<JobAbility>();
@@ -2787,11 +2786,11 @@
                                 jaList.Add(new JobAbility("Perpetuance", "<me>", StatusEffect.Perpetuance));
                             }
 
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", enspell.Spell_Name, SpellPrio.Top, jaList);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", enspell.Spell_Name, SpellPrio.High, jaList);
                         }
                         if ((OptionsForm.config.plAuspice) && (!playerHelper.plStatusCheck(StatusEffect.Auspice)) && playerHelper.IsAbleToCastSpell("Auspice"))
                         {
-                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Auspice", SpellPrio.Top);
+                            CastingManager.QueueSpell(SpellType.Buff, "<me>", "Auspice", SpellPrio.High);
                         }
 
                         // ENTRUSTED INDI SPELL CASTING, WILL BE CAST SO LONG AS ENTRUST IS ACTIVE
@@ -3150,7 +3149,7 @@
                                 {
                                     CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
-                                spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
+                                spell = SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charDATA.Name));
                                 if(spell != "Dummy") { 
                                     if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && !BuffChecker(PTstormspell.buffID, 0) && playerHelper.IsAbleToCastSpell(spell))
                                     {
@@ -3208,14 +3207,14 @@
                                 spell = SpellsHelper.GetRegenSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Regen))
                                 {
-                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
+                                    CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell, priority.);
                                 }
                                 spell = SpellsHelper.GetRefreshSpell();
                                 if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Refresh))
                                 {
                                     CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
-                                spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
+                                spell = SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charDATA.Name));
                                 if (spell != "Dummy")
                                 {
                                     if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && playerHelper.IsAbleToCastSpell(spell) && !BuffChecker(PTstormspell.buffID, 1))
@@ -3278,7 +3277,7 @@
                                 {
                                     CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                                 }
-                                spell = SpellsHelper.GetEnabledStormSpell(charDATA.Name);
+                                spell = SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charDATA.Name));
                                 if (spell != "Dummy")
                                 {
                                     if (CheckIfAutoStormspellEnabled(charDATA.Name) && (_ELITEAPIPL.Player.MP > OptionsForm.config.mpMinCastValue) && playerHelper.IsAbleToCastSpell(spell) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoStormspellMinutes)

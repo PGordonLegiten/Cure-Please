@@ -53,39 +53,64 @@ namespace CurePlease.Helpers
         public async void Run()
         {
             FailSafe();
+            TryPrio();
+            TryCures();
+            TryDeBuffs();
+            TryBuffs();
+        }
+
+        private void TryPrio()
+        {
             //PRIO
             foreach (CastingAction action in _Priority.ToList().OrderByDescending(x => x.Priority))
             {
                 if (DeQueueSpell(_Priority, action))
                 {
-                    return;                
+                    return;
                 }
             }
+        }
+        private void TryCures()
+        {
             //CURES
             foreach (CastingAction action in _Cures.ToList().OrderByDescending(x => x.Priority))
             {
                 if (OptionsForm.config.PrioritiseOverLowerTier == true && action.Priority < Convert.ToInt32(CurePrio.CureIV) && (_Debuffs.Count > 0))
                 {
-                    break; //skip all the lower cures if debuffs
+                    continue; //skip all the lower cures if debuffs
                 }
                 if (DeQueueSpell(_Cures, action))
                 {
                     return;
                 }
             }
-            //DEBUFFS
-            foreach (CastingAction action in _Debuffs.ToList().OrderByDescending(x => x.Priority))
+        }
+        private void TryBuffs()
+        {
+            //BUFFS
+            
+            foreach (CastingAction action in _Buffs.ToList().OrderByDescending(x => x.Priority))
             {
-                if (DeQueueSpell(_Debuffs, action))
+                if (_Cures.Where(x => x.Priority >= Convert.ToInt32(CurePrio.CureIV)).Count() > 0)
+                {
+                    TryCures();
+                }
+                if (DeQueueSpell(_Buffs, action))
                 {
                     return;
                 }
             }
-            //BUFFS
-            if(_Cures.Where(x => x.Priority >= Convert.ToInt32(CurePrio.CureIV)).Count() > 0) { return; }
-            foreach (CastingAction action in _Buffs.ToList().OrderByDescending(x => x.Priority))
+        }
+        private void TryDeBuffs()
+        {
+            //DEBUFFS
+            foreach (CastingAction action in _Debuffs.ToList().OrderByDescending(x => x.Priority))
             {
-                if (DeQueueSpell(_Buffs, action))
+                if (_Cures.Where(x => x.Priority >= Convert.ToInt32(CurePrio.CureIV)).Count() > 0)
+                {
+                    TryCures();
+                }
+                if (DeQueueSpell(_Debuffs, action))
                 {
                     return;
                 }
@@ -399,9 +424,9 @@ namespace CurePlease.Helpers
                 case SpellType.Prio:
                     return TimeSpan.FromSeconds(10);
                 case SpellType.Healing:
-                    return TimeSpan.FromSeconds(5);
+                    return TimeSpan.FromSeconds(2);
                 case SpellType.Buff:
-                    return TimeSpan.FromSeconds(30);
+                    return TimeSpan.FromSeconds(5);
                 case SpellType.Debuff:
                     return TimeSpan.FromSeconds(2);
                 default:

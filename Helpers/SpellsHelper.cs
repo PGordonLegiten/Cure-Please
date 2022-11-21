@@ -52,7 +52,7 @@ namespace CurePlease.Helpers
                 { "Thunderstorm", new string[]{ "Thunderstorm", "Thunderstorm II" } },
                 { "Voidstorm", new string[]{ "Voidstorm", "Voidstorm II" } },
                 { "Aurorastorm", new string[]{ "Aurorastorm", "Aurorastorm II" } },
-                { "Dummy", new string[]{ "Dummy", "Dummy II" } }, 
+                { "Dummy", new string[]{ "Dummy", "Dummy" } }, 
             };
 
             return storms[name][OptionsForm.config.autoStorm_Spell];
@@ -72,83 +72,37 @@ namespace CurePlease.Helpers
 
         public static string GetEnabledStormSpell(string name)
         {
-            if (OptionsForm.config.autoStorm_Spell == 0)
+            if (InternalHelper.getAutoEnable(GetStormVersion("Sandstorm"), name))
             {
-                if (InternalHelper.getAutoEnable("Sandstorm", name))
-                {
-                    return "Sandstorm";
-                }
-                else if (InternalHelper.getAutoEnable("Windstorm", name))
-                {
-                    return "Windstorm";
-                }
-                else if (InternalHelper.getAutoEnable("Firestorm", name))
-                {
-                    return "Firestorm";
-                }
-                else if (InternalHelper.getAutoEnable("Rainstorm", name))
-                {
-                    return "Rainstorm";
-                }
-                else if (InternalHelper.getAutoEnable("Hailstorm", name))
-                {
-                    return "Hailstorm";
-                }
-                else if (InternalHelper.getAutoEnable("Thunderstorm", name))
-                {
-                    return "Thunderstorm";
-                }
-                else if (InternalHelper.getAutoEnable("Voidstorm", name))
-                {
-                    return "Voidstorm";
-                }
-                else if (InternalHelper.getAutoEnable("Aurorastorm", name))
-                {
-                    return "Aurorastorm";
-                }
-                else
-                {
-                    return "Dummy";
-                }
+                return "Sandstorm";
             }
-            else if (OptionsForm.config.autoStorm_Spell == 1)
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Windstorm"), name))
             {
-                if (InternalHelper.getAutoEnable("Sandstorm II", name))
-                {
-                    return "Sandstorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Windstorm II", name))
-                {
-                    return "Windstorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Firestorm II", name))
-                {
-                    return "Firestorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Rainstorm II", name))
-                {
-                    return "Rainstorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Hailstorm II", name))
-                {
-                    return "Hailstorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Thunderstorm II", name))
-                {
-                    return "Thunderstorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Voidstorm II", name))
-                {
-                    return "Voidstorm II";
-                }
-                else if (InternalHelper.getAutoEnable("Aurorastorm II", name))
-                {
-                    return "Aurorastorm II";
-                }
-                else
-                {
-                    return "Dummy";
-                }
+                return "Windstorm";
+            }
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Firestorm"), name))
+            {
+                return "Firestorm";
+            }
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Rainstorm"), name))
+            {
+                return "Rainstorm";
+            }
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Hailstorm"), name))
+            {
+                return "Hailstorm";
+            }
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Thunderstorm"), name))
+            {
+                return "Thunderstorm";
+            }
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Voidstorm"), name))
+            {
+                return "Voidstorm";
+            }
+            else if (InternalHelper.getAutoEnable(GetStormVersion("Aurorastorm"), name))
+            {
+                return "Aurorastorm";
             }
             else
             {
