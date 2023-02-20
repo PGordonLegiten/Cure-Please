@@ -15,34 +15,38 @@ namespace CurePlease.DataStructures
         Debuff = 3,
         GEO = 4,
         Raise = 5,
+        Action = 6,
     }
 
     public enum SpellPrio : byte
     {
-        Low = 1,
-        Middle = 2,
-        High = 3,
-        Higher = 5,
-        Top = 10,
+        Low = 10,
+        Middle =11,
+        High = 12,
+        Higher = 13,
+        Top = 14,
     }
 
     public enum CurePrio : byte
     {
-        CureI = 10,
-        CureII = 11,
-        CureIII = 12,
-        CureIV = 13,
-        CureV = 14,
-        CureVI = 15,
-        CureVII = 16, //doenst exist only for prio pourposes
-        CureVIII = 18, //doenst exist only for prio pourposes
-        CuragaI = 20,
-        CuragaII = 21,
-        CuragaIII = 22,
-        CuragaIV = 23,
-        CuragaV = 24,
-        CuragaVI = 25,//doenst exist only for prio pourposes
-        CuragaVII = 27,//doenst exist only for prio pourposes
+        CureI = 1,
+        CureII = 2,
+        CureIII = 3,
+
+
+
+        CureIV = 23,
+        CureV = 24,
+        CureVI = 25,
+        CureVII = 26, //doenst exist only for prio pourposes
+        CureVIII = 28, //doenst exist only for prio pourposes
+        CuragaI = 30,
+        CuragaII = 31,
+        CuragaIII = 32,
+        CuragaIV = 33,
+        CuragaV = 34,
+        CuragaVI = 35,//doenst exist only for prio pourposes
+        CuragaVII = 37,//doenst exist only for prio pourposes
     }
     public class CastingAction : IEquatable<CastingAction>
     {

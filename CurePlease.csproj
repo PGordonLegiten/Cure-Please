@@ -113,8 +113,10 @@
     <Compile Include="CastingMonitorForm.Designer.cs">
       <DependentUpon>CastingMonitorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\DebufHelper.cs" />
     <Compile Include="Helpers\CastingHelper.cs" />
     <Compile Include="Helpers\CureHelper.cs" />
+    <Compile Include="Helpers\FormUpdateHelper.cs" />
     <Compile Include="Helpers\GeoHelper.cs" />
     <Compile Include="Helpers\ItemHelper.cs" />
     <Compile Include="Helpers\JaHelper.cs" />

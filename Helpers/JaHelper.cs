@@ -53,48 +53,55 @@ namespace CurePlease.Helpers
             _CastingManager = manager;
         }
 
-        public void JobAbility_Wait(string JobAbilityName)
+        public void JobAbility_Wait(string JobAbilityName, JobAbility ability = null)
         {
-            JobAbility_Wait(JobAbilityName, JobAbilityName, "<me>");
+            JobAbility_Wait(JobAbilityName, JobAbilityName, "<me>", ability);
         }
-        public void JobAbility_Wait(string JobabilityDATA, string JobAbilityName)
+        public void JobAbility_Wait(string JobabilityDATA, string JobAbilityName, JobAbility ability = null)
         {
-            JobAbility_Wait(JobabilityDATA, JobAbilityName, "<me>");
+            JobAbility_Wait(JobabilityDATA, JobAbilityName, "<me>", ability);
         }
-        public bool JobAbility_Wait(string JobabilityDATA, string JobAbilityName, string target)
+        public bool JobAbility_Wait(string JobabilityDATA, string JobAbilityName, string target, JobAbility ability = null)
+        {
+            var list = new List<JobAbility>() { new JobAbility(JobAbilityName, target, StatusEffect.Unknown) };
+            if(ability != null)
+            {
+                list.Add(ability);
+            }
+            _CastingManager.QueueSpell(SpellType.Action, target, JobAbilityName, CurePrio.CuragaVII, list);
+            return false;
+        }
+
+        public void Item_Wait(string ItemName)
         {
             if (_CastingManager.CanAct())
             {
-                _CastingManager.AddLog(new LogEntry("/ja \"" + JobAbilityName + "\" " + target + "", Color.Black));
                 var time = _CastingManager.GetLock();
-                _Form.castingLockLabel.Text = "Casting is LOCKED for a JA.";
-                _Form.currentAction.Text = "Using a Job Ability: " + JobabilityDATA;
-                _ELITEAPIPL.ThirdParty.SendString("/ja \"" + JobAbilityName + "\" " + target + "");
+                FormUpdateHelper.UpdateLabel(_Form.castingLockLabel, "Casting is LOCKED for ITEM Use.");
+                FormUpdateHelper.UpdateLabel(_Form.currentAction, "Using an Item: " + ItemName);
+                _ELITEAPIPL.ThirdParty.SendString("/item \"" + ItemName + "\" <me>");
                 Thread.Sleep(TimeSpan.FromSeconds(2));
-                _Form.castingLockLabel.Text = "Casting is UNLOCKED";
-                _Form.currentAction.Text = string.Empty;
+                FormUpdateHelper.UpdateLabel(_Form.castingLockLabel, "Casting is UNLOCKED");
+                FormUpdateHelper.UpdateLabel(_Form.currentAction, string.Empty);
                 _Form.castingSpell = string.Empty;
-                _CastingManager.FreeLock("JobAbility_Wait", time);
-                return true;
+                _CastingManager.FreeLock("Item_Wait", time);
             }
-            return false;
         }
         public void DoAbility(JobAbility ja)
         {
             _AbilityCooldown[ja.Name] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
             _CastingManager.AddLog(new LogEntry("/ja \"" + ja.Name + "\" " + ja.Target + "", Color.Black));
             var time = _CastingManager.GetLock();
-            _Form.castingLockLabel.Text = "Casting is LOCKED for a JA.";
-            _Form.currentAction.Text = "Using a Job Ability: " + ja.Name;
+            FormUpdateHelper.UpdateLabel(_Form.castingLockLabel, "Casting is LOCKED for a JA.");
+            FormUpdateHelper.UpdateLabel(_Form.currentAction, "Using a Job Ability: " + ja.Name);
             _ELITEAPIPL.ThirdParty.SendString("/ja \"" + ja.Name + "\" " + ja.Target + "");
             Thread.Sleep(TimeSpan.FromSeconds(2));
-            _Form.castingLockLabel.Text = "Casting is UNLOCKED";
-            _Form.currentAction.Text = string.Empty;
-            _Form.castingSpell = string.Empty;
+            FormUpdateHelper.UpdateLabel(_Form.castingLockLabel, "Casting is UNLOCKED");
+            FormUpdateHelper.UpdateLabel(_Form.currentAction, string.Empty);
             _CastingManager.FreeLock("JobAbility_Wait", time);
         }
 
+       
         public bool HasTotalStratagems(List<JobAbility> jas)
         {
             var strataCount = 0;

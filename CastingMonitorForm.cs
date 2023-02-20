@@ -60,41 +60,17 @@ namespace CurePlease
 
         private void chatlogscan_timer_Tick(object sender, EventArgs e)
         {
-            if(prioqueue_box == null) {  return; }
             if(healingqueue_box == null) {  return; }
-            if(debuffqueue_box == null) {  return; }
-            if(buffqueue_box == null) {  return; }
-            if(_Monitor == null) {  return; }
-            if(_Monitor._Log == null) {  return; }
-
             foreach (LogEntry log in _Monitor._Log.ToList())
             {
                 AppendLog(log.Invoked, log.Text, log.Color);
                 _Monitor._Log.Remove(log);
             }
-            prioqueue_box.Clear();
             healingqueue_box.Clear();
-            debuffqueue_box.Clear();
-            buffqueue_box.Clear();
-            foreach (CastingAction action in _Monitor._Priority.ToList().OrderByDescending(x => x.Priority))
-            {
-                prioqueue_box.AppendText(action.ToString());
-                prioqueue_box.AppendText(Environment.NewLine);
-            }
             foreach (CastingAction action in _Monitor._Cures.ToList().OrderByDescending(x => x.Priority))
             {
                 healingqueue_box.AppendText(action.ToString());
                 healingqueue_box.AppendText(Environment.NewLine);
-            }
-            foreach (CastingAction action in _Monitor._Debuffs.ToList().OrderByDescending(x => x.Priority))
-            {
-                debuffqueue_box.AppendText(action.ToString());
-                debuffqueue_box.AppendText(Environment.NewLine);
-            }
-            foreach (CastingAction action in _Monitor._Buffs.ToList().OrderByDescending(x => x.Priority))
-            {
-                buffqueue_box.AppendText(action.ToString());
-                buffqueue_box.AppendText(Environment.NewLine);
             }
             ShowPartyBuffs();
         }

@@ -171,8 +171,6 @@ namespace CurePlease
             this.player12 = new System.Windows.Forms.Label();
             this.partyMembersUpdate = new System.Windows.Forms.Timer(this.components);
             this.actionTimer = new System.Windows.Forms.Timer(this.components);
-            this.castingTimer = new System.Windows.Forms.Timer(this.components);
-            this.cureTimer = new System.Windows.Forms.Timer(this.components);
             this.player6 = new System.Windows.Forms.Label();
             this.player7 = new System.Windows.Forms.Label();
             this.player8 = new System.Windows.Forms.Label();
@@ -1784,13 +1782,30 @@ namespace CurePlease
             // 
             // castingTimer
             // 
-            this.castingTimer.Interval = 500;
-            this.castingTimer.Tick += new System.EventHandler(this.castingTimer_TickAsync);
+            this.castingTimer = new System.Timers.Timer(1000);
+            // Hook up the Elapsed event for the timer. 
+            castingTimer.Elapsed += this.castingTimer_TickAsync;
+            castingTimer.AutoReset = true;
+            castingTimer.Enabled = true;
             // 
             // cureTimer
             // 
-            this.cureTimer.Interval = 100;
-            this.cureTimer.Tick += new System.EventHandler(this.cureTimer_TickAsync);
+            this.cureTimer = new System.Timers.Timer(500);
+            // Hook up the Elapsed event for the timer. 
+            cureTimer.Elapsed += this.cureTimer_TickAsync;
+            cureTimer.AutoReset = true;
+            cureTimer.Enabled = true;
+            //this.cureTimer.Interval = 200;
+            //this.cureTimer.Tick += new System.EventHandler(this.cureTimer_TickAsync);
+            // 
+            // debufTImer
+            // 
+            this.debufTimer = new System.Timers.Timer(500);
+            // Hook up the Elapsed event for the timer. 
+            debufTimer.Elapsed += this.debuffTimer_TickAsync;
+            debufTimer.AutoReset = true;
+            debufTimer.Enabled = true;
+
             // 
             // player6
             // 
@@ -2726,10 +2741,6 @@ namespace CurePlease
             //this.ProtectCasting.WorkerSupportsCancellation = true;
             //this.ProtectCasting.DoWork += new System.ComponentModel.DoWorkEventHandler(this.ProtectCasting_DoWork);
             // 
-            // JobAbility_Delay
-            // 
-            this.JobAbility_Delay.DoWork += new System.ComponentModel.DoWorkEventHandler(this.JobAbility_Delay_DoWork);
-            // 
             // EclipticTimer
             // 
             ///this.EclipticTimer.Interval = 1000;
@@ -2830,8 +2841,9 @@ namespace CurePlease
         private System.Windows.Forms.Label player12;
         private System.Windows.Forms.Timer partyMembersUpdate;
         private System.Windows.Forms.Timer actionTimer;
-        private System.Windows.Forms.Timer castingTimer;
-        private System.Windows.Forms.Timer cureTimer;
+        private System.Timers.Timer castingTimer;
+        private System.Timers.Timer cureTimer;
+        private System.Timers.Timer debufTimer;
         private System.Windows.Forms.Label player6;
         private System.Windows.Forms.Label player7;
         private System.Windows.Forms.Label player8;
