@@ -15,8 +15,8 @@ namespace CurePlease.Helpers
     
     internal class CastingHelper
     {
-        public LinkedList<CastingAction> _Cures = new LinkedList<CastingAction>();
-        public LinkedList<LogEntry> _Log = new LinkedList<LogEntry>();
+        public List<CastingAction> _Cures = new List<CastingAction>();
+        public List<LogEntry> _Log = new List<LogEntry>();
 
         private EliteAPI _ELITEAPIPL;
         private EliteAPI _ELITEAPIMonitored;
@@ -46,7 +46,7 @@ namespace CurePlease.Helpers
 
         public async void Run()
         {
-            foreach (CastingAction action in _Cures.ToList().OrderByDescending(x => x.Priority))
+            foreach (CastingAction action in _Cures.OrderByDescending(x => x.Priority))
             {
                 FailSafe();
                 if (DeQueueSpell(_Cures, action))
@@ -56,7 +56,7 @@ namespace CurePlease.Helpers
             }
         }
 
-        private void RemoveSpell(LinkedList<CastingAction> list, CastingAction action, string reason)
+        private void RemoveSpell(List<CastingAction> list, CastingAction action, string reason)
         {
             lock (list)
             {
@@ -68,7 +68,7 @@ namespace CurePlease.Helpers
             }
         }
 
-        public bool DeQueueSpell(LinkedList<CastingAction> list, CastingAction action)
+        public bool DeQueueSpell(List<CastingAction> list, CastingAction action)
         {
             
             if (!HasApi()) { return false; } //this should not be happening
@@ -148,15 +148,21 @@ namespace CurePlease.Helpers
             AddToQueue(_Cures, action);
         }
 
-        private void AddToQueue(LinkedList<CastingAction> list, CastingAction action)
+        private void AddToQueue(List<CastingAction> list, CastingAction action)
         {
             lock (list)
-            { 
-                if (list.Contains(action))
+            {
+                var existing = list.FirstOrDefault(x => x.SpellName == action.SpellName && x.Target == action.Target);
+                if (existing != null)
                 {
-                    list.Remove(action);
-                };
-                list.AddFirst(action);
+                    existing.Invoked = action.Invoked;
+                    existing.Priority = action.Priority;
+                    existing.JobAbilities = action.JobAbilities;
+                }
+                else
+                {
+                    list.Add(action);
+                }
             }
         }
 
@@ -344,15 +350,15 @@ namespace CurePlease.Helpers
             switch (type)
             {
                 case SpellType.Prio:
-                    return TimeSpan.FromSeconds(4);
+                    return TimeSpan.FromSeconds(2);
                 case SpellType.Healing:
-                    return TimeSpan.FromSeconds(4);
+                    return TimeSpan.FromSeconds(2);
                 case SpellType.Buff:
-                    return TimeSpan.FromSeconds(4);
+                    return TimeSpan.FromSeconds(2);
                 case SpellType.Debuff:
-                    return TimeSpan.FromSeconds(4);
+                    return TimeSpan.FromSeconds(2);
                 default:
-                    return TimeSpan.FromSeconds(4);
+                    return TimeSpan.FromSeconds(2);
             }
         }
 
@@ -370,9 +376,9 @@ namespace CurePlease.Helpers
         {
             if(_Log.Count() > 500)
             {
-                _Log = new LinkedList<LogEntry>();
+                _Log = new List<LogEntry>();
             }
-            _Log.AddLast(entry);    
+            _Log.Add(entry);    
         }
     }
 }
