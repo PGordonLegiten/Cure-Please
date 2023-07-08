@@ -29,24 +29,21 @@ namespace CurePlease.DataStructures
 
     public enum CurePrio : byte
     {
-        CureI = 1,
-        CureII = 2,
-        CureIII = 3,
-
-
-
-        CureIV = 23,
-        CureV = 24,
-        CureVI = 25,
-        CureVII = 26, //doenst exist only for prio pourposes
-        CureVIII = 28, //doenst exist only for prio pourposes
-        CuragaI = 30,
-        CuragaII = 31,
-        CuragaIII = 32,
-        CuragaIV = 33,
-        CuragaV = 34,
-        CuragaVI = 35,//doenst exist only for prio pourposes
-        CuragaVII = 37,//doenst exist only for prio pourposes
+        CureI = 101,
+        CureII = 102,
+        CureIII = 103,
+        CureIV = 123,
+        CureV = 124,
+        CureVI = 125,
+        CureVII = 126, //doenst exist only for prio pourposes
+        CureVIII = 128, //doenst exist only for prio pourposes
+        CuragaI = 130,
+        CuragaII = 131,
+        CuragaIII = 132,
+        CuragaIV = 133,
+        CuragaV = 134,
+        CuragaVI = 135,//doenst exist only for prio pourposes
+        CuragaVII = 137,//doenst exist only for prio pourposes
     }
     public class CastingAction : IEquatable<CastingAction>
     {

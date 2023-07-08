@@ -185,6 +185,9 @@ namespace CurePlease.Helpers
             }
             var cast = "/ma \"" + castingSpell + "\" " + partyMemberName;
             _ELITEAPIPL.ThirdParty.SendString(cast);
+            _ELITEAPIPL.ThirdParty.SendString(cast);
+            _ELITEAPIPL.ThirdParty.SendString(cast);
+            Thread.Sleep(1);
             _ELITEAPIPL.ThirdParty.SendString(string.Format("//cpaddon lock {0}", lockStamp));
             AddLog(new LogEntry(cast, Color.Black));
 
