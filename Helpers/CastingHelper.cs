@@ -49,14 +49,14 @@ namespace CurePlease.Helpers
             foreach (CastingAction action in _Cures.OrderByDescending(x => x.Priority))
             {
                 FailSafe();
-                if (DeQueueSpell(_Cures, action))
+                if (DeQueueSpell(ref _Cures, action))
                 {
                     return;
                 }
             }
         }
 
-        private void RemoveSpell(List<CastingAction> list, CastingAction action, string reason)
+        private void RemoveSpell(ref List<CastingAction> list, CastingAction action, string reason)
         {
             lock (list)
             {
@@ -68,12 +68,12 @@ namespace CurePlease.Helpers
             }
         }
 
-        public bool DeQueueSpell(List<CastingAction> list, CastingAction action)
+        public bool DeQueueSpell(ref List<CastingAction> list, CastingAction action)
         {
             
             if (!HasApi()) { return false; } //this should not be happening
             if (DateTime.Now.Subtract(action.Invoked) >= GetQueueExpiration(action.Type)) {
-                RemoveSpell(list, action, $"Queue Timeout [{action.SpellName}] [{DateTime.Now.Subtract(action.Invoked)}]");
+                RemoveSpell(ref list, action, $"Queue Timeout [{action.SpellName}] [{DateTime.Now.Subtract(action.Invoked)}]");
                 return false;
             }
             var spellName = action.SpellName;
@@ -84,21 +84,21 @@ namespace CurePlease.Helpers
                
                 if (action.Type == SpellType.Raise)
                 {
-                    if (_PlayerHelper.IsAlive(action.Target)) { RemoveSpell(list, action, $"{action.Target} already alive!"); ; return false; }
+                    if (_PlayerHelper.IsAlive(action.Target)) { RemoveSpell(ref list, action, $"{action.Target} already alive!"); ; return false; }
                     spellName = _SpellsHelper.GetRaiseSpell();
                 }
                 else
                 {
-                    if (!_PlayerHelper.IsAlive(action.Target)) { RemoveSpell(list, action, $"{action.Target} already dead :("); return false; }
+                    if (!_PlayerHelper.IsAlive(action.Target)) { RemoveSpell(ref list, action, $"{action.Target} already dead :("); return false; }
                 }
-                if (!_PlayerHelper.CastingPossible(action.Target)) { RemoveSpell(list, action, $"{action.Target} out of range."); return false; }
+                if (!_PlayerHelper.CastingPossible(action.Target)) { RemoveSpell(ref list, action, $"{action.Target} out of range."); return false; }
 
                 if (action.Type == SpellType.Healing)
                 {
                     //Special Case for cures since when its on recast we check lower tiers
                     var preSpell = spellName;
                     spellName = _CureHelper.GetCureSpell(spellName);
-                    if (spellName == "false") { RemoveSpell(list, action, $"{preSpell} spell not ready."); return false; }
+                    if (spellName == "false") { RemoveSpell(ref list, action, $"{preSpell} spell not ready."); return false; }
                 }
                 else
                 {
@@ -108,19 +108,18 @@ namespace CurePlease.Helpers
             if (CanAct())
             {
                 AddLog(new LogEntry("Attempting to cast [" + spellName + "] on [" + action.Target + "]", Color.DimGray));
-                var lockStamp = GetLock();
-                RemoveSpell(list, action, "");
+                RemoveSpell(ref list, action, "");
                 
                 if (action.Type == SpellType.GEO) {
                     _GoeHelper.GetTargetOnCast(action.Target);
                 }
                 if(action.Type == SpellType.Action)
                 {
-                    new System.Threading.Tasks.Task(() => { CastAction(action.Target, spellName, lockStamp, action.JobAbilities); }).Start();
+                    new System.Threading.Tasks.Task(() => { CastAction(action.Target, spellName, action.JobAbilities); }).Start();
                 }
                 else
                 {
-                    new System.Threading.Tasks.Task(() => { CastSpell(action.Target, spellName, lockStamp, action.JobAbilities); }).Start();
+                    new System.Threading.Tasks.Task(() => { CastSpell(action.Target, spellName, action.JobAbilities); }).Start();
                 }
                 
                 return true;
@@ -166,7 +165,7 @@ namespace CurePlease.Helpers
             }
         }
 
-        public void CastSpell(string partyMemberName, string spellName, long lockStamp, List<JobAbility> jas)
+        public void CastSpell(string partyMemberName, string spellName, List<JobAbility> jas)
         {
             if (!HasApi()) { return; }
 
@@ -183,21 +182,25 @@ namespace CurePlease.Helpers
                     _JaHelper.DoAbility(ja);
                 }
             }
+
+            var lockStamp = GetLock();
+
             var cast = "/ma \"" + castingSpell + "\" " + partyMemberName;
             _ELITEAPIPL.ThirdParty.SendString(cast);
+            Thread.Sleep(200);
             _ELITEAPIPL.ThirdParty.SendString(cast);
+            Thread.Sleep(200);
             _ELITEAPIPL.ThirdParty.SendString(cast);
-            Thread.Sleep(1);
+            Thread.Sleep(200);
             _ELITEAPIPL.ThirdParty.SendString(string.Format("//cpaddon lock {0}", lockStamp));
             AddLog(new LogEntry(cast, Color.Black));
 
             //_Form.currentAction.Text = "Casting: " + castingSpell+ " → "+ partyMemberName;
             //new System.Threading.Tasks.Task(() => { ProtectCasting(lockStamp); }).Start();
         }
-        public void CastAction(string partyMemberName, string spellName, long lockStamp, List<JobAbility> jas)
+        public void CastAction(string partyMemberName, string spellName, List<JobAbility> jas)
         {
             if (!HasApi()) { return; }
-
             if (jas.Count > 0)
             {
                 foreach (JobAbility ja in jas)
@@ -269,7 +272,7 @@ namespace CurePlease.Helpers
         private void FailSafe()
         {
             if (!CanAct()) {
-                if (GetUnix() - IsPerformingAction_Timer > 6000)
+                if (GetUnix() - IsPerformingAction_Timer > 4500)
                 {
                     //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
                     AddLog(new LogEntry("Uh-Oh! Failsafe kicked in! ["+ (GetUnix() - IsPerformingAction_Timer) + "]", Color.Violet));
@@ -312,7 +315,7 @@ namespace CurePlease.Helpers
 
         public bool CanCast()
         {
-            if (plStatusCheck(StatusEffect.Silence) && OptionsForm.config.plSilenceItemEnabled)
+            if ((plStatusCheck(StatusEffect.Paralysis) || plStatusCheck(StatusEffect.Silence)) && OptionsForm.config.plSilenceItemEnabled)
             {
                 // Check to make sure we have echo drops
                 if (ItemHelper.HasItem(_ELITEAPIPL, ItemHelper.GetSilenaItem()))

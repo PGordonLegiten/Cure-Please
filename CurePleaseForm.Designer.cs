@@ -1772,17 +1772,17 @@ namespace CurePlease
             // 
             // partyMembersUpdate
             // 
-            this.partyMembersUpdate.Interval = 500;
+            this.partyMembersUpdate.Interval = 1000;
             this.partyMembersUpdate.Tick += new System.EventHandler(this.partyMembersUpdate_TickAsync);
             // 
             // actionTimer
             // 
-            this.actionTimer.Interval = 200;
+            this.actionTimer.Interval = 1000;
             this.actionTimer.Tick += new System.EventHandler(this.actionTimer_TickAsync);
             // 
             // castingTimer
             // 
-            this.castingTimer = new System.Timers.Timer(1000);
+            this.castingTimer = new System.Timers.Timer(200);
             // Hook up the Elapsed event for the timer. 
             castingTimer.Elapsed += this.castingTimer_TickAsync;
             castingTimer.AutoReset = true;
@@ -1800,7 +1800,7 @@ namespace CurePlease
             // 
             // debufTImer
             // 
-            this.debufTimer = new System.Timers.Timer(500);
+            this.debufTimer = new System.Timers.Timer(1000);
             // Hook up the Elapsed event for the timer. 
             debufTimer.Elapsed += this.debuffTimer_TickAsync;
             debufTimer.AutoReset = true;

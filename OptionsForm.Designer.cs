@@ -7783,7 +7783,7 @@
             0,
             0});
             this.requiredCuragaNumbers.Minimum = new decimal(new int[] {
-            2,
+            1,
             0,
             0,
             0});

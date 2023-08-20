@@ -91,7 +91,7 @@ namespace CurePlease.Helpers
         {
             _AbilityCooldown[ja.Name] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _CastingManager.AddLog(new LogEntry("/ja \"" + ja.Name + "\" " + ja.Target + "", Color.Black));
-            var time = _CastingManager.GetLock();
+            long time = _CastingManager.GetLock();
             FormUpdateHelper.UpdateLabel(_Form.castingLockLabel, "Casting is LOCKED for a JA.");
             FormUpdateHelper.UpdateLabel(_Form.currentAction, "Using a Job Ability: " + ja.Name);
             _ELITEAPIPL.ThirdParty.SendString("/ja \"" + ja.Name + "\" " + ja.Target + "");
