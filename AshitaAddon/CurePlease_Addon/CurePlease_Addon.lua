@@ -8,6 +8,7 @@ local socket = require("socket")
 
 local port = 19769
 local ip = "127.0.0.1"
+local lock_timestamp = ""
 
 require 'common'
 
@@ -130,6 +131,15 @@ ashita.register_event('command', function(command, ntype)
     CP_connect:settimeout(1)
     assert(CP_connect:sendto("CUREPLEASE_command_"..args[1]:lower(), ip, port))
     CP_connect:close()
+  elseif args[2] == "spell" then
+    local CP_connect = assert(socket.udp())
+    CP_connect:settimeout(1)
+    assert(CP_connect:sendto("CUREPLEASE_spell_"..args[3]:lower().."_"..args[4]:lower(), ip, port))
+    CP_connect:close()
+  elseif args[2] == "lock" then
+    if args[3] then
+		lock_timestamp = args[1] 
+	end
   end
   return true;
 end);

@@ -315,7 +315,7 @@ namespace CurePlease.Helpers
 
         public bool CanCast()
         {
-            if ((plStatusCheck(StatusEffect.Paralysis) || plStatusCheck(StatusEffect.Silence)) && OptionsForm.config.plSilenceItemEnabled)
+            if (plStatusCheck(StatusEffect.Silence) && OptionsForm.config.plSilenceItemEnabled)
             {
                 // Check to make sure we have echo drops
                 if (ItemHelper.HasItem(_ELITEAPIPL, ItemHelper.GetSilenaItem()))

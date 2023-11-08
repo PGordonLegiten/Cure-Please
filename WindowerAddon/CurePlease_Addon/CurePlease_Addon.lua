@@ -9,7 +9,7 @@ local ip = "127.0.0.1"
 local lock_timestamp = ""
 
 local socket = require("socket")
-require ('packets')
+local packets = require('packets')
 
 function tablelength(T)
   local count = 0
@@ -53,6 +53,7 @@ function Run_Buff_Function(id, data)
         intIndex = intIndex + 1
       end
       -- COMPLETED BUILDING THE BUFFS TABLE AND GRABBING THE CHARACTER NAME, SEND THE DATA VIA THE LOCAL NETWORK USING SOCKETS
+	  --windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '..formattedString))
       local CP_connect = assert(socket.udp())
       CP_connect:settimeout(1)
       assert(CP_connect:sendto(formattedString, ip, port))
@@ -64,7 +65,10 @@ function Run_Buff_Function(id, data)
 end
 
 windower.register_event('incoming chunk', function (id, data)
+--local action_message = packets.parse('incoming', data)
+--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '..dump(action_message)))
   if id == 0x076 then
+   
   Run_Buff_Function(id, data)
 end
 end)
@@ -106,24 +110,38 @@ end
 end)
 
 windower.register_event('action', function (data)
-casting = nil
-if data.actor_id == windower.ffxi.get_player().id then
-  if data.category == 4 then
-	--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '.. " data.category: " .. data.category .. " / data.param: " .. data.param))
-    casting = 'CUREPLEASE_casting_finished_'..lock_timestamp
-  elseif data.category == 8 then
-	--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '.. " data.category: " .. data.category .. " / data.param: " .. data.param))
-    if data.param == 28787 then
-      casting = 'CUREPLEASE_casting_interrupted_'..lock_timestamp
-    elseif data.param == 24931 then
-      casting = 'CUREPLEASE_casting_blocked_'..lock_timestamp
-    end
-  end
-  if casting ~= nil then
-    local CP_connect = assert(socket.udp())
-    CP_connect:settimeout(1)
-    assert(CP_connect:sendto(casting, ip, port))
-    CP_connect:close()
-  end
-end
+	casting = nil
+	if data.actor_id == windower.ffxi.get_player().id then
+	  if data.category == 4 then
+		casting = 'CUREPLEASE_casting_finished_'..lock_timestamp
+		--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '..casting))
+	  elseif data.category == 8 then
+		if data.param == 28787 then
+		  casting = 'CUREPLEASE_casting_interrupted_'..lock_timestamp
+		elseif data.param == 24931 then
+		  casting = 'CUREPLEASE_casting_blocked_'..lock_timestamp
+		end
+		--windower.add_to_chat(1, ('\31\200[\31\05Cure Please Addon\31\200]\31\207 '..casting))
+	  end
+	  if casting ~= nil then
+		local CP_connect = assert(socket.udp())
+		CP_connect:settimeout(1)
+		assert(CP_connect:sendto(casting, ip, port))
+		CP_connect:close()
+	  end
+	end
 end)
+
+
+function dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end

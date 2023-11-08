@@ -1335,11 +1335,11 @@
 
 
             // If CastingLock is not FALSE and you're not Terrorized, Petrified, or Stunned run the actions
-            if (OptionsForm.config.DivineSeal && _ELITEAPIPL.Player.MPP <= 11 && JaManager.IsJaReady("Divine Seal") && !_ELITEAPIPL.Player.Buffs.Contains((short)StatusEffect.Weakness))
-            {
-                JaManager.JobAbility_Wait("Divine Seal", "Divine Seal");
-            }
-            else if (OptionsForm.config.Convert && (_ELITEAPIPL.Player.MP <= OptionsForm.config.convertMP) && JaManager.IsJaReady("Convert") && !_ELITEAPIPL.Player.Buffs.Contains((short)StatusEffect.Weakness))
+            //if (OptionsForm.config.DivineSeal && _ELITEAPIPL.Player.MPP <= 11 && JaManager.IsJaReady("Divine Seal") && !_ELITEAPIPL.Player.Buffs.Contains((short)StatusEffect.Weakness))
+            //{
+            //    JaManager.JobAbility_Wait("Divine Seal", "Divine Seal");
+            //} MAKES NO SENSE?
+            if (OptionsForm.config.Convert && (_ELITEAPIPL.Player.MP <= OptionsForm.config.convertMP) && JaManager.IsJaReady("Convert") && !_ELITEAPIPL.Player.Buffs.Contains((short)StatusEffect.Weakness))
             {
                 JaManager.JobAbility_Wait("Convert");
             }
@@ -1437,10 +1437,8 @@
                 {
                     _ELITEAPIPL.ThirdParty.SendString("/tell " + _ELITEAPIMonitored.Player.Name + " MP is low!");
                     islowmp = true;
-                    return;
                 }
                 islowmp = true;
-                return;
             }
             if (_ELITEAPIPL.Player.MP > (int)OptionsForm.config.mpMinCastValue && _ELITEAPIPL.Player.MP != 0)
             {
@@ -1451,7 +1449,7 @@
                 }
             }
 
-            if (OptionsForm.config.healLowMP == true && _ELITEAPIPL.Player.MP <= OptionsForm.config.healWhenMPBelow && _ELITEAPIPL.Player.Status == (uint)Status.Standing && _ELITEAPIPL.Player.Status != (uint)Status.Healing)
+            if (OptionsForm.config.healLowMP == true && _ELITEAPIPL.Player.MP <= OptionsForm.config.healWhenMPBelow && _ELITEAPIPL.Player.Status != (uint)Status.Healing)
             {
                 if (OptionsForm.config.lowMPcheckBox && !islowmp)
                 {
@@ -1459,6 +1457,7 @@
                     islowmp = true;
                 }
                 _ELITEAPIPL.ThirdParty.SendString("/heal");
+                Thread.Sleep(TimeSpan.FromSeconds(2));
             }
             else if (OptionsForm.config.standAtMP == true && _ELITEAPIPL.Player.MPP >= OptionsForm.config.standAtMP_Percentage && _ELITEAPIPL.Player.Status == (uint)Status.Healing)
             {
@@ -1468,11 +1467,9 @@
                     islowmp = false;
                 }
                 _ELITEAPIPL.ThirdParty.SendString("/heal");
+                Thread.Sleep(TimeSpan.FromSeconds(2));
             }
 
-            if (_ELITEAPIPL.Player.Status == (uint)Status.Healing) { 
-                return; 
-            } //Healing do nothing 
 
             // Only perform actions if PL is stationary PAUSE GOES HERE
             if (curePlease_autofollow == false && (_ELITEAPIPL.Player.Status == (uint)Status.Standing || _ELITEAPIPL.Player.Status == (uint)Status.Fighting))
