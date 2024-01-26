@@ -419,400 +419,7 @@ namespace CurePlease.Helpers
             }
             // End MONITORED Debuff Removal
             #endregion
-
-            if (OptionsForm.config.EnableAddOn)
-            {
-                List<EliteAPI.PartyMember> partyMembers = _ELITEAPIPL.Party.GetPartyMembers();
-
-                foreach (BuffStorage ailment in _Form.ActiveBuffs.ToList())
-                {
-                    if (ailment != null)
-                    {
-                        if (ailment.CharacterName != null)
-                        {
-                            var charName = ailment.CharacterName;
-                            if (ailment.CharacterBuffs != null)
-                            {
-                                List<string> named_Debuffs = ailment.CharacterBuffs.Split(',').ToList();
-
-                                if (named_Debuffs != null && named_Debuffs.Count() != 0)
-                                {
-                                    named_Debuffs = named_Debuffs.Select(t => t.Trim()).ToList();
-
-                                    #region "resetting_debuff_timers"
-
-                                    // IF SLOW IS NOT ACTIVE, YET NEITHER IS HASTE / FLURRY DESPITE BEING ENABLED
-                                    // RESET THE TIMER TO FORCE IT TO BE CAST
-                                    // 13 slow
-                                    // 33 haste
-                                    // 580 haste - twice in buff table
-                                    if (!DebuffContains(named_Debuffs, "13") && !DebuffContains(named_Debuffs, "33") && !DebuffContains(named_Debuffs, "580"))
-                                    {
-                                        InternalHelper.resetCooldown("Haste", charName);
-                                        InternalHelper.resetCooldown("Haste II", charName);
-                                    }
-                                    //slow 13
-                                    //flurry 265
-                                    //flurry 581 - twice in buff table
-                                    if (!DebuffContains(named_Debuffs, "13") && !DebuffContains(named_Debuffs, "265") && !DebuffContains(named_Debuffs, "581"))
-                                    {
-                                        InternalHelper.resetCooldown("Flurry", charName);
-                                        InternalHelper.resetCooldown("Flurry II", charName);
-                                    }
-                                    // IF SUBLIMATION IS NOT ACTIVE, YET NEITHER IS REFRESH DESPITE BEING
-                                    // ENABLED RESET THE TIMER TO FORCE IT TO BE CAST
-                                    if (!DebuffContains(named_Debuffs, "187") && !DebuffContains(named_Debuffs, "188") && !DebuffContains(named_Debuffs, "43") && !DebuffContains(named_Debuffs, "541"))
-                                    {
-                                        InternalHelper.resetCooldown(SpellsHelper.GetRefreshSpell(), charName);
-                                    }
-                                    // IF REGEN IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER TO
-                                    // FORCE IT TO BE CAST
-                                    if (!DebuffContains(named_Debuffs, "42"))
-                                    {
-                                        InternalHelper.resetCooldown(SpellsHelper.GetRegenSpell(), charName);
-                                    }
-                                    // IF PROTECT IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER TO
-                                    // FORCE IT TO BE CAST
-                                    if (!DebuffContains(named_Debuffs, "40"))
-                                    {
-                                        InternalHelper.resetCooldown(SpellsHelper.GetProtectSpell(), charName);
-                                    }
-
-                                    // IF SHELL IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER TO
-                                    // FORCE IT TO BE CAST
-                                    if (!DebuffContains(named_Debuffs, "41"))
-                                    {
-                                        InternalHelper.resetCooldown(SpellsHelper.GetShellSpell(), charName);
-                                    }
-                                    // IF PHALANX II IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER
-                                    // TO FORCE IT TO BE CAST
-                                    if (!DebuffContains(named_Debuffs, "116"))
-                                    {
-                                        InternalHelper.resetCooldown("Phalanx II", charName);
-
-                                    }
-                                    // IF NO STORM SPELL IS ACTIVE DESPITE BEING ENABLED RESET THE TIMER
-                                    // TO FORCE IT TO BE CAST
-                                    if (SpellsHelper.GetEnabledStormSpell(charName) != "Dummy" && !DebuffContains(named_Debuffs, "178") && !DebuffContains(named_Debuffs, "179") && !DebuffContains(named_Debuffs, "180") && !DebuffContains(named_Debuffs, "181") &&
-                                        !DebuffContains(named_Debuffs, "182") && !DebuffContains(named_Debuffs, "183") && !DebuffContains(named_Debuffs, "184") && !DebuffContains(named_Debuffs, "185") &&
-                                        !DebuffContains(named_Debuffs, "589") && !DebuffContains(named_Debuffs, "590") && !DebuffContains(named_Debuffs, "591") && !DebuffContains(named_Debuffs, "592") &&
-                                        !DebuffContains(named_Debuffs, "593") && !DebuffContains(named_Debuffs, "594") && !DebuffContains(named_Debuffs, "595") && !DebuffContains(named_Debuffs, "596"))
-                                    {
-                                        InternalHelper.resetCooldown(SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charName)), charName);
-                                    }
-                                    #endregion
-
-                                    // ==============================================================================================================================================================================
-                                    // PARTY DEBUFF REMOVAL
-                                    #region "party_debuff_removal"
-
-                                    string character_name = ailment.CharacterName;
-
-                                    if (!_PlayerHelper.IsAlive(character_name)) { continue; }; //no love for the dead
-
-                                    if (OptionsForm.config.enablePartyDebuffRemoval && !string.IsNullOrEmpty(character_name) && (_Form.characterNames_naRemoval.Contains(character_name) || OptionsForm.config.SpecifiednaSpellsenable == false))
-                                    {
-                                        //DOOM
-                                        if (OptionsForm.config.naCurse && DebuffContains(named_Debuffs, "15") && _PlayerHelper.IsAbleToCastSpell("Cursna"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Cursna", SpellPrio.Top);
-                                        }
-                                        //SLEEP
-                                        if (DebuffContains(named_Debuffs, "2") && _PlayerHelper.HasSpell(wakeSleepSpellName))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Healing, charName, wakeSleepSpellName, CurePrio.CureIV);
-                                            //removeDebuff(charName, 2);
-                                        }
-                                        //SLEEP 2
-                                        if (DebuffContains(named_Debuffs, "19") && _PlayerHelper.HasSpell(wakeSleepSpellName))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Healing, charName, wakeSleepSpellName, CurePrio.CureIV);
-                                            //removeDebuff(charName, 19);
-                                        }
-                                        //PETRIFICATION
-                                        if (OptionsForm.config.naPetrification && DebuffContains(named_Debuffs, "7") && _PlayerHelper.IsAbleToCastSpell("Stona"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Stona", SpellPrio.High);
-                                            //removeDebuff(charName, 7);
-                                        }
-                                        //SILENCE
-                                        if (OptionsForm.config.naSilence && DebuffContains(named_Debuffs, "6") && _PlayerHelper.IsAbleToCastSpell("Silena"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Silena");
-                                            //removeDebuff(charName, 6);
-                                        }
-                                        //PARALYSIS
-                                        if (OptionsForm.config.naParalysis && DebuffContains(named_Debuffs, "4") && _PlayerHelper.IsAbleToCastSpell("Paralyna"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Paralyna");
-                                            //removeDebuff(charName, 4);
-                                        }
-                                        // PLAGUE
-                                        if (OptionsForm.config.naDisease && DebuffContains(named_Debuffs, "31") && _PlayerHelper.IsAbleToCastSpell("Viruna"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Viruna");
-                                            //removeDebuff(charName, 31);
-                                        }
-                                        //DISEASE
-                                        if (OptionsForm.config.naDisease && DebuffContains(named_Debuffs, "8") && _PlayerHelper.IsAbleToCastSpell("Viruna"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Viruna");
-                                            //removeDebuff(charName, 8);
-                                        }
-                                        // AMNESIA
-                                        if (OptionsForm.config.Esuna && DebuffContains(named_Debuffs, "16") && _PlayerHelper.IsAbleToCastSpell("Esuna") && BuffChecker(1, 418))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Esuna");
-                                            //removeDebuff(charName, 16);
-                                        }
-                                        //CURSE
-                                        if (OptionsForm.config.naCurse && DebuffContains(named_Debuffs, "9") && _PlayerHelper.IsAbleToCastSpell("Cursna"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Cursna", SpellPrio.High);
-                                            //removeDebuff(charName, 9);
-                                        }
-                                        //BLINDNESS
-                                        if (OptionsForm.config.naBlindness && DebuffContains(named_Debuffs, "5") && _PlayerHelper.IsAbleToCastSpell("Blindna"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Blindna");
-                                            //removeDebuff(charName, 5);
-                                        }
-                                        //POISON
-                                        if (OptionsForm.config.naPoison && DebuffContains(named_Debuffs, "3") && _PlayerHelper.IsAbleToCastSpell("Poisona"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Poisona");
-                                            //removeDebuff(charName, 3);
-                                        }
-
-
-                                        // SLOW
-                                        if (OptionsForm.config.naErase == true && OptionsForm.config.na_Slow && DebuffContains(named_Debuffs, "13") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 13);
-                                        }
-                                        // BIO
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Bio && DebuffContains(named_Debuffs, "135") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 135);
-                                        }
-                                        // BIND
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Bind && DebuffContains(named_Debuffs, "11") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 11);
-                                        }
-                                        // GRAVITY
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Weight && DebuffContains(named_Debuffs, "12") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 12);
-                                        }
-                                        // ACCURACY DOWN
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AccuracyDown && DebuffContains(named_Debuffs, "146") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 146);
-                                        }
-                                        // DEFENSE DOWN
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_DefenseDown && DebuffContains(named_Debuffs, "149") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 149);
-                                        }
-                                        // MAGIC DEF DOWN
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicDefenseDown && DebuffContains(named_Debuffs, "167") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 167);
-                                        }
-                                        // ATTACK DOWN
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AttackDown && DebuffContains(named_Debuffs, "147") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 147);
-                                        }
-                                        // HP DOWN
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxHpDown && DebuffContains(named_Debuffs, "144") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 144);
-                                        }
-                                        // VIT Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_VitDown && DebuffContains(named_Debuffs, "138") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 138);
-
-                                        }
-                                        // Threnody
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Threnody && DebuffContains(named_Debuffs, "217") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 217);
-
-                                        }
-                                        // Shock
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Shock && DebuffContains(named_Debuffs, "132") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 132);
-
-                                        }
-                                        // StrDown
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_StrDown && DebuffContains(named_Debuffs, "136") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 136);
-
-                                        }
-                                        // Requiem
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Requiem && DebuffContains(named_Debuffs, "192") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 192);
-
-                                        }
-                                        // Rasp
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Rasp && DebuffContains(named_Debuffs, "131") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 131);
-
-                                        }
-                                        // Max TP Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxTpDown && DebuffContains(named_Debuffs, "189") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 189);
-
-                                        }
-                                        // Max MP Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxMpDown && DebuffContains(named_Debuffs, "145") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 145);
-
-                                        }
-                                        // Magic Attack Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicAttackDown && DebuffContains(named_Debuffs, "175") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 175);
-
-                                        }
-                                        // Magic Acc Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicAccDown && DebuffContains(named_Debuffs, "174") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 174);
-
-                                        }
-                                        // Mind Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MndDown && DebuffContains(named_Debuffs, "141") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 141);
-
-                                        }
-                                        // Int Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_IntDown && DebuffContains(named_Debuffs, "140") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 140);
-
-                                        }
-                                        // Helix
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Helix && DebuffContains(named_Debuffs, "186") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 186);
-
-                                        }
-                                        // Frost
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Frost && DebuffContains(named_Debuffs, "129") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 129);
-
-                                        }
-                                        // EvasionDown
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_EvasionDown && DebuffContains(named_Debuffs, "148") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 148);
-
-                                        }
-                                        // ELEGY
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Elegy && DebuffContains(named_Debuffs, "194") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 194);
-
-                                        }
-                                        // Drown
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Drown && DebuffContains(named_Debuffs, "133") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 133);
-
-                                        }
-                                        // Dia
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Dia && DebuffContains(named_Debuffs, "134") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 134);
-
-                                        }
-                                        // DexDown
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_DexDown && DebuffContains(named_Debuffs, "137") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 137);
-
-                                        }
-                                        // Choke
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Choke && DebuffContains(named_Debuffs, "130") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 130);
-
-                                        }
-                                        // ChrDown
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_ChrDown && DebuffContains(named_Debuffs, "142") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 142);
-
-                                        }
-                                        // Burn
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Burn && DebuffContains(named_Debuffs, "128") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 128);
-
-                                        }
-                                        // Addle
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Addle && DebuffContains(named_Debuffs, "21") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 21);
-                                        }
-                                        // AGI Down
-                                        else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AgiDown && DebuffContains(named_Debuffs, "139") && _PlayerHelper.IsAbleToCastSpell("Erase"))
-                                        {
-                                            _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
-                                            //removeDebuff(charName, 139);
-                                        }
-                                    }
-                                    #endregion
-                                }
-                            }
-                        }
-                    }
-                } // Closing FOREACH base_list
-            }
+          
         }
         public bool plMonitoredSameParty()
         {
@@ -889,6 +496,409 @@ namespace CurePlease.Helpers
             }
         }
 
+        public void UpdateBuffs(string charName, string characterBuffs)
+        {
+            if (!_PlayerHelper.IsAlive(charName)) { return; }; //no love for the dead
+
+            var wakeSleepSpellName = string.Empty;
+
+            if (OptionsForm.config.wakeSleepSpell == 0)
+            {
+                wakeSleepSpellName = "Cure";
+            }
+            else if (OptionsForm.config.wakeSleepSpell == 1)
+            {
+                wakeSleepSpellName = "Cura";
+            }
+            else if (OptionsForm.config.wakeSleepSpell == 2)
+            {
+                wakeSleepSpellName = "Curaga";
+            }
+            List<string> named_Debuffs = characterBuffs.Split(',').ToList();
+
+            if (named_Debuffs != null && named_Debuffs.Count() != 0)
+            {
+                named_Debuffs = named_Debuffs.Select(t => t.Trim()).ToList();
+
+                #region "resetting_debuff_timers"
+
+                // IF SLOW IS NOT ACTIVE, YET NEITHER IS HASTE / FLURRY DESPITE BEING ENABLED
+                // RESET THE TIMER TO FORCE IT TO BE CAST
+                // 13 slow
+                // 33 haste
+                // 580 haste - twice in buff table
+                if (!DebuffContains(named_Debuffs, "13") && !DebuffContains(named_Debuffs, "33") && !DebuffContains(named_Debuffs, "580") && !_PlayerHelper.plStatusCheck(StatusEffect.Slow))
+                {
+                    if (charName == "Helmaru")
+                    {
+                        Console.WriteLine($"Helmaru Reseting cooldown Haste II");
+                    }
+                    InternalHelper.resetCooldown("Haste", charName);
+                    InternalHelper.resetCooldown("Haste II", charName);
+                }
+                //slow 13
+                //flurry 265
+                //flurry 581 - twice in buff table
+                if (!DebuffContains(named_Debuffs, "13") && !DebuffContains(named_Debuffs, "265") && !DebuffContains(named_Debuffs, "581"))
+                {
+                    InternalHelper.resetCooldown("Flurry", charName);
+                    InternalHelper.resetCooldown("Flurry II", charName);
+                }
+                // IF SUBLIMATION IS NOT ACTIVE, YET NEITHER IS REFRESH DESPITE BEING
+                // ENABLED RESET THE TIMER TO FORCE IT TO BE CAST
+                if (!DebuffContains(named_Debuffs, "187") && !DebuffContains(named_Debuffs, "188") && !DebuffContains(named_Debuffs, "43") && !DebuffContains(named_Debuffs, "541"))
+                {
+                    if (charName == "Helmaru")
+                    {
+                        Console.WriteLine($"Helmaru Reseting cooldown Phalanx II");
+                    }
+                    InternalHelper.resetCooldown(SpellsHelper.GetRefreshSpell(), charName);
+                }
+                else
+                {
+                    InternalHelper.setCooldown(SpellsHelper.GetRefreshSpell(), charName);
+                }
+                // IF REGEN IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER TO
+                // FORCE IT TO BE CAST
+                if (!DebuffContains(named_Debuffs, "42"))
+                {
+                    InternalHelper.resetCooldown(SpellsHelper.GetRegenSpell(), charName);
+                }
+                // IF PROTECT IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER TO
+                // FORCE IT TO BE CAST
+                if (!DebuffContains(named_Debuffs, "40"))
+                {
+                    InternalHelper.resetCooldown(SpellsHelper.GetProtectSpell(), charName);
+                }
+
+                // IF SHELL IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER TO
+                // FORCE IT TO BE CAST
+                if (!DebuffContains(named_Debuffs, "41"))
+                {
+                    InternalHelper.resetCooldown(SpellsHelper.GetShellSpell(), charName);
+                }
+                // IF PHALANX II IS NOT ACTIVE DESPITE BEING ENABLED RESET THE TIMER
+                // TO FORCE IT TO BE CAST
+                if (!DebuffContains(named_Debuffs, "116"))
+                {
+                    if (charName == "Helmaru")
+                    {
+                        Console.WriteLine($"Helmaru Reseting cooldown Phalanx II");
+                    }
+                    InternalHelper.resetCooldown("Phalanx II", charName);
+
+                }
+                // IF NO STORM SPELL IS ACTIVE DESPITE BEING ENABLED RESET THE TIMER
+                // TO FORCE IT TO BE CAST
+                if (SpellsHelper.GetEnabledStormSpell(charName) != "Dummy" && !DebuffContains(named_Debuffs, "178") && !DebuffContains(named_Debuffs, "179") && !DebuffContains(named_Debuffs, "180") && !DebuffContains(named_Debuffs, "181") &&
+                    !DebuffContains(named_Debuffs, "182") && !DebuffContains(named_Debuffs, "183") && !DebuffContains(named_Debuffs, "184") && !DebuffContains(named_Debuffs, "185") &&
+                    !DebuffContains(named_Debuffs, "589") && !DebuffContains(named_Debuffs, "590") && !DebuffContains(named_Debuffs, "591") && !DebuffContains(named_Debuffs, "592") &&
+                    !DebuffContains(named_Debuffs, "593") && !DebuffContains(named_Debuffs, "594") && !DebuffContains(named_Debuffs, "595") && !DebuffContains(named_Debuffs, "596"))
+                {
+                    InternalHelper.resetCooldown(SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charName)), charName);
+                }
+
+                // ==============================================================================================================================================================================
+                // PARTY DEBUFF REMOVAL
+
+                if (OptionsForm.config.enablePartyDebuffRemoval && !string.IsNullOrEmpty(charName) && (_Form.characterNames_naRemoval.Contains(charName) || OptionsForm.config.SpecifiednaSpellsenable == false))
+                {
+                    //DOOM
+                    if (OptionsForm.config.naCurse && DebuffContains(named_Debuffs, "15") && _PlayerHelper.IsAbleToCastSpell("Cursna"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Cursna", SpellPrio.Top);
+                    }
+                    //SLEEP
+                    if (DebuffContains(named_Debuffs, "2") && _PlayerHelper.HasSpell(wakeSleepSpellName))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Healing, charName, wakeSleepSpellName, CurePrio.CureIV);
+                        //removeDebuff(charName, 2);
+                    }
+                    //SLEEP 2
+                    if (DebuffContains(named_Debuffs, "19") && _PlayerHelper.HasSpell(wakeSleepSpellName))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Healing, charName, wakeSleepSpellName, CurePrio.CureIV);
+                        //removeDebuff(charName, 19);
+                    }
+                    //PETRIFICATION
+                    if (OptionsForm.config.naPetrification && DebuffContains(named_Debuffs, "7") && _PlayerHelper.IsAbleToCastSpell("Stona"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Stona", SpellPrio.High);
+                        //removeDebuff(charName, 7);
+                    }
+                    //SILENCE
+                    if (OptionsForm.config.naSilence && DebuffContains(named_Debuffs, "6") && _PlayerHelper.IsAbleToCastSpell("Silena"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Silena");
+                        //removeDebuff(charName, 6);
+                    }
+                    //PARALYSIS
+                    if (OptionsForm.config.naParalysis && DebuffContains(named_Debuffs, "4") && _PlayerHelper.IsAbleToCastSpell("Paralyna"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Paralyna");
+                        //removeDebuff(charName, 4);
+                    }
+                    // PLAGUE
+                    if (OptionsForm.config.naDisease && DebuffContains(named_Debuffs, "31") && _PlayerHelper.IsAbleToCastSpell("Viruna"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Viruna");
+                        //removeDebuff(charName, 31);
+                    }
+                    //DISEASE
+                    if (OptionsForm.config.naDisease && DebuffContains(named_Debuffs, "8") && _PlayerHelper.IsAbleToCastSpell("Viruna"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Viruna");
+                        //removeDebuff(charName, 8);
+                    }
+                    // AMNESIA
+                    if (OptionsForm.config.Esuna && DebuffContains(named_Debuffs, "16") && _PlayerHelper.IsAbleToCastSpell("Esuna") && BuffChecker(1, 418))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Esuna");
+                        //removeDebuff(charName, 16);
+                    }
+                    //CURSE
+                    if (OptionsForm.config.naCurse && DebuffContains(named_Debuffs, "9") && _PlayerHelper.IsAbleToCastSpell("Cursna"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Cursna", SpellPrio.High);
+                        //removeDebuff(charName, 9);
+                    }
+                    //BLINDNESS
+                    if (OptionsForm.config.naBlindness && DebuffContains(named_Debuffs, "5") && _PlayerHelper.IsAbleToCastSpell("Blindna"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Blindna");
+                        //removeDebuff(charName, 5);
+                    }
+                    //POISON
+                    if (OptionsForm.config.naPoison && DebuffContains(named_Debuffs, "3") && _PlayerHelper.IsAbleToCastSpell("Poisona"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Poisona");
+                        //removeDebuff(charName, 3);
+                    }
+
+
+                    // SLOW
+                    if (OptionsForm.config.naErase == true && OptionsForm.config.na_Slow && DebuffContains(named_Debuffs, "13") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 13);
+                    }
+                    // BIO
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Bio && DebuffContains(named_Debuffs, "135") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 135);
+                    }
+                    // BIND
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Bind && DebuffContains(named_Debuffs, "11") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 11);
+                    }
+                    // GRAVITY
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Weight && DebuffContains(named_Debuffs, "12") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 12);
+                    }
+                    // ACCURACY DOWN
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AccuracyDown && DebuffContains(named_Debuffs, "146") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 146);
+                    }
+                    // DEFENSE DOWN
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_DefenseDown && DebuffContains(named_Debuffs, "149") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 149);
+                    }
+                    // MAGIC DEF DOWN
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicDefenseDown && DebuffContains(named_Debuffs, "167") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 167);
+                    }
+                    // ATTACK DOWN
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AttackDown && DebuffContains(named_Debuffs, "147") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 147);
+                    }
+                    // HP DOWN
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxHpDown && DebuffContains(named_Debuffs, "144") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 144);
+                    }
+                    // VIT Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_VitDown && DebuffContains(named_Debuffs, "138") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 138);
+
+                    }
+                    // Threnody
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Threnody && DebuffContains(named_Debuffs, "217") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 217);
+
+                    }
+                    // Shock
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Shock && DebuffContains(named_Debuffs, "132") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 132);
+
+                    }
+                    // StrDown
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_StrDown && DebuffContains(named_Debuffs, "136") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 136);
+
+                    }
+                    // Requiem
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Requiem && DebuffContains(named_Debuffs, "192") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 192);
+
+                    }
+                    // Rasp
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Rasp && DebuffContains(named_Debuffs, "131") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 131);
+
+                    }
+                    // Max TP Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxTpDown && DebuffContains(named_Debuffs, "189") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 189);
+
+                    }
+                    // Max MP Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MaxMpDown && DebuffContains(named_Debuffs, "145") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 145);
+
+                    }
+                    // Magic Attack Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicAttackDown && DebuffContains(named_Debuffs, "175") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 175);
+
+                    }
+                    // Magic Acc Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MagicAccDown && DebuffContains(named_Debuffs, "174") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 174);
+
+                    }
+                    // Mind Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_MndDown && DebuffContains(named_Debuffs, "141") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 141);
+
+                    }
+                    // Int Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_IntDown && DebuffContains(named_Debuffs, "140") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 140);
+
+                    }
+                    // Helix
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Helix && DebuffContains(named_Debuffs, "186") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 186);
+
+                    }
+                    // Frost
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Frost && DebuffContains(named_Debuffs, "129") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 129);
+
+                    }
+                    // EvasionDown
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_EvasionDown && DebuffContains(named_Debuffs, "148") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 148);
+
+                    }
+                    // ELEGY
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Elegy && DebuffContains(named_Debuffs, "194") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 194);
+
+                    }
+                    // Drown
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Drown && DebuffContains(named_Debuffs, "133") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 133);
+
+                    }
+                    // Dia
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Dia && DebuffContains(named_Debuffs, "134") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 134);
+
+                    }
+                    // DexDown
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_DexDown && DebuffContains(named_Debuffs, "137") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 137);
+
+                    }
+                    // Choke
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Choke && DebuffContains(named_Debuffs, "130") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 130);
+
+                    }
+                    // ChrDown
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_ChrDown && DebuffContains(named_Debuffs, "142") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 142);
+
+                    }
+                    // Burn
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Burn && DebuffContains(named_Debuffs, "128") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 128);
+
+                    }
+                    // Addle
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_Addle && DebuffContains(named_Debuffs, "21") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 21);
+                    }
+                    // AGI Down
+                    else if (OptionsForm.config.naErase == true && OptionsForm.config.na_AgiDown && DebuffContains(named_Debuffs, "139") && _PlayerHelper.IsAbleToCastSpell("Erase"))
+                    {
+                        _CastingManager.QueueSpell(SpellType.Debuff, charName, "Erase");
+                        //removeDebuff(charName, 139);
+                    }
+                }
+                #endregion
+            }
+        }
     }
-   
 }

@@ -11,15 +11,28 @@ namespace CurePlease.Helpers
         private static Dictionary<string, Dictionary<string, DateTime>> playerCooldowns = new Dictionary<string, Dictionary<string, DateTime>>();
         private static Dictionary<string, Dictionary<string, bool>> autoEnabled = new Dictionary<string, Dictionary<string, bool>>();
 
+        private static List<string> log = new List<string>();
+
         public static void resetCooldown(string spell, string player)
         {
-            if (spell == null || player == null) { return; }
-
-            if (!playerCooldowns.ContainsKey(spell))
+            lock (playerCooldowns)
             {
-                playerCooldowns[spell] = new Dictionary<string, DateTime>();
+                if (spell == null || player == null) { return; }
+                if (player == "Helmaru")
+                {
+                    log.Add($"[{DateTime.Now}] resetCooldown [{player}] [{spell}]");
+                }
+                if (!playerCooldowns.ContainsKey(spell))
+                {
+                    playerCooldowns[spell] = new Dictionary<string, DateTime>();
+                }
+                if(playerCooldowns[spell].ContainsKey(player) && playerCooldowns[spell][player] > new DateTime(1970, 1, 1, 0, 0, 0))
+                {
+                    log.Add("");
+                }
+                playerCooldowns[spell][player] = new DateTime(1970, 1, 1, 0, 0, 0);
+
             }
-            playerCooldowns[spell][player] = new DateTime(1970, 1, 1, 0, 0, 0);
         }
         public static void resetAllCooldowns()
         {
@@ -27,24 +40,37 @@ namespace CurePlease.Helpers
         }
         public static void setCooldown(string spell, string player)
         {
-            if (spell == null || player == null) { return; }
-
-            if (!playerCooldowns.ContainsKey(spell))
+            lock (playerCooldowns)
             {
-                playerCooldowns[spell] = new Dictionary<string, DateTime>();
+                if (spell == null || player == null) { return; }
+                if (player == "Helmaru")
+                {
+                    log.Add($"[{DateTime.Now}] setCooldown [{player}] [{spell}]");
+                }
+                if (!playerCooldowns.ContainsKey(spell))
+                {
+                    playerCooldowns[spell] = new Dictionary<string, DateTime>();
+                }
+                playerCooldowns[spell][player] = DateTime.Now;
             }
-            playerCooldowns[spell][player] = DateTime.Now;
         }
 
         public static DateTime getCooldown(string spell, string player)
         {
-            if (spell == null || player == null) { return DateTime.Now; }
-
-            if (!playerCooldowns.ContainsKey(spell) || !playerCooldowns[spell].ContainsKey(player))
+            lock (playerCooldowns)
             {
-                resetCooldown(spell, player);
+                if (spell == null || player == null) { return DateTime.Now; }
+
+                if (player == "Helmaru")
+                {
+                    log.Add($"[{DateTime.Now}] getCooldown [{player}] [{spell}]");
+                }
+                if (!playerCooldowns.ContainsKey(spell) || !playerCooldowns[spell].ContainsKey(player))
+                {
+                    resetCooldown(spell, player);
+                }
+                return playerCooldowns[spell][player];
             }
-            return playerCooldowns[spell][player];
         }
 
         public static int getTimeSpanInMinutes(string spell, string player)

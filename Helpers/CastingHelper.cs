@@ -15,8 +15,8 @@ namespace CurePlease.Helpers
     
     internal class CastingHelper
     {
-        public List<CastingAction> _Cures = new List<CastingAction>();
-        public List<LogEntry> _Log = new List<LogEntry>();
+        private static List<CastingAction> _Cures = new List<CastingAction>();
+        private static List<LogEntry> _Log = new List<LogEntry>();
 
         private EliteAPI _ELITEAPIPL;
         private EliteAPI _ELITEAPIMonitored;
@@ -42,6 +42,16 @@ namespace CurePlease.Helpers
             _PlayerHelper = new PlayerHelper(pl, monitor);
             _SpellsHelper = new SpellsHelper(_PlayerHelper);
             _GoeHelper = new GeoHelper(pl, monitor);
+        }
+
+        public List<CastingAction> GetQueue()
+        {
+            return _Cures;
+        }
+
+        public List<LogEntry> GetLog()
+        {
+            return _Log;
         }
 
         public async void Run()
@@ -151,6 +161,10 @@ namespace CurePlease.Helpers
         {
             lock (list)
             {
+                if(action.Target == "Helmaru")
+                {
+                    Console.WriteLine($"Helmaru Queing action {action.SpellName}");
+                }
                 var existing = list.FirstOrDefault(x => x.SpellName == action.SpellName && x.Target == action.Target);
                 if (existing != null)
                 {
@@ -187,11 +201,6 @@ namespace CurePlease.Helpers
 
             var cast = "/ma \"" + castingSpell + "\" " + partyMemberName;
             _ELITEAPIPL.ThirdParty.SendString(cast);
-            Thread.Sleep(200);
-            _ELITEAPIPL.ThirdParty.SendString(cast);
-            Thread.Sleep(200);
-            _ELITEAPIPL.ThirdParty.SendString(cast);
-            Thread.Sleep(200);
             _ELITEAPIPL.ThirdParty.SendString(string.Format("//cpaddon lock {0}", lockStamp));
             AddLog(new LogEntry(cast, Color.Black));
 
@@ -272,7 +281,7 @@ namespace CurePlease.Helpers
         private void FailSafe()
         {
             if (!CanAct()) {
-                if (GetUnix() - IsPerformingAction_Timer > 4500)
+                if (GetUnix() - IsPerformingAction_Timer > 5000)
                 {
                     //_ELITEAPIPL.ThirdParty.SendString("/p Activating super casting powers!");
                     AddLog(new LogEntry("Uh-Oh! Failsafe kicked in! ["+ (GetUnix() - IsPerformingAction_Timer) + "]", Color.Violet));

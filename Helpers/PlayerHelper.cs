@@ -223,12 +223,11 @@ namespace CurePlease.Helpers
 
         public bool plStatusCheck(StatusEffect requestedStatus)
         {
-            bool statusFound = false;
             foreach (StatusEffect status in _ELITEAPIPL.Player.Buffs.Cast<StatusEffect>().Where(status => requestedStatus == status))
             {
-                statusFound = true;
+                return true;
             }
-            return statusFound;
+            return false;
         }
         public bool HasAbility(string checked_abilityName)
         {

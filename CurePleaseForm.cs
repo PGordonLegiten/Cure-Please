@@ -130,7 +130,11 @@
         public float lastY;
 
         // Stores the previously-colored button, if any
-        public List<BuffStorage> ActiveBuffs = new List<BuffStorage>();
+        private static List<BuffStorage> ActiveBuffs = new List<BuffStorage>();
+        public List<BuffStorage> GetActiveBuffs()
+        {
+            return ActiveBuffs;
+        }
 
         public List<string> TemporaryItem_Zones = new List<string> { "Escha Ru'Aun", "Escha Zi'Tah", "Reisenjima", "Abyssea - La Theine", "Abyssea - Konschtat", "Abyssea - Tahrongi",
                                                                         "Abyssea - Attohwa", "Abyssea - Misareaux", "Abyssea - Vunkerl", "Abyssea - Altepa", "Abyssea - Uleguerand", "Abyssea - Grauberg", "Walk of Echoes" };
@@ -2280,6 +2284,10 @@
                         spell = "Haste II";
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !playerHelper.plStatusCheck(StatusEffect.Haste) && !playerHelper.plStatusCheck(StatusEffect.Slow))
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = "Adloquium";
@@ -2310,6 +2318,10 @@
                         spell = "Phalanx II";
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !playerHelper.plStatusCheck(StatusEffect.Phalanx))
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = SpellsHelper.GetRegenSpell();
@@ -2320,6 +2332,10 @@
                         spell = SpellsHelper.GetRefreshSpell();
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !playerHelper.plStatusCheck(StatusEffect.Refresh))
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charDATA.Name));
@@ -2345,6 +2361,10 @@
 
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Haste) && !monitoredStatusCheck(StatusEffect.Slow))
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = "Adloquium";
@@ -2376,6 +2396,10 @@
                         spell = "Phalanx II";
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Phalanx))
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = SpellsHelper.GetRegenSpell();
@@ -2386,6 +2410,10 @@
                         spell = SpellsHelper.GetRefreshSpell();
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && !monitoredStatusCheck(StatusEffect.Refresh))
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charDATA.Name));
@@ -2409,6 +2437,10 @@
                         spell = "Haste II";
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoHasteMinutes)
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = "Adloquium";
@@ -2439,6 +2471,10 @@
                         spell = "Phalanx II";
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoPhalanxIIMinutes)
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = SpellsHelper.GetRegenSpell();
@@ -2449,6 +2485,10 @@
                         spell = SpellsHelper.GetRefreshSpell();
                         if (playerHelper.isAbleToBuff(spell, charDATA.Name) && InternalHelper.getTimeSpanInMinutes(spell, charDATA.Name) >= OptionsForm.config.autoRefresh_Minutes)
                         {
+                            if (charDATA.Name == "Helmaru")
+                            {
+                                Console.WriteLine($"Helmaru QueueSpell Haste II");
+                            }
                             CastingManager.QueueSpell(SpellType.Buff, charDATA.Name, spell);
                         }
                         spell = SpellsHelper.GetStormVersion(SpellsHelper.GetEnabledStormSpell(charDATA.Name));
@@ -4533,6 +4573,7 @@
                                 CharacterName = commands[2],
                                 CharacterBuffs = commands[3]
                             });
+                            DebufManager.UpdateBuffs(commands[2], commands[3]);
                         }
                         else if (commands[1] == "spell" && commands.Count() == 4)
                         {

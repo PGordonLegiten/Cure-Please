@@ -61,13 +61,13 @@ namespace CurePlease
         private void chatlogscan_timer_Tick(object sender, EventArgs e)
         {
             if(healingqueue_box == null) {  return; }
-            foreach (LogEntry log in _Monitor._Log.ToList())
+            foreach (LogEntry log in _Monitor.GetLog().ToList())
             {
                 AppendLog(log.Invoked, log.Text, log.Color);
-                _Monitor._Log.Remove(log);
+                _Monitor.GetLog().Remove(log);
             }
             healingqueue_box.Clear();
-            foreach (CastingAction action in _Monitor._Cures.ToList().OrderByDescending(x => x.Priority))
+            foreach (CastingAction action in _Monitor.GetQueue().ToList().OrderByDescending(x => x.Priority))
             {
                 healingqueue_box.AppendText(action.ToString());
                 healingqueue_box.AppendText(Environment.NewLine);
@@ -80,7 +80,7 @@ namespace CurePlease
             debufflist_box.Text = "";
 
             // Search through current active party buffs
-            foreach (BuffStorage ailment in _Form.ActiveBuffs.ToList())
+            foreach (BuffStorage ailment in _Form.GetActiveBuffs().ToList())
             {
                 // First add Character name and a Line Break.
                 debufflist_box.AppendText(ailment.CharacterName + ": ");

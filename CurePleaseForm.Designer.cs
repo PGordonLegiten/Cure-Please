@@ -1782,7 +1782,7 @@ namespace CurePlease
             // 
             // castingTimer
             // 
-            this.castingTimer = new System.Timers.Timer(200);
+            this.castingTimer = new System.Timers.Timer(500);
             // Hook up the Elapsed event for the timer. 
             castingTimer.Elapsed += this.castingTimer_TickAsync;
             castingTimer.AutoReset = true;
@@ -1800,7 +1800,7 @@ namespace CurePlease
             // 
             // debufTImer
             // 
-            this.debufTimer = new System.Timers.Timer(1000);
+            this.debufTimer = new System.Timers.Timer(1500);
             // Hook up the Elapsed event for the timer. 
             debufTimer.Elapsed += this.debuffTimer_TickAsync;
             debufTimer.AutoReset = true;
