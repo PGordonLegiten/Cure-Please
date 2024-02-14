@@ -2430,6 +2430,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.groupBox125); 
             this.tabPage3.Controls.Add(this.groupBox24);
             this.tabPage3.Controls.Add(this.groupBox8);
             this.tabPage3.Controls.Add(this.rdmJAgroup);
@@ -2442,6 +2443,34 @@
             this.tabPage3.Text = "Job Abilities";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            //
+            // groupbox125
+            //
+            this.groupBox125.BorderColor = System.Drawing.Color.SlateGray;
+            this.groupBox125.Controls.Add(this.marcato);
+            this.groupBox125.Controls.Add(this.troubadour);
+            this.groupBox125.Controls.Add(this.nightingale);
+            this.groupBox125.Controls.Add(this.pianissimo);
+            this.groupBox125.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox125.Location = new System.Drawing.Point(600, 404);
+            this.groupBox125.Name = "groupBox125";
+            this.groupBox125.Size = new System.Drawing.Size(201, 201);
+            this.groupBox125.TabIndex = 3;
+            this.groupBox125.TabStop = false;
+            this.groupBox125.Text = "Corsair";
+            //
+            // comboBox101
+            // 
+            this.comboBox101.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox101.FormattingEnabled = true;
+            this.comboBox101.Items.AddRange(new object[] {
+            "",
+            "Bolters\'s Roll",
+            "Allie\'s Roll",
+            "Tactician\'s Roll",
+            "Wizard\'s Roll",
+            "Warlock\'s Roll",""}
+            //
             // groupBox24
             // 
             this.groupBox24.BorderColor = System.Drawing.Color.SlateGray;
@@ -2452,9 +2481,9 @@
             this.groupBox24.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox24.Location = new System.Drawing.Point(600, 5);
             this.groupBox24.Name = "groupBox24";
-            this.groupBox24.Size = new System.Drawing.Size(201, 549);
+            this.groupBox24.Size = new System.Drawing.Size(201, 349);
             this.groupBox24.TabIndex = 3;
-            this.groupBox24.TabStop = false;
+            this.groupBox24.TabStop = 386;
             this.groupBox24.Text = "Bard";
             // 
             // troubadour
